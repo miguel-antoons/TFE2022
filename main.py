@@ -1,10 +1,12 @@
-from scipy import signal
 from scipy.io import wavfile
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 def main():
+    nfft = 16384
+    overlap_samples = 14384
+
     print("Loading wav file into memory...")
     sample_frequency, audio_signal = wavfile.read(
         './recordings/RAD_BEDOUR_20220211_1730_BEDINA_SYS001.wav'
@@ -12,26 +14,37 @@ def main():
     print(f'Sample frequency : {sample_frequency}')
     print(f'Signal length : {len(audio_signal)}')
 
+    # print('Creating subplot...')
+    # fig, (ax1) = plt.subplots(nrows=1)
+    ax = plt.gca()
     print('Calculating spectrogram...')
-    frequencies, times, spectrogram = signal.spectrogram(
-        audio_signal, sample_frequency, nperseg=16384
-    )
+    Pxx, freqs, bins = plt.mlab.specgram(
+        audio_signal, Fs=sample_frequency, NFFT=nfft, noverlap=overlap_samples)
 
     print('Filtering unneeded frequencies...')
     fmin = 1000
-    fmax = 1200
-    freq_slice = np.where((frequencies >= fmin) & (frequencies <= fmax))
-    frequencies = frequencies[freq_slice]
-    spectrogram = spectrogram[freq_slice, :][0]
+    fmax = 1150
 
-    print(f'Sample frequencies : {frequencies}')
-    print(f'Segment times : {times}')
+    Pxx = Pxx[(freqs >= fmin) & (freqs <= fmax)]
+    freqs = freqs[(freqs >= fmin) & (freqs <= fmax)]
+
+    Z = 10. * np.log10(Pxx)
+    Z = np.flipud(Z)
+    im = ax.imshow(Z, extent=(0, np.amax(bins), freqs[0], freqs[-1]))
+
+    print(f'Sample frequencies : {freqs}')
+    print(f'Segment times : {len(bins)}')
+    # print(f'Spectrogram values : {Pxx[62]}')
+    print(f'Length of a spectre : {len(Pxx[62])}')
+    print(f'Spectrogram 0, 62 : {Pxx[0][62]}')
+    print(f'Spectrogram 0, 60 : {Pxx[0][60]}')
 
     print('Preparing and showing graph...')
-    plt.pcolormesh(times, frequencies, spectrogram, shading='auto', norm=1.0)
+    # plt.pcolormesh(times, frequencies, spectrogram, shading='auto')
     # plt.imshow(spectrogram)
     plt.ylabel('Frequency [Hz]')
     plt.xlabel('Time [sec]')
+    # plt.colorbar()
     plt.show()
 
 
