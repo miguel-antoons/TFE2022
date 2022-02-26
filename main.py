@@ -14,12 +14,11 @@ def main():
     print(f'Sample frequency : {sample_frequency}')
     print(f'Signal length : {len(audio_signal)}')
 
-    # print('Creating subplot...')
-    # fig, (ax1) = plt.subplots(nrows=1)
     ax = plt.gca()
     print('Calculating spectrogram...')
     Pxx, freqs, bins = plt.mlab.specgram(
-        audio_signal, Fs=sample_frequency, NFFT=nfft, noverlap=overlap_samples)
+        audio_signal, Fs=sample_frequency, NFFT=nfft, noverlap=overlap_samples
+    )
 
     print('Filtering unneeded frequencies...')
     fmin = 1000
@@ -30,7 +29,7 @@ def main():
 
     Z = 10. * np.log10(Pxx)
     Z = np.flipud(Z)
-    im = ax.imshow(Z, extent=(0, np.amax(bins), freqs[0], freqs[-1]))
+    ax.imshow(Z, extent=(0, np.amax(bins), freqs[0], freqs[-1]))
 
     print(f'Sample frequencies : {freqs}')
     print(f'Segment times : {len(bins)}')
