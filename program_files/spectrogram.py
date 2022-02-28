@@ -2,8 +2,16 @@ from scipy import signal
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class Spectrogram:
-    def __init__(self, audio_signal, nfft=16384, sample_frequency=5512, noverlap=14384, window='hamming'):
+    def __init__(
+        self,
+        audio_signal,
+        nfft=16384,
+        sample_frequency=5512,
+        noverlap=14384,
+        window='hamming'
+    ):
         frequencies, times, Pxx = signal.spectrogram(
             audio_signal,
             sample_frequency,
