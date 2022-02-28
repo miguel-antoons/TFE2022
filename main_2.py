@@ -23,6 +23,7 @@ def main():
         window='hamming'
     )
 
+    Pxx = np.array(Pxx, dtype=float)
     print('Filtering unneeded frequencies...')
     fmin = 1000
     fmax = 1150
@@ -31,6 +32,13 @@ def main():
     freqs = freqs[(freqs >= fmin) & (freqs <= fmax)]
 
     Z = 10. * np.log10(Pxx)
+    Z = np.array(Z, dtype=float)
+    plt.figure(1)
+    #Z[:, 355] = 60
+    Z2 = Z[:, 350:360]
+    Z2_mean = np.mean(Z2)
+    Z2[Z2 < (Z2_mean + Z2_mean / 3.5)] = 0
+    plt.plot(freqs, Z2)
 
     print(f'Sample frequencies : {freqs}')
     print(f'Segment times : {len(bins)}')
@@ -40,6 +48,7 @@ def main():
     print(f'Spectrogram 0, 60 : {Pxx[0][60]}')
 
     print('Preparing and showing graph...')
+    plt.figure(2)
     plt.pcolormesh(bins, freqs, Z)
     # plt.imshow(spectrogram)
     plt.ylabel('Frequency [Hz]')
