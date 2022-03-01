@@ -41,11 +41,12 @@ class Spectrogram:
     """
     def plot_original_spectrogram(
         self,
-        x_axis_title='Time [sec]',
-        y_axis_title='Frequency [Hz]',
         fmin=0,
         fmax=None,
-        show=False
+        show=False,
+        x_axis_title='Time [sec]',
+        y_axis_title='Frequency [Hz]',
+        title='Original Spectrogram'
     ):
         # if fmax is not set, set default value
         if not fmax:
@@ -65,9 +66,10 @@ class Spectrogram:
             ]
         )
 
-        # set axis titles
+        # set graph and axis titles
         plt.ylabel(y_axis_title)
         plt.xlabel(x_axis_title)
+        plt.title(title)
 
         if show:
             self.show_figures()
@@ -77,11 +79,12 @@ class Spectrogram:
     """
     def plot_modified_spectrogram(
         self,
-        x_axis_title='Time [sec]',
-        y_axis_title='Frequency [Hz]',
         fmin=0,
         fmax=None,
-        show=False
+        show=False,
+        x_axis_title='Time [sec]',
+        y_axis_title='Frequency [Hz]',
+        title='Modified Spectrogram'
     ):
         # if fmax is not set, set default value
         if not fmax:
@@ -102,9 +105,10 @@ class Spectrogram:
             ]
         )
 
-        # set axis titles
+        # set graph and axis titles
         plt.ylabel(y_axis_title)
         plt.xlabel(x_axis_title)
+        plt.title(title)
 
         if show:
             self.show_figures()
@@ -112,7 +116,15 @@ class Spectrogram:
     """
         Plot the original spectre
     """
-    def plot_original_spectre(self, start, end=None, show=False):
+    def plot_original_spectre(
+        self,
+        start,
+        end=None,
+        show=False,
+        xlabel='Frequency [Hz]',
+        ylabel='Signal Strength [dB]',
+        title='Original Spectre'
+    ):
         print('Preparing original spectre figure...')
         plt.figure(self.figure_n)    # create new figure
         self.figure_n += 1
@@ -128,13 +140,26 @@ class Spectrogram:
         # set y=spectre values, x=frequencies
         plt.plot(self.frequencies, spectre_slice)
 
+        # set graph and axis titles
+        plt.ylabel(ylabel)
+        plt.xlabel(xlabel)
+        plt.title(title)
+
         if show:
             self.show_figures()
 
     """
         Plot the modified spectre
     """
-    def plot_modified_spectre(self, start, end=None, show=False):
+    def plot_modified_spectre(
+        self,
+        start,
+        end=None,
+        show=False,
+        xlabel='Frequency [Hz]',
+        ylabel='Signal Strength [dB]',
+        title='Modified Spectre'
+    ):
         print('Preparing modified spectre figure...')
         plt.figure(self.figure_n)    # create new figure
         self.figure_n += 1
@@ -149,6 +174,11 @@ class Spectrogram:
 
         # set y=spectre values, x=frequencies
         plt.plot(self.frequencies, spectre_slice)
+
+        # set graph and axis titles
+        plt.ylabel(ylabel)
+        plt.xlabel(xlabel)
+        plt.title(title)
 
         if show:
             self.show_figures()
