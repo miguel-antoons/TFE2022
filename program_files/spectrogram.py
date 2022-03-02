@@ -20,7 +20,8 @@ class Spectrogram:
             window=window,
         )
         print(f'Sample frequency : {sample_frequency}')
-        print(f'Signal length : {len(audio_signal)}')
+        print(f'Signal length in frequency segments : {len(frequencies)}')
+        print(f'Signal length in time segments : {len(times)}')
         # sample frequency of the wav audio signal
         self.sample_frequency = sample_frequency
         # frequencies contained by the audio signal
@@ -120,11 +121,17 @@ class Spectrogram:
         self,
         start,
         end=None,
+        fmin=0,
+        fmax=None,
         show=False,
         xlabel='Frequency [Hz]',
         ylabel='Signal Strength [dB]',
         title='Original Spectre'
     ):
+        # if fmax is not set, set default value
+        if not fmax:
+            fmax = self.sample_frequency / 2
+
         print('Preparing original spectre figure...')
         plt.figure(self.figure_n)    # create new figure
         self.figure_n += 1
@@ -138,7 +145,14 @@ class Spectrogram:
             spectre_slice = self.Pxx_DB[:, start][:]
 
         # set y=spectre values, x=frequencies
-        plt.plot(self.frequencies, spectre_slice)
+        plt.plot(
+            self.frequencies[
+                (self.frequencies >= fmin) & (self.frequencies <= fmax)
+            ],
+            spectre_slice[
+                (self.frequencies >= fmin) & (self.frequencies <= fmax)
+            ]
+        )
 
         # set graph and axis titles
         plt.ylabel(ylabel)
@@ -155,11 +169,17 @@ class Spectrogram:
         self,
         start,
         end=None,
+        fmin=0,
+        fmax=None,
         show=False,
         xlabel='Frequency [Hz]',
         ylabel='Signal Strength [dB]',
         title='Modified Spectre'
     ):
+        # if fmax is not set, set default value
+        if not fmax:
+            fmax = self.sample_frequency / 2
+
         print('Preparing modified spectre figure...')
         plt.figure(self.figure_n)    # create new figure
         self.figure_n += 1
@@ -173,7 +193,14 @@ class Spectrogram:
             spectre_slice = self.Pxx_DB_modified[:, start]
 
         # set y=spectre values, x=frequencies
-        plt.plot(self.frequencies, spectre_slice)
+        plt.plot(
+            self.frequencies[
+                (self.frequencies >= fmin) & (self.frequencies <= fmax)
+            ],
+            spectre_slice[
+                (self.frequencies >= fmin) & (self.frequencies <= fmax)
+            ]
+        )
 
         # set graph and axis titles
         plt.ylabel(ylabel)
@@ -190,6 +217,7 @@ class Spectrogram:
         print('Showing figure(s)...')
         plt.show(block=False)
         input('Press any key to end the program...')
+        print('Closing figures...')
         plt.close('all')
 
     """
@@ -212,3 +240,75 @@ class Spectrogram:
         spectrogram_slice[
             spectrogram_slice < (spectrogram_slice_mean * filter_coefficient)
         ] = 0
+
+    def filter_with_kernel(
+        self,
+        start=0,
+        end=None,
+        kernel=np.array(
+            [[0, 4/12, 0],
+             [0, 1/12, 0],
+             [1/6, 0, 1/6],
+             [0, 1/12, 0],
+             [0, 4/12, 0]],
+            dtype=float
+        ),
+        coefficient=1
+    ):
+        """Function filters the copy of the spectrogram from column 'start' to
+        column 'end' by performing a convolution witha kernel received as
+        input.
+
+        Args:
+            start   (int, optional)         :   First column of the
+                                                spectrogram. Defaults to 0.
+            end     (int, optional)         :   Last column of the spectrogram.
+                                                Defaults to None.
+            kernel  (numpy.array, optional) :   The convolution kernel.
+                                                Defaults to
+                                                np.array(
+                                                    [[1], [1], [0], [1], [1]],
+                                                    dtype=float
+                                                ).
+        """
+        if end:
+            # take columns from start to end if end is set
+            spectrogram_slice = self.Pxx_DB_modified[:, start:end]
+        else:
+            # else just take start column
+            spectrogram_slice = self.Pxx_DB_modified[:, start]
+
+        print("""
+            Performing convolution between kernel and the copy
+            of the spectrogram...
+        """)
+        print(f'Convolution kernel : \n{kernel}')
+        print(f'Filter coefficient : {coefficient}')
+
+        # performing convolution as many times as requested by the user
+        for i in range(coefficient):
+            spectrogram_slice = signal.convolve2d(
+                spectrogram_slice, kernel, boundary='symm', mode='same'
+            )
+
+        print('Storing the convolution result...')
+        if end:
+            # take columns from start to end, if end is set
+            # set filtered values
+            self.Pxx_DB_modified[:, start:end] = spectrogram_slice
+        else:
+            # else just take start column and set new value
+            self.Pxx_DB_modified[:, start] = spectrogram_slice
+
+    def get_mean_value(self, rows_per_block=2731, cols_per_block=63):
+        test_array = np.array([
+            [0,  1,  2,  3,  4,  5],
+            [6,  7,  8,  9, 10, 11],
+            [12, 13, 14, 15, 16, 17],
+            [18, 19, 20, 21, 22, 23]
+        ])
+        h, w = test_array.shape
+        assert h % rows_per_block == 0, f"{h} rows is not evenly divisible by {rows_per_block}"
+        assert w % cols_per_block == 0, f"{w} cols is not evenly divisible by {rows_per_block}"
+        # return np.split(self.Pxx_DB, [319527, 183751])
+        return test_array.reshape(h//rows_per_block, rows_per_block, -1, cols_per_block)   # .swapaxes(1, 2).reshape(-1, rows_per_block, cols_per_block)

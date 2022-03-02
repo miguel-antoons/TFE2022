@@ -15,12 +15,17 @@ def main():
 
     test_spectrogram = Spectrogram(audio_signal)
 
-    test_spectrogram.filter_by_mean(temp_start, temp_end, 2)
-    test_spectrogram.plot_original_spectrogram(fmin=fmin, fmax=fmax)
-    test_spectrogram.plot_modified_spectrogram(fmin=fmin, fmax=fmax)
-    test_spectrogram.plot_original_spectre(temp_start, temp_end)
-    test_spectrogram.plot_modified_spectre(temp_start, temp_end, True)
+    # test_spectrogram.filter_by_mean(temp_start, temp_end, 2)
+    # test_spectrogram.filter_with_kernel(temp_start, temp_end, coefficient=2)
+    # test_spectrogram.plot_original_spectrogram(fmin=fmin, fmax=fmax)
+    # test_spectrogram.plot_modified_spectrogram(fmin=fmin, fmax=fmax)
+    # test_spectrogram.plot_original_spectre(temp_start, temp_end, fmin, fmax)
+    # test_spectrogram.plot_modified_spectre(
+    #     temp_start, temp_end, fmin, fmax, True
+    # )
+    print(test_spectrogram.get_mean_value(2, 2))
 
 
 if __name__ == '__main__':
     main()
+    print('Exiting...')
