@@ -62,7 +62,7 @@ class Spectrogram:
             self.frequencies[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
             ],
-            self.Pxx_DB[
+            self.Pxx[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
             ]
         )
@@ -301,14 +301,37 @@ class Spectrogram:
             self.Pxx_DB_modified[:, start] = spectrogram_slice
 
     def get_mean_value(self, rows_per_block=2731, cols_per_block=63):
-        test_array = np.array([
-            [0,  1,  2,  3,  4,  5],
-            [6,  7,  8,  9, 10, 11],
-            [12, 13, 14, 15, 16, 17],
-            [18, 19, 20, 21, 22, 23]
-        ])
-        h, w = test_array.shape
-        assert h % rows_per_block == 0, f"{h} rows is not evenly divisible by {rows_per_block}"
-        assert w % cols_per_block == 0, f"{w} cols is not evenly divisible by {rows_per_block}"
-        # return np.split(self.Pxx_DB, [319527, 183751])
-        return test_array.reshape(h//rows_per_block, rows_per_block, -1, cols_per_block)   # .swapaxes(1, 2).reshape(-1, rows_per_block, cols_per_block)
+        h, w = self.Pxx_DB.shape
+
+        divised_pxx = self.Pxx.reshape(
+                h//rows_per_block, rows_per_block, -1, cols_per_block
+            ).swapaxes(1, 2).reshape(-1, rows_per_block, cols_per_block)
+
+        previous_variance = None
+        min_var_index = 0
+
+        for index, pxx in enumerate(divised_pxx):
+            variance = np.var(pxx, dtype=np.float64)
+            print(variance)
+
+            if not previous_variance or variance < previous_variance:
+                previous_variance = variance
+                min_var_index = index
+
+        return np.mean(pxx[min_var_index])
+
+    def retrieve_transmitter_signal(self):
+        same_index = 0
+        previous_index = 0
+        index = 0
+        while not same_index == 30:
+            max_column_index = self.Pxx[:, index].argmax()
+            print(max_column_index)
+
+            if max_column_index == previous_index:
+                same_index += 1
+
+            previous_index = max_column_index
+            index += 1
+
+        return previous_index - 5, previous_index + 5

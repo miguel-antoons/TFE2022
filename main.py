@@ -23,7 +23,7 @@ def main():
     # test_spectrogram.plot_modified_spectre(
     #     temp_start, temp_end, fmin, fmax, True
     # )
-    print(test_spectrogram.get_mean_value(2, 2))
+    print(test_spectrogram.get_mean_value())
 
 
 if __name__ == '__main__':
