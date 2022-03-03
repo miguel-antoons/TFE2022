@@ -33,7 +33,7 @@ class Spectrogram:
         # signal strength in dB
         self.Pxx_DB = 10. * np.log10(Pxx)
         # copy of the signal strencgth in dB to be modified
-        self.Pxx_DB_modified = self.Pxx_DB.copy()
+        self.Pxx_DB_modified = self.subtract_transmitter_signal()
         # initialize the figure number to 1
         self.figure_n = 1
 
@@ -300,33 +300,13 @@ class Spectrogram:
             # else just take start column and set new value
             self.Pxx_DB_modified[:, start] = spectrogram_slice
 
-    def get_mean_value(self, rows_per_block=2731, cols_per_block=63):
-        h, w = self.Pxx_DB.shape
-
-        divised_pxx = self.Pxx.reshape(
-                h//rows_per_block, rows_per_block, -1, cols_per_block
-            ).swapaxes(1, 2).reshape(-1, rows_per_block, cols_per_block)
-
-        previous_variance = None
-        min_var_index = 0
-
-        for index, pxx in enumerate(divised_pxx):
-            variance = np.var(pxx, dtype=np.float64)
-            print(variance)
-
-            if not previous_variance or variance < previous_variance:
-                previous_variance = variance
-                min_var_index = index
-
-        return np.mean(pxx[min_var_index])
-
     def retrieve_transmitter_signal(self):
         same_index = 0
         previous_index = 0
         index = 0
+
         while not same_index == 30:
             max_column_index = self.Pxx[:, index].argmax()
-            print(max_column_index)
 
             if max_column_index == previous_index:
                 same_index += 1
@@ -334,4 +314,24 @@ class Spectrogram:
             previous_index = max_column_index
             index += 1
 
-        return previous_index - 5, previous_index + 5
+        return previous_index - 2, previous_index + 2
+
+    def subtract_transmitter_signal(self):
+        start_row, end_row = self.retrieve_transmitter_signal()
+        # noise_mean = self.get_mean_value()
+        Pxx_copy = np.copy(self.Pxx_DB)
+
+        for row in range(start_row, end_row + 1):
+            start_col = 0
+            for end_col in range(1, Pxx_copy.shape[0]):
+                normal_mean_value = (
+                    np.mean(Pxx_copy[start_row - 1, start_col:end_col])
+                    + np.mean(Pxx_copy[end_row + 1, start_col:end_col])
+                ) / 2
+                mean_value = np.mean(Pxx_copy[row, start_col:end_col])
+                difference = mean_value - normal_mean_value
+                Pxx_copy[row, start_col:end_col] -= difference
+                start_col = end_col
+
+        return Pxx_copy
+        # return (10. * np.log10(Pxx_copy))
