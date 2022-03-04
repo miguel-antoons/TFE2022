@@ -1,4 +1,4 @@
-from scipy import signal
+from scipy import signal, ndimage
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -62,7 +62,7 @@ class Spectrogram:
             self.frequencies[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
             ],
-            self.Pxx[
+            self.Pxx_DB[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
             ]
         )
@@ -101,9 +101,9 @@ class Spectrogram:
             self.frequencies[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
             ],
-            self.Pxx_DB_modified[
+            np.copy(self.Pxx_DB_modified[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
-            ]
+            ])
         )
 
         # set graph and axis titles
@@ -113,6 +113,20 @@ class Spectrogram:
 
         if show:
             self.show_figures()
+
+    def __get_slice(self, start, end, original_spectrogram=False):
+        spectrogram = self.Pxx_DB_modified
+
+        if original_spectrogram:
+            spectrogram = self.Pxx_DB
+
+        # if end value is set
+        if end:
+            # take columns from 'start' to 'end'
+            return spectrogram[:, start:end]
+
+        # else, just take column 'start'
+        return spectrogram[:, start]
 
     """
         Plot the original spectre
@@ -136,13 +150,7 @@ class Spectrogram:
         plt.figure(self.figure_n)    # create new figure
         self.figure_n += 1
 
-        # if end value is set
-        if end:
-            # take columns from 'start' to 'end'
-            spectre_slice = self.Pxx_DB[:, start:end][:]
-        else:
-            # else, just take column 'start'
-            spectre_slice = self.Pxx_DB[:, start][:]
+        spectre_slice = self.__get_slice(start, end, True)
 
         # set y=spectre values, x=frequencies
         plt.plot(
@@ -184,22 +192,16 @@ class Spectrogram:
         plt.figure(self.figure_n)    # create new figure
         self.figure_n += 1
 
-        # if end value is set
-        if end:
-            # take columns from 'start' to 'end'
-            spectre_slice = self.Pxx_DB_modified[:, start:end]
-        else:
-            # else, just take column 'start'
-            spectre_slice = self.Pxx_DB_modified[:, start]
+        spectre_slice = self.__get_slice(start, end)
 
         # set y=spectre values, x=frequencies
         plt.plot(
             self.frequencies[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
             ],
-            spectre_slice[
+            np.copy(spectre_slice[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
-            ]
+            ])
         )
 
         # set graph and axis titles
@@ -227,12 +229,7 @@ class Spectrogram:
         filter_coefficient.
     """
     def filter_by_mean(self, start, end=None, filter_coefficient=1):
-        if end:
-            # take columns from start to end if end is set
-            spectrogram_slice = self.Pxx_DB_modified[:, start:end]
-        else:
-            # else just take start column
-            spectrogram_slice = self.Pxx_DB_modified[:, start]
+        spectrogram_slice = self.__get_slice(start, end)
 
         spectrogram_slice_mean = np.mean(spectrogram_slice)
 
@@ -246,59 +243,35 @@ class Spectrogram:
         start=0,
         end=None,
         kernel=np.array(
-            [[0, 4/12, 0],
-             [0, 1/12, 0],
-             [1/6, 0, 1/6],
-             [0, 1/12, 0],
-             [0, 4/12, 0]],
+            [[0, 6/12, 0],
+             [0, 4/24, 0],
+             [0, 2/24, 0],
+             [0, 0, 0],
+             [0, 2/24, 0],
+             [0, 4/24, 0],
+             [0, 6/12, 0]],
             dtype=float
         ),
         coefficient=1
     ):
-        """Function filters the copy of the spectrogram from column 'start' to
-        column 'end' by performing a convolution witha kernel received as
-        input.
+        spectrogram_slice = self.__get_slice(start, end)
+        spectrogram_slice_copy = np.copy(spectrogram_slice)
 
-        Args:
-            start   (int, optional)         :   First column of the
-                                                spectrogram. Defaults to 0.
-            end     (int, optional)         :   Last column of the spectrogram.
-                                                Defaults to None.
-            kernel  (numpy.array, optional) :   The convolution kernel.
-                                                Defaults to
-                                                np.array(
-                                                    [[1], [1], [0], [1], [1]],
-                                                    dtype=float
-                                                ).
-        """
-        if end:
-            # take columns from start to end if end is set
-            spectrogram_slice = self.Pxx_DB_modified[:, start:end]
-        else:
-            # else just take start column
-            spectrogram_slice = self.Pxx_DB_modified[:, start]
-
-        print("""
-            Performing convolution between kernel and the copy
-            of the spectrogram...
-        """)
+        print(
+            'Performing convolution between kernel and the copy'
+            'of the spectrogram...'
+        )
         print(f'Convolution kernel : \n{kernel}')
         print(f'Filter coefficient : {coefficient}')
 
         # performing convolution as many times as requested by the user
         for i in range(coefficient):
-            spectrogram_slice = signal.convolve2d(
-                spectrogram_slice, kernel, boundary='symm', mode='same'
+            spectrogram_slice_copy = signal.convolve2d(
+                spectrogram_slice_copy, kernel, boundary='symm', mode='same'
             )
 
         print('Storing the convolution result...')
-        if end:
-            # take columns from start to end, if end is set
-            # set filtered values
-            self.Pxx_DB_modified[:, start:end] = spectrogram_slice
-        else:
-            # else just take start column and set new value
-            self.Pxx_DB_modified[:, start] = spectrogram_slice
+        spectrogram_slice[:] = spectrogram_slice_copy
 
     def retrieve_transmitter_signal(self):
         same_index = 0
@@ -318,12 +291,11 @@ class Spectrogram:
 
     def subtract_transmitter_signal(self):
         start_row, end_row = self.retrieve_transmitter_signal()
-        # noise_mean = self.get_mean_value()
         Pxx_copy = np.copy(self.Pxx_DB)
 
-        for row in range(start_row, end_row + 1):
+        for row in range(start_row, end_row):
             start_col = 0
-            for end_col in range(1, Pxx_copy.shape[0]):
+            for end_col in range(3, Pxx_copy.shape[0], 3):
                 normal_mean_value = (
                     np.mean(Pxx_copy[start_row - 1, start_col:end_col])
                     + np.mean(Pxx_copy[end_row + 1, start_col:end_col])
@@ -334,4 +306,25 @@ class Spectrogram:
                 start_col = end_col
 
         return Pxx_copy
-        # return (10. * np.log10(Pxx_copy))
+
+    def binarize_slice(self, treshold, start=0, end=None):
+        spectrogram_slice = self.__get_slice(start, end)
+
+        spectrogram_slice[:] = np.where(spectrogram_slice > treshold, 1, 0)
+
+    def delete_area(self, area_treshold, start=0, end=None):
+        spectrogram_slice = self.__get_slice(start, end)
+
+        labeled_spectrogram, num_labels = ndimage.label(spectrogram_slice)
+        objects = ndimage.find_objects(labeled_spectrogram)
+
+        for object in objects:
+            height, width = spectrogram_slice[object].shape
+
+            if height < 15:
+                spectrogram_slice[object] = 0
+
+        spectrogram_slice[:] = ndimage.binary_dilation(
+            spectrogram_slice, iterations=2
+        )
+        spectrogram_slice[:] = np.where(spectrogram_slice > 0, 100, 0)

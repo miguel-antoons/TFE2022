@@ -3,8 +3,8 @@ from program_files.spectrogram import Spectrogram
 
 
 def main():
-    temp_start = 350
-    temp_end = 360
+    temp_start = 450
+    temp_end = 460
     fmin = 1000
     fmax = 1150
 
@@ -15,14 +15,16 @@ def main():
 
     test_spectrogram = Spectrogram(audio_signal)
 
-    test_spectrogram.filter_by_mean(temp_start, temp_end, 2.3)
+    test_spectrogram.filter_by_mean(temp_start, temp_end, 1.9)
     test_spectrogram.filter_with_kernel(temp_start, temp_end, coefficient=2)
+    test_spectrogram.binarize_slice(17, temp_start, temp_end)
+    test_spectrogram.delete_area(0, temp_start, temp_end)
     test_spectrogram.plot_original_spectrogram(fmin=fmin, fmax=fmax)
-    test_spectrogram.plot_modified_spectrogram(fmin=fmin, fmax=fmax)
-    test_spectrogram.plot_original_spectre(temp_start, temp_end, fmin, fmax)
-    test_spectrogram.plot_modified_spectre(
-        temp_start, temp_end, fmin, fmax, True
-    )
+    test_spectrogram.plot_modified_spectrogram(fmin=fmin, fmax=fmax, show=True)
+    # test_spectrogram.plot_original_spectre(temp_start, temp_end, fmin, fmax)
+    # test_spectrogram.plot_modified_spectre(
+    #     temp_start, temp_end, fmin, fmax, True
+    # )
 
 
 if __name__ == '__main__':
