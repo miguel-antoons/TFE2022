@@ -3,10 +3,12 @@ from program_files.spectrogram import Spectrogram
 
 
 def main():
-    temp_start = 450
-    temp_end = 460
+    temp_start = 354
+    temp_end = 355
     fmin = 1000
     fmax = 1150
+
+    min_value = 157
 
     print("Loading wav file into memory...")
     sample_frequency, audio_signal = wavfile.read(
@@ -15,10 +17,16 @@ def main():
 
     test_spectrogram = Spectrogram(audio_signal)
 
-    test_spectrogram.filter_by_mean(temp_start, temp_end, 1.9)
-    test_spectrogram.filter_with_kernel(temp_start, temp_end, coefficient=2)
-    test_spectrogram.binarize_slice(17, temp_start, temp_end)
-    test_spectrogram.delete_area(0, temp_start, temp_end)
+    # test_spectrogram.filter_low(min_value, temp_start, temp_end)
+    for i in range(819):
+        
+        test_spectrogram.filter_with_kernel(i, coefficient=2)
+        # test_spectrogram.filter_by_mean(temp_start, temp_end, 2)
+        # test_spectrogram.binarize_slice(165.95, temp_start, temp_end)
+        test_spectrogram.delete_area(35, i)
+
+    test_spectrogram.count_meteors(2, 0, 818)
+    #  test_spectrogram.filter_with_kernel(temp_start, temp_end, coefficient=1)
     test_spectrogram.plot_original_spectrogram(fmin=fmin, fmax=fmax)
     test_spectrogram.plot_modified_spectrogram(fmin=fmin, fmax=fmax, show=True)
     # test_spectrogram.plot_original_spectre(temp_start, temp_end, fmin, fmax)

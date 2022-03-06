@@ -22,6 +22,7 @@ class Spectrogram:
         print(f'Sample frequency : {sample_frequency}')
         print(f'Signal length in frequency segments : {len(frequencies)}')
         print(f'Signal length in time segments : {len(times)}')
+
         # sample frequency of the wav audio signal
         self.sample_frequency = sample_frequency
         # frequencies contained by the audio signal
@@ -32,10 +33,20 @@ class Spectrogram:
         self.Pxx = np.array(Pxx, dtype=float)
         # signal strength in dB
         self.Pxx_DB = 10. * np.log10(Pxx)
+        # TODO : comments
+        (
+            self.start_transmitter_row,
+            self.end_transmitter_row,
+            self.max_transmitter_row
+        ) = self.__retrieve_transmitter_signal()
         # copy of the signal strencgth in dB to be modified
-        self.Pxx_DB_modified = self.subtract_transmitter_signal()
+        self.Pxx_modified = self.subtract_transmitter_signal()
         # initialize the figure number to 1
         self.figure_n = 1
+        
+        self.default_treshold = 0.9 * np.mean(self.Pxx[self.max_transmitter_row]) / 10000
+
+        print(f'Default treshold value : {self.default_treshold}')
 
     """
         Plot the original spectrogram
@@ -91,6 +102,8 @@ class Spectrogram:
         if not fmax:
             fmax = self.sample_frequency / 2
 
+        Pxx_DB_modified = 10. * np.log10(self.Pxx_modified)
+
         print('Preparing modified spectrogram figure...')
         plt.figure(self.figure_n)    # create figure
         self.figure_n += 1
@@ -101,7 +114,7 @@ class Spectrogram:
             self.frequencies[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
             ],
-            np.copy(self.Pxx_DB_modified[
+            np.copy(Pxx_DB_modified[
                 (self.frequencies >= fmin) & (self.frequencies <= fmax)
             ])
         )
@@ -114,10 +127,10 @@ class Spectrogram:
         if show:
             self.show_figures()
 
-    def __get_slice(self, start, end, original_spectrogram=False):
-        spectrogram = self.Pxx_DB_modified
+    def __get_slice(self, start, end, original_spectrogram=0):
+        spectrogram = self.Pxx_modified
 
-        if original_spectrogram:
+        if original_spectrogram == 1:
             spectrogram = self.Pxx_DB
 
         # if end value is set
@@ -126,7 +139,7 @@ class Spectrogram:
             return spectrogram[:, start:end]
 
         # else, just take column 'start'
-        return spectrogram[:, start]
+        return spectrogram[:, start:start + 1]
 
     """
         Plot the original spectre
@@ -192,7 +205,7 @@ class Spectrogram:
         plt.figure(self.figure_n)    # create new figure
         self.figure_n += 1
 
-        spectre_slice = self.__get_slice(start, end)
+        spectre_slice = 10. * np.log10(self.__get_slice(start, end))
 
         # set y=spectre values, x=frequencies
         plt.plot(
@@ -228,28 +241,24 @@ class Spectrogram:
         value can be increased or decreased by altering the
         filter_coefficient.
     """
-    def filter_by_mean(self, start, end=None, filter_coefficient=1):
+    def filter_low(self, min, start, end=None):
         spectrogram_slice = self.__get_slice(start, end)
-
-        spectrogram_slice_mean = np.mean(spectrogram_slice)
 
         # set all values below spectrogram_slice_mean * filter_coefficient to 0
         spectrogram_slice[
-            spectrogram_slice < (spectrogram_slice_mean * filter_coefficient)
-        ] = 0
+            spectrogram_slice < min
+        ] = 1
 
     def filter_with_kernel(
         self,
         start=0,
         end=None,
         kernel=np.array(
-            [[0, 6/12, 0],
-             [0, 4/24, 0],
-             [0, 2/24, 0],
+            [[0, 1/5, 0],
+             [0, 1/5, 0],
              [0, 0, 0],
-             [0, 2/24, 0],
-             [0, 4/24, 0],
-             [0, 6/12, 0]],
+             [0, 1/5, 0],
+             [0, 1/5, 0]],
             dtype=float
         ),
         coefficient=1
@@ -257,12 +266,12 @@ class Spectrogram:
         spectrogram_slice = self.__get_slice(start, end)
         spectrogram_slice_copy = np.copy(spectrogram_slice)
 
-        print(
-            'Performing convolution between kernel and the copy'
-            'of the spectrogram...'
-        )
-        print(f'Convolution kernel : \n{kernel}')
-        print(f'Filter coefficient : {coefficient}')
+        # print(
+        #     'Performing convolution between kernel and the copy'
+        #     'of the spectrogram...'
+        # )
+        # print(f'Convolution kernel : \n{kernel}')
+        # print(f'Filter coefficient : {coefficient}')
 
         # performing convolution as many times as requested by the user
         for i in range(coefficient):
@@ -270,10 +279,10 @@ class Spectrogram:
                 spectrogram_slice_copy, kernel, boundary='symm', mode='same'
             )
 
-        print('Storing the convolution result...')
+        # print('Storing the convolution result...')
         spectrogram_slice[:] = spectrogram_slice_copy
 
-    def retrieve_transmitter_signal(self):
+    def __retrieve_transmitter_signal(self):
         same_index = 0
         previous_index = 0
         index = 0
@@ -281,50 +290,68 @@ class Spectrogram:
         while not same_index == 30:
             max_column_index = self.Pxx[:, index].argmax()
 
-            if max_column_index == previous_index:
+            if max_column_index in [previous_index - 1, previous_index, previous_index + 1]:
                 same_index += 1
 
             previous_index = max_column_index
             index += 1
 
-        return previous_index - 2, previous_index + 2
+        return previous_index - 2, previous_index + 3, previous_index
 
     def subtract_transmitter_signal(self):
-        start_row, end_row = self.retrieve_transmitter_signal()
-        Pxx_copy = np.copy(self.Pxx_DB)
+        Pxx_copy = np.copy(self.Pxx)
 
-        for row in range(start_row, end_row):
+        for row in range(self.start_transmitter_row, self.end_transmitter_row + 1):
             start_col = 0
             for end_col in range(3, Pxx_copy.shape[0], 3):
                 normal_mean_value = (
-                    np.mean(Pxx_copy[start_row - 1, start_col:end_col])
-                    + np.mean(Pxx_copy[end_row + 1, start_col:end_col])
+                    np.mean(Pxx_copy[self.start_transmitter_row - 1, start_col:end_col])
+                    + np.mean(Pxx_copy[self.end_transmitter_row + 1, start_col:end_col])
                 ) / 2
-                mean_value = np.mean(Pxx_copy[row, start_col:end_col])
-                difference = mean_value - normal_mean_value
-                Pxx_copy[row, start_col:end_col] -= difference
+                # mean_value = np.mean(Pxx_copy[row, start_col:end_col])
+                # difference = mean_value - normal_mean_value
+                Pxx_copy[row, start_col:end_col] = normal_mean_value
                 start_col = end_col
 
+        Pxx_copy[Pxx_copy <= 0] = 0.001
         return Pxx_copy
 
-    def binarize_slice(self, treshold, start=0, end=None):
+    def __binarize_slice(self, treshold, start=0, end=None):
         spectrogram_slice = self.__get_slice(start, end)
-
-        spectrogram_slice[:] = np.where(spectrogram_slice > treshold, 1, 0)
+        return np.where(spectrogram_slice > treshold, 1, 0)
 
     def delete_area(self, area_treshold, start=0, end=None):
+        bin_spectrogram_slice = self.__binarize_slice(
+            9 * self.default_treshold / 10, start, end
+        )
         spectrogram_slice = self.__get_slice(start, end)
 
-        labeled_spectrogram, num_labels = ndimage.label(spectrogram_slice)
+        # spectrogram_slice[:] = ndimage.binary_dilation(
+        #     spectrogram_slice, iterations=2
+        # )
+
+        labeled_spectrogram, num_labels = ndimage.label(bin_spectrogram_slice)
         objects = ndimage.find_objects(labeled_spectrogram)
 
         for object in objects:
-            height, width = spectrogram_slice[object].shape
+            height, width = bin_spectrogram_slice[object].shape
 
-            if height < 15:
-                spectrogram_slice[object] = 0
+            if height < area_treshold:
+                spectrogram_slice[object] = 1
 
-        spectrogram_slice[:] = ndimage.binary_dilation(
-            spectrogram_slice, iterations=2
+        # spectrogram_slice[:] = np.where(spectrogram_slice > 0, 100, 0)
+
+    def count_meteors(self, area_treshold, start=0, end=None):
+        bin_spectrogram_slice = self.__binarize_slice(
+            self.default_treshold, start, end
         )
-        spectrogram_slice[:] = np.where(spectrogram_slice > 0, 100, 0)
+        spectrogram_slice = self.__get_slice(start, end)
+
+        labeled_spectrogram, num_labels = ndimage.label(bin_spectrogram_slice)
+        objects = ndimage.find_objects(labeled_spectrogram)
+
+        for object in objects:
+            height, width = bin_spectrogram_slice[object].shape
+
+            if width > area_treshold:
+                spectrogram_slice[object] = 0
