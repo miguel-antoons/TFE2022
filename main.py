@@ -1,8 +1,10 @@
+import sys
 from scipy.io import wavfile
 from program_files.spectrogram import Spectrogram
 
 
-def main():
+def main(cmd_arguments):
+    print(cmd_arguments)
     temp_start = 354
     temp_end = 355
 
@@ -32,5 +34,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
     print('Exiting...')
