@@ -40,29 +40,39 @@ class Spectrogram:
             self.max_transmitter_row
         ) = self.__retrieve_transmitter_signal()
         # copy of the signal strencgth in dB to be modified
-        self.Pxx_modified = self.subtract_transmitter_signal()
+        self.Pxx_modified = self.__subtract_transmitter_signal()
         # initialize the figure number to 1
         self.figure_n = 1
-        
-        self.default_treshold = 0.9 * np.mean(self.Pxx[self.max_transmitter_row]) / 10000
+        self.frequency_resolution = sample_frequency / 2 / len(frequencies)
+
+        self.default_treshold = (
+            0.95 * np.mean(self.Pxx[self.max_transmitter_row]) / 10000
+        )
 
         print(f'Default treshold value : {self.default_treshold}')
 
-    """
-        Plot the original spectrogram
-    """
     def plot_original_spectrogram(
         self,
-        fmin=0,
-        fmax=None,
+        interval=1000,
         show=False,
+        show_all=False,
         x_axis_title='Time [sec]',
         y_axis_title='Frequency [Hz]',
         title='Original Spectrogram'
     ):
         # if fmax is not set, set default value
-        if not fmax:
+        if show_all:
+            fmin = 0
             fmax = self.sample_frequency / 2
+        else:
+            fmin = (
+                (self.max_transmitter_row * self.frequency_resolution)
+                - (interval / 2)
+            )
+            fmax = (
+                (self.max_transmitter_row * self.frequency_resolution)
+                + (interval / 2)
+            )
 
         print('Preparing original spectrogram figure...')
         plt.figure(self.figure_n)    # create figure
@@ -86,21 +96,28 @@ class Spectrogram:
         if show:
             self.show_figures()
 
-    """
-        Plot the modified spectrogram
-    """
     def plot_modified_spectrogram(
         self,
-        fmin=0,
-        fmax=None,
+        interval=1000,
+        show_all=False,
         show=False,
         x_axis_title='Time [sec]',
         y_axis_title='Frequency [Hz]',
         title='Modified Spectrogram'
     ):
         # if fmax is not set, set default value
-        if not fmax:
+        if show_all:
+            fmin = 0
             fmax = self.sample_frequency / 2
+        else:
+            fmin = (
+                (self.max_transmitter_row * self.frequency_resolution)
+                - (interval / 2)
+            )
+            fmax = (
+                (self.max_transmitter_row * self.frequency_resolution)
+                + (interval / 2)
+            )
 
         Pxx_DB_modified = 10. * np.log10(self.Pxx_modified)
 
@@ -249,10 +266,37 @@ class Spectrogram:
             spectrogram_slice < min
         ] = 1
 
+    def filter_high(
+        self,
+        coefficient=1,
+        start=0,
+        end=None,
+        filter_all=False,
+        custom_value=0
+    ):
+        if filter_all:
+            end = len(self.times - 1)
+
+        if custom_value:
+            max = custom_value
+        else:
+            max = (
+                (coefficient / 10)
+                * np.mean(self.Pxx[self.max_transmitter_row])
+            )
+
+        spectrogram_slice = self.__get_slice(start, end)
+
+        # set all values below spectrogram_slice_mean * filter_coefficient to 0
+        spectrogram_slice[
+            spectrogram_slice > max
+        ] = 1
+
     def filter_with_kernel(
         self,
         start=0,
         end=None,
+        filter_all=False,
         kernel=np.array(
             [[0, 1/5, 0],
              [0, 1/5, 0],
@@ -263,6 +307,9 @@ class Spectrogram:
         ),
         coefficient=1
     ):
+        if filter_all:
+            end = len(self.times - 1)
+
         spectrogram_slice = self.__get_slice(start, end)
         spectrogram_slice_copy = np.copy(spectrogram_slice)
 
@@ -290,7 +337,9 @@ class Spectrogram:
         while not same_index == 30:
             max_column_index = self.Pxx[:, index].argmax()
 
-            if max_column_index in [previous_index - 1, previous_index, previous_index + 1]:
+            if max_column_index in [
+                previous_index - 1, previous_index, previous_index + 1
+            ]:
                 same_index += 1
 
             previous_index = max_column_index
@@ -298,15 +347,21 @@ class Spectrogram:
 
         return previous_index - 2, previous_index + 3, previous_index
 
-    def subtract_transmitter_signal(self):
+    def __subtract_transmitter_signal(self):
         Pxx_copy = np.copy(self.Pxx)
 
-        for row in range(self.start_transmitter_row, self.end_transmitter_row + 1):
+        for row in range(
+            self.start_transmitter_row, self.end_transmitter_row + 1
+        ):
             start_col = 0
             for end_col in range(3, Pxx_copy.shape[0], 3):
                 normal_mean_value = (
-                    np.mean(Pxx_copy[self.start_transmitter_row - 1, start_col:end_col])
-                    + np.mean(Pxx_copy[self.end_transmitter_row + 1, start_col:end_col])
+                    np.mean(Pxx_copy[
+                        self.start_transmitter_row - 1, start_col:end_col
+                    ])
+                    + np.mean(Pxx_copy[
+                        self.end_transmitter_row + 1, start_col:end_col
+                    ])
                 ) / 2
                 # mean_value = np.mean(Pxx_copy[row, start_col:end_col])
                 # difference = mean_value - normal_mean_value
@@ -322,7 +377,7 @@ class Spectrogram:
 
     def delete_area(self, area_treshold, start=0, end=None):
         bin_spectrogram_slice = self.__binarize_slice(
-            9 * self.default_treshold / 10, start, end
+            0.85 * self.default_treshold, start, end
         )
         spectrogram_slice = self.__get_slice(start, end)
 
@@ -352,6 +407,7 @@ class Spectrogram:
 
         for object in objects:
             height, width = bin_spectrogram_slice[object].shape
+            print('hello');
 
             if width > area_treshold:
                 spectrogram_slice[object] = 0
