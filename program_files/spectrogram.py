@@ -446,7 +446,7 @@ class Spectrogram:
         previous_block_variance = 0
         noise_mean = 0
 
-        for coords, block in enumerate(pxx_blocks):
+        for block in pxx_blocks:
             current_block_variance = np.var(block)
             if (
                 current_block_variance < previous_block_variance
@@ -456,4 +456,5 @@ class Spectrogram:
                 noise_mean = np.mean(block)
 
         print(f'Mean noise value : {noise_mean}')
-        return 7.5 * noise_mean
+
+        return 4 * noise_mean

@@ -15,7 +15,7 @@ def main(cmd_arguments):
 
     test_spectrogram = Spectrogram(audio_signal)
     # test_spectrogram.filter_high(0.96, filter_all=True)
-    # test_spectrogram.filter_with_kernel(filter_all=True, coefficient=2)
+    test_spectrogram.filter_with_kernel(filter_all=True, coefficient=2)
 
     test_spectrogram.filter_low(
         test_spectrogram.find_noise_mean(), filter_all=True
