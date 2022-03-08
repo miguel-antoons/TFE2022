@@ -10,7 +10,8 @@ class Spectrogram:
         nfft=16384,
         sample_frequency=5512,
         noverlap=14384,
-        window='hamming'
+        window='hamming',
+        max_normalization=100000
     ):
         frequencies, times, Pxx = signal.spectrogram(
             audio_signal,
@@ -22,6 +23,7 @@ class Spectrogram:
         print(f'Sample frequency : {sample_frequency}')
         print(f'Signal length in frequency segments : {len(frequencies)}')
         print(f'Signal length in time segments : {len(times)}')
+        print(f'Linear singal values go from 0 to {max_normalization}')
 
         # sample frequency of the wav audio signal
         self.sample_frequency = sample_frequency
@@ -30,9 +32,9 @@ class Spectrogram:
         # time segments contained in the audio signal
         self.times = np.frombuffer(times, dtype=float)
         # signal strength
-        self.Pxx = np.array(Pxx, dtype=float)
+        self.Pxx = self.__normalize_spectrogram(max_normalization, Pxx)
         # signal strength in dB
-        self.Pxx_DB = 10. * np.log10(Pxx)
+        self.Pxx_DB = 10. * np.log10(self.Pxx)
         # TODO : comments
         (
             self.start_transmitter_row,
@@ -50,6 +52,17 @@ class Spectrogram:
         )
 
         print(f'Default treshold value : {self.default_treshold}')
+
+        # DEVELOP
+        print(f'Max spectrogram value : {np.max(self.Pxx)}')
+        print(f'Min spectrogram value : {np.min(self.Pxx)}')
+
+    def __normalize_spectrogram(self, max_normalization, Pxx):
+        max_pxx = np.max(Pxx)
+
+        Pxx = Pxx / max_pxx * max_normalization
+
+        return Pxx
 
     def plot_original_spectrogram(
         self,
@@ -258,7 +271,10 @@ class Spectrogram:
         value can be increased or decreased by altering the
         filter_coefficient.
     """
-    def filter_low(self, min, start, end=None):
+    def filter_low(self, min, start=0, end=None, filter_all=False,):
+        if filter_all:
+            end = len(self.times - 1)
+
         spectrogram_slice = self.__get_slice(start, end)
 
         # set all values below spectrogram_slice_mean * filter_coefficient to 0
@@ -407,7 +423,37 @@ class Spectrogram:
 
         for object in objects:
             height, width = bin_spectrogram_slice[object].shape
-            print('hello');
 
             if width > area_treshold:
                 spectrogram_slice[object] = 0
+
+    def __create_blocks(self, height=2731, width=63):
+        Pxx_copy = np.copy(self.Pxx)
+        h, w = Pxx_copy.shape
+
+        assert h % height == 0, f"{h} rows is not evenly divisible by {height}"
+        assert w % width == 0, f"{w} cols is not evenly divisible by {width}"
+
+        return (
+            Pxx_copy
+            .reshape(h // height, width, -1, height)
+            .swapaxes(1, 2)
+            .reshape(-1, height, width)
+        )
+
+    def find_noise_mean(self):
+        pxx_blocks = self.__create_blocks()
+        previous_block_variance = 0
+        noise_mean = 0
+
+        for coords, block in enumerate(pxx_blocks):
+            current_block_variance = np.var(block)
+            if (
+                current_block_variance < previous_block_variance
+                or not previous_block_variance
+            ):
+                previous_block_variance = current_block_variance
+                noise_mean = np.mean(block)
+
+        print(f'Mean noise value : {noise_mean}')
+        return 7.5 * noise_mean
