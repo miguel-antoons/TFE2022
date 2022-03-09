@@ -47,9 +47,7 @@ class Spectrogram:
         self.figure_n = 1
         self.frequency_resolution = sample_frequency / 2 / len(frequencies)
 
-        self.default_treshold = (
-            0.95 * np.mean(self.Pxx[self.max_transmitter_row]) / 10000
-        )
+        self.default_treshold = self.find_noise_mean()
 
         print(f'Default treshold value : {self.default_treshold}')
 
@@ -271,7 +269,10 @@ class Spectrogram:
         value can be increased or decreased by altering the
         filter_coefficient.
     """
-    def filter_low(self, min, start=0, end=None, filter_all=False,):
+    def filter_low(self, min=None, start=0, end=None, filter_all=False,):
+        if not min:
+            min = self.default_treshold
+
         if filter_all:
             end = len(self.times - 1)
 
@@ -393,7 +394,7 @@ class Spectrogram:
 
     def delete_area(self, area_treshold, start=0, end=None):
         bin_spectrogram_slice = self.__binarize_slice(
-            0.85 * self.default_treshold, start, end
+            0.63 * self.default_treshold, start, end
         )
         spectrogram_slice = self.__get_slice(start, end)
 
@@ -414,7 +415,7 @@ class Spectrogram:
 
     def count_meteors(self, area_treshold, start=0, end=None):
         bin_spectrogram_slice = self.__binarize_slice(
-            self.default_treshold, start, end
+            0.63 * self.default_treshold, start, end
         )
         spectrogram_slice = self.__get_slice(start, end)
 
@@ -427,18 +428,40 @@ class Spectrogram:
             if width > area_treshold:
                 spectrogram_slice[object] = 0
 
-    def __create_blocks(self, height=2731, width=63):
+    def __create_blocks(self, height=4, width=10):
+        print(f'\nDividing spectrogram into {height * width} blocks...')
         Pxx_copy = np.copy(self.Pxx)
         h, w = Pxx_copy.shape
 
-        assert h % height == 0, f"{h} rows is not evenly divisible by {height}"
-        assert w % width == 0, f"{w} cols is not evenly divisible by {width}"
+        print(
+            f'Resizing array with width of {w} columns and height of {h} rows'
+            f' into an array with a number of columns that can\nbe divided by'
+            f' {width} and a number of rows that can be divided by {height}...'
+        )
+        height_surplus = h % height
+        width_surplus = w % width
+
+        if height_surplus:
+            Pxx_copy = Pxx_copy[:-height_surplus]
+        if width_surplus:
+            Pxx_copy = Pxx_copy[:, :-width_surplus]
+
+        h, w = Pxx_copy.shape
+        print(f'New array has width of {w} columns and height of {h} rows.')
+
+        row_per_block = h // height
+        col_per_block = w // width
+        print(
+            f'Returned array will contain {height * width} blocks.\n'
+            f'Each block will have a width of {col_per_block} columns'
+            f' and a height of {row_per_block} rows.'
+        )
 
         return (
             Pxx_copy
-            .reshape(h // height, width, -1, height)
+            .reshape(h // row_per_block, col_per_block, -1, row_per_block)
             .swapaxes(1, 2)
-            .reshape(-1, height, width)
+            .reshape(-1, row_per_block, col_per_block)
         )
 
     def find_noise_mean(self):
@@ -457,4 +480,4 @@ class Spectrogram:
 
         print(f'Mean noise value : {noise_mean}')
 
-        return 4 * noise_mean
+        return 7 * noise_mean

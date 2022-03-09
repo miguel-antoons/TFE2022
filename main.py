@@ -14,16 +14,16 @@ def main(cmd_arguments):
     )
 
     test_spectrogram = Spectrogram(audio_signal)
-    # test_spectrogram.filter_high(0.96, filter_all=True)
+    test_spectrogram.filter_high(0.1, filter_all=True)
     test_spectrogram.filter_with_kernel(filter_all=True, coefficient=2)
 
-    test_spectrogram.filter_low(
-        test_spectrogram.find_noise_mean(), filter_all=True
-    )
-    # for i in range(819):
-    #     test_spectrogram.delete_area(35, i)
+    # test_spectrogram.filter_low(filter_all=True)
+    # test_spectrogram.filter_with_kernel(filter_all=True, coefficient=2)
+    for i in range(819):
+        test_spectrogram.delete_area(25, i)
 
-    # test_spectrogram.count_meteors(2, 0, 818)
+    # test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
+    test_spectrogram.count_meteors(2, 0, 818)
 
     test_spectrogram.plot_original_spectrogram(150)
     test_spectrogram.plot_modified_spectrogram(150, show=True)
