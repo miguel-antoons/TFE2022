@@ -280,7 +280,7 @@ class Spectrogram:
 
         # set all values below spectrogram_slice_mean * filter_coefficient to 0
         spectrogram_slice[
-            spectrogram_slice < min
+            spectrogram_slice < min ** 3
         ] = 1
 
     def filter_high(
@@ -394,7 +394,7 @@ class Spectrogram:
 
     def delete_area(self, area_treshold, start=0, end=None):
         bin_spectrogram_slice = self.__binarize_slice(
-            0.63 * self.default_treshold, start, end
+            100000, start, end
         )
         spectrogram_slice = self.__get_slice(start, end)
 
@@ -415,7 +415,7 @@ class Spectrogram:
 
     def count_meteors(self, area_treshold, start=0, end=None):
         bin_spectrogram_slice = self.__binarize_slice(
-            0.63 * self.default_treshold, start, end
+            3.5 * self.default_treshold, start, end
         )
         spectrogram_slice = self.__get_slice(start, end)
 
@@ -425,12 +425,14 @@ class Spectrogram:
         for object in objects:
             height, width = bin_spectrogram_slice[object].shape
 
-            if width > area_treshold:
-                spectrogram_slice[object] = 0
+            if width > area_treshold and height > 27:
+                spectrogram_slice[object] = 1000000
 
-    def __create_blocks(self, height=4, width=10):
+    def __create_blocks(self, height=3, width=10, fmin=500, fmax=1750):
         print(f'\nDividing spectrogram into {height * width} blocks...')
-        Pxx_copy = np.copy(self.Pxx)
+        Pxx_copy = np.copy(self.Pxx[
+            (self.frequencies >= fmin) & (self.frequencies <= fmax)
+        ])
         h, w = Pxx_copy.shape
 
         print(
@@ -459,25 +461,59 @@ class Spectrogram:
 
         return (
             Pxx_copy
-            .reshape(h // row_per_block, col_per_block, -1, row_per_block)
+            .reshape(h // row_per_block, row_per_block, -1, col_per_block)
             .swapaxes(1, 2)
-            .reshape(-1, row_per_block, col_per_block)
+            .reshape((height * width), row_per_block, col_per_block)
         )
 
     def find_noise_mean(self):
         pxx_blocks = self.__create_blocks()
+        print(f'Block array shape : {pxx_blocks.shape}')
         previous_block_variance = 0
-        noise_mean = 0
+        kernel = np.full((17, 17), 1 / 289)
 
         for block in pxx_blocks:
             current_block_variance = np.var(block)
+            print(current_block_variance)
             if (
                 current_block_variance < previous_block_variance
                 or not previous_block_variance
             ):
                 previous_block_variance = current_block_variance
-                noise_mean = np.mean(block)
+                used_block = block
 
-        print(f'Mean noise value : {noise_mean}')
+        min_max_objective = 0.05 * (used_block.max() - used_block.mean())
+        print(f'Min max objective : {min_max_objective}')
 
-        return 7 * noise_mean
+        while (used_block.max() - used_block.mean()) > min_max_objective:
+            used_block = signal.convolve2d(
+                used_block, kernel, boundary='symm', mode='same'
+            )
+            print('hello')
+
+        print(f'Relative max noise value : {used_block.max()}')
+
+        return used_block.max()
+
+    def filter_by_mean(self, start=0, end=None, filter_all=False):
+        if filter_all:
+            end = len(self.times) - 1
+
+        spectrogram_slice = self.__get_slice(start, end)
+
+        for index, column in enumerate(spectrogram_slice.T):
+            if index == 510:
+                plt.figure(self.figure_n)
+                self.figure_n += 1
+                plt.plot(self.frequencies[:-1], np.diff(column)/np.diff(self.frequencies))
+            # column[column > np.mean(column)] = 1000000
+            mean = np.mean(column)
+            column[column > 2 * mean] = mean
+            mean = np.mean(column)
+            column[column <= 1.5 * mean] = 0.01
+
+            if index == 510:
+                plt.figure(self.figure_n)
+                self.figure_n += 1
+                plt.plot(self.frequencies[:-1], np.diff(column)/np.diff(self.frequencies))
+                column[:] = 100000
