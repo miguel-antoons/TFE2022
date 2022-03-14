@@ -7,14 +7,21 @@ import numpy as np
 def main(cmd_arguments):
     print(cmd_arguments)
     kernel = np.zeros((27, 7))
-    kernel[13, 0] = -1
-    # kernel[13, -1] = -1
-    kernel[:6, 3] = 5
-    kernel[21:, 3] = 5
-    kernel[0, 0] = -1
+    kernel[12:15, 0] = -1
+    kernel[12:15, -1] = -1
+    kernel[3:-3, 3] = 1
+    kernel[2, 3] = 7
+    kernel[-3, 3] = 7
+    kernel[1, 3] = 8
+    kernel[-2, 3] = 8
+    kernel[0, 3] = 9
+    kernel[-1, 3] = 9
+    # kernel[21:, 3] = 5
+    # kernel[0, 0] = -1
     # kernel[-1, -1] = -1
     # temp_start = 354
     # temp_end = 355
+    print(kernel)
 
     print("Loading wav file into memory...")
     sample_frequency, audio_signal = wavfile.read(
@@ -28,14 +35,12 @@ def main(cmd_arguments):
         filter_all=True, coefficient=1, kernel=kernel
     )
     test_spectrogram.filter_low(filter_all=True)
-    test_spectrogram.filter_with_kernel(
-        filter_all=True
-    )
+    # test_spectrogram.filter_with_kernel(
+    #     filter_all=True
+    # )
     # test_spectrogram.filter_by_mean(filter_all=True)
 
-    # # test_spectrogram.filter_with_kernel(filter_all=True, coefficient=2)
-    # for i in range(810):
-    #     test_spectrogram.delete_area(27, i)
+    test_spectrogram.delete_area(27, delete_all=True)
 
     # # test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
     # test_spectrogram.count_meteors(2, 0, 818)

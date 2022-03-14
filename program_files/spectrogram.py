@@ -392,9 +392,12 @@ class Spectrogram:
         spectrogram_slice = self.__get_slice(start, end)
         return np.where(spectrogram_slice > treshold, 1, 0)
 
-    def delete_area(self, area_treshold, start=0, end=None):
+    def delete_area(self, area_treshold, start=0, end=None, delete_all=False):
+        if delete_all:
+            end = len(self.times) - 1
+
         bin_spectrogram_slice = self.__binarize_slice(
-            100000, start, end
+            10, start, end
         )
         spectrogram_slice = self.__get_slice(start, end)
 
@@ -410,8 +413,6 @@ class Spectrogram:
 
             if height < area_treshold:
                 spectrogram_slice[object] = 1
-
-        # spectrogram_slice[:] = np.where(spectrogram_slice > 0, 100, 0)
 
     def count_meteors(self, area_treshold, start=0, end=None):
         bin_spectrogram_slice = self.__binarize_slice(
