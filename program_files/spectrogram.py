@@ -429,7 +429,7 @@ class Spectrogram:
             if width > area_treshold and height > 27:
                 spectrogram_slice[object] = 1000000
 
-    def __create_blocks(self, height=3, width=10, fmin=500, fmax=1750):
+    def __create_blocks(self, height=3, width=10, fmin=600, fmax=1400):
         print(f'\nDividing spectrogram into {height * width} blocks...')
         Pxx_copy = np.copy(self.Pxx[
             (self.frequencies >= fmin) & (self.frequencies <= fmax)
@@ -471,7 +471,7 @@ class Spectrogram:
         pxx_blocks = self.__create_blocks()
         print(f'Block array shape : {pxx_blocks.shape}')
         previous_block_variance = 0
-        kernel = np.full((17, 17), 1 / 289)
+        # kernel = np.full((17, 17), 1 / 289)
 
         for block in pxx_blocks:
             current_block_variance = np.var(block)
@@ -483,18 +483,24 @@ class Spectrogram:
                 previous_block_variance = current_block_variance
                 used_block = block
 
-        min_max_objective = 0.05 * (used_block.max() - used_block.mean())
-        print(f'Min max objective : {min_max_objective}')
+        # min_max_objective = 0.05 * (used_block.max() - used_block.mean())
+        # print(f'Min max objective : {min_max_objective}')
 
-        while (used_block.max() - used_block.mean()) > min_max_objective:
-            used_block = signal.convolve2d(
-                used_block, kernel, boundary='symm', mode='same'
+        # while (used_block.max() - used_block.mean()) > min_max_objective:
+        #     used_block = signal.convolve2d(
+        #         used_block, kernel, boundary='symm', mode='same'
+        #     )
+        #     print('hello')
+        used_block = signal.convolve2d(
+                used_block,
+                np.full((5, 5), 1 / 25),
+                boundary='symm',
+                mode='same'
             )
-            print('hello')
 
-        print(f'Relative max noise value : {used_block.max()}')
-
-        return used_block.max()
+        return (
+            used_block.max()
+        )
 
     def filter_by_mean(self, start=0, end=None, filter_all=False):
         if filter_all:
@@ -506,7 +512,10 @@ class Spectrogram:
             if index == 510:
                 plt.figure(self.figure_n)
                 self.figure_n += 1
-                plt.plot(self.frequencies[:-1], np.diff(column)/np.diff(self.frequencies))
+                plt.plot(
+                    self.frequencies[:-1],
+                    np.diff(column)/np.diff(self.frequencies)
+                )
             # column[column > np.mean(column)] = 1000000
             mean = np.mean(column)
             column[column > 2 * mean] = mean
@@ -516,5 +525,8 @@ class Spectrogram:
             if index == 510:
                 plt.figure(self.figure_n)
                 self.figure_n += 1
-                plt.plot(self.frequencies[:-1], np.diff(column)/np.diff(self.frequencies))
+                plt.plot(
+                    self.frequencies[:-1],
+                    np.diff(column)/np.diff(self.frequencies)
+                )
                 column[:] = 100000
