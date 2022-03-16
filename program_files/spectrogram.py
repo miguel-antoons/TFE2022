@@ -1,4 +1,4 @@
-from scipy import signal, ndimage
+from scipy import signal, ndimage, stats
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -280,7 +280,7 @@ class Spectrogram:
 
         # set all values below spectrogram_slice_mean * filter_coefficient to 0
         spectrogram_slice[
-            spectrogram_slice < min ** 3
+            spectrogram_slice < min
         ] = 1
 
     def filter_high(
@@ -345,6 +345,9 @@ class Spectrogram:
 
         # print('Storing the convolution result...')
         spectrogram_slice[:] = spectrogram_slice_copy
+
+        self.default_treshold = self.find_noise_mean()
+        print(self.default_treshold)
 
     def __retrieve_transmitter_signal(self):
         same_index = 0
@@ -431,7 +434,7 @@ class Spectrogram:
 
     def __create_blocks(self, height=3, width=10, fmin=600, fmax=1400):
         print(f'\nDividing spectrogram into {height * width} blocks...')
-        Pxx_copy = np.copy(self.Pxx[
+        Pxx_copy = np.copy(self.Pxx_modified[
             (self.frequencies >= fmin) & (self.frequencies <= fmax)
         ])
         h, w = Pxx_copy.shape
@@ -470,18 +473,40 @@ class Spectrogram:
     def find_noise_mean(self):
         pxx_blocks = self.__create_blocks()
         print(f'Block array shape : {pxx_blocks.shape}')
-        previous_block_variance = 0
+        print('\nFinding best filter treshold...')
+        block_info = []
         # kernel = np.full((17, 17), 1 / 289)
 
-        for block in pxx_blocks:
-            current_block_variance = np.var(block)
-            print(current_block_variance)
-            if (
-                current_block_variance < previous_block_variance
-                or not previous_block_variance
-            ):
-                previous_block_variance = current_block_variance
-                used_block = block
+        print('Saving variance, mean and index of previous created blocks...')
+        for index, block in enumerate(pxx_blocks):
+            block_info.append({
+                'variance': np.var(block),
+                'percentile_95': np.percentile(block, 88),
+                'index': index,
+            })
+
+        all_var_median = np.median([block['variance'] for block in block_info])
+        print(
+            'Removing all blocks with a variance higher than '
+            f'{all_var_median}...'
+        )
+        block_info = [
+            block for block in block_info if block['variance'] < all_var_median
+        ]
+
+        max_percentile = np.max(
+            [block['percentile_95'] for block in block_info]
+        )
+        print(
+            'Taking block with 95th percentile value equal to '
+            f'{max_percentile}...'
+        )
+        block_info = [
+            block for block in block_info
+            if block['percentile_95'] == max_percentile
+        ]
+        used_block = pxx_blocks[block_info[0]['index']]
+        print(np.max(used_block))
 
         # min_max_objective = 0.05 * (used_block.max() - used_block.mean())
         # print(f'Min max objective : {min_max_objective}')
@@ -491,16 +516,22 @@ class Spectrogram:
         #         used_block, kernel, boundary='symm', mode='same'
         #     )
         #     print('hello')
-        used_block = signal.convolve2d(
-                used_block,
-                np.full((5, 5), 1 / 25),
-                boundary='symm',
-                mode='same'
-            )
-
-        return (
-            used_block.max()
-        )
+        # used_block = signal.convolve2d(
+        #         used_block,
+        #         np.full((5, 5), 1 / 25),
+        #         boundary='symm',
+        #         mode='same'
+        #     )
+        # flat_used_block = used_block.flatten()
+        return block_info[0]['percentile_95']
+        # return (
+        #     stats.t.interval(
+        #         0.95,
+        #         len(flat_used_block) - 1,
+        #         loc=np.mean(flat_used_block),
+        #         scale=stats.sem(flat_used_block)
+        #     )[1]
+        # )
 
     def filter_by_mean(self, start=0, end=None, filter_all=False):
         if filter_all:
