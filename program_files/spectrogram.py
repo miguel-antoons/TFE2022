@@ -25,6 +25,7 @@ class Spectrogram:
         print(f'Signal length in time segments : {len(times)}')
         print(f'Linear singal values go from 0 to {max_normalization}')
 
+        self.frequency_resolution = sample_frequency / 2 / len(frequencies)
         # sample frequency of the wav audio signal
         self.sample_frequency = sample_frequency
         # frequencies contained by the audio signal
@@ -45,7 +46,6 @@ class Spectrogram:
         self.Pxx_modified = self.__subtract_transmitter_signal()
         # initialize the figure number to 1
         self.figure_n = 1
-        self.frequency_resolution = sample_frequency / 2 / len(frequencies)
 
         self.default_treshold = self.find_noise_mean()
 
@@ -71,6 +71,12 @@ class Spectrogram:
         y_axis_title='Frequency [Hz]',
         title='Original Spectrogram'
     ):
+        if (
+            not self.start_transmitter_row
+            and interval < (len(self.frequencies) - 200)
+        ):
+            interval += 200
+
         # if fmax is not set, set default value
         if show_all:
             fmin = 0
@@ -116,6 +122,12 @@ class Spectrogram:
         y_axis_title='Frequency [Hz]',
         title='Modified Spectrogram'
     ):
+        if (
+            not self.start_transmitter_row
+            and interval < (len(self.frequencies) - 200)
+        ):
+            interval += 200
+
         # if fmax is not set, set default value
         if show_all:
             fmin = 0
@@ -354,41 +366,60 @@ class Spectrogram:
         previous_index = 0
         index = 0
 
-        while not same_index == 30:
-            max_column_index = self.Pxx[:, index].argmax()
+        while not same_index == 50 and index < len(self.times):
+            max_column_index = self.Pxx[800:1200, index].argmax()
+            print(index)
 
             if max_column_index in [
                 previous_index - 1, previous_index, previous_index + 1
             ]:
                 same_index += 1
+            else:
+                same_index = 0
+                previous_index = max_column_index
 
-            previous_index = max_column_index
             index += 1
 
-        return previous_index - 2, previous_index + 3, previous_index
+        if same_index < 50:
+            print(
+                'Direct signal was not found, spectrogram will be '
+                'shown around default value of 1000 Hz.'
+            )
+            return False, False, round(1000 / self.frequency_resolution)
+
+        print(
+            'Direct signal was found around '
+            f'{(previous_index + 800) * self.frequency_resolution} Hz.'
+        )
+        return (
+            (previous_index + 798),
+            (previous_index + 803),
+            (previous_index + 800)
+        )
 
     def __subtract_transmitter_signal(self):
         Pxx_copy = np.copy(self.Pxx)
 
-        for row in range(
-            self.start_transmitter_row, self.end_transmitter_row + 1
-        ):
-            start_col = 0
-            for end_col in range(3, Pxx_copy.shape[0], 3):
-                normal_mean_value = (
-                    np.mean(Pxx_copy[
-                        self.start_transmitter_row - 1, start_col:end_col
-                    ])
-                    + np.mean(Pxx_copy[
-                        self.end_transmitter_row + 1, start_col:end_col
-                    ])
-                ) / 2
-                # mean_value = np.mean(Pxx_copy[row, start_col:end_col])
-                # difference = mean_value - normal_mean_value
-                Pxx_copy[row, start_col:end_col] = normal_mean_value
-                start_col = end_col
+        if self.start_transmitter_row:
+            for row in range(
+                self.start_transmitter_row, self.end_transmitter_row + 1
+            ):
+                start_col = 0
+                for end_col in range(3, Pxx_copy.shape[0], 3):
+                    normal_mean_value = (
+                        np.mean(Pxx_copy[
+                            self.start_transmitter_row - 1, start_col:end_col
+                        ])
+                        + np.mean(Pxx_copy[
+                            self.end_transmitter_row + 1, start_col:end_col
+                        ])
+                    ) / 2
 
-        Pxx_copy[Pxx_copy <= 0] = 0.001
+                    Pxx_copy[row, start_col:end_col] = normal_mean_value
+                    start_col = end_col
+
+            Pxx_copy[Pxx_copy <= 0] = 0.001
+
         return Pxx_copy
 
     def __binarize_slice(self, treshold, start=0, end=None):
