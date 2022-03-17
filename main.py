@@ -25,7 +25,7 @@ def main(cmd_arguments):
 
     print("Loading wav file into memory...")
     sample_frequency, audio_signal = wavfile.read(
-        './recordings/RAD_BEDOUR_20220211_1735_BEMONS_SYS001.wav'
+        './recordings/RAD_BEDOUR_20220211_1735_BEHUMA_SYS001.wav'
     )
 
     test_spectrogram = Spectrogram(audio_signal)
@@ -45,6 +45,7 @@ def main(cmd_arguments):
 
     # # test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
     # test_spectrogram.count_meteors(2, 0, 818)
+    test_spectrogram.keep_meteors_only(filter_all=True)
 
     test_spectrogram.plot_original_spectrogram(250)
     test_spectrogram.plot_modified_spectrogram(250, show=True)

@@ -590,6 +590,25 @@ class Spectrogram:
             'to 0.001.'
         )
 
-        for index, column in enumerate(spectrogram_slice.T):
+        for column in spectrogram_slice.T:
             column_percentile = np.percentile(column, percentile)
             column[column < column_percentile] = 0.001
+
+    def keep_meteors_only(self, start=0, end=None, filter_all=False):
+        column_info = []
+
+        if filter_all:
+            end = len(self.times) - 1
+
+        bin_spectrogram = self.__binarize_slice(10, start, end)
+
+        for index, column in enumerate(bin_spectrogram.T):
+            print(index)
+            labeled_spectrogram, num_labels = ndimage.label(column)
+            objects = ndimage.find_objects(labeled_spectrogram)
+            for object in objects:
+                print(object)
+            column_info.append({
+                'column_index': index,
+                'objects': num_labels,
+            })
