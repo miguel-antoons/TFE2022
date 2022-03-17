@@ -361,13 +361,17 @@ class Spectrogram:
         self.default_treshold = self.find_noise_mean()
         print(self.default_treshold)
 
-    def __retrieve_transmitter_signal(self):
+    def __retrieve_transmitter_signal(self, fmin=800, fmax=1200):
         same_index = 0
         previous_index = 0
         index = 0
+        min_row = round(fmin / self.frequency_resolution)
+        max_row = round(fmax / self.frequency_resolution)
+
+        print(f'Searching direct signal between {fmin} Hz and {fmax} Hz...')
 
         while not same_index == 50 and index < len(self.times):
-            max_column_index = self.Pxx[800:1200, index].argmax()
+            max_column_index = self.Pxx[min_row:max_row, index].argmax()
             print(index)
 
             if max_column_index in [
@@ -389,12 +393,12 @@ class Spectrogram:
 
         print(
             'Direct signal was found around '
-            f'{(previous_index + 800) * self.frequency_resolution} Hz.'
+            f'{(previous_index + min_row) * self.frequency_resolution} Hz.'
         )
         return (
-            (previous_index + 798),
-            (previous_index + 803),
-            (previous_index + 800)
+            (previous_index + min_row - 2),
+            (previous_index + min_row + 3),
+            (previous_index + min_row)
         )
 
     def __subtract_transmitter_signal(self):
@@ -446,7 +450,7 @@ class Spectrogram:
             height, width = bin_spectrogram_slice[object].shape
 
             if height < area_treshold:
-                spectrogram_slice[object] = 1
+                spectrogram_slice[object] = 0.001
 
     def count_meteors(self, area_treshold, start=0, end=None):
         bin_spectrogram_slice = self.__binarize_slice(
@@ -506,13 +510,12 @@ class Spectrogram:
         print(f'Block array shape : {pxx_blocks.shape}')
         print('\nFinding best filter treshold...')
         block_info = []
-        # kernel = np.full((17, 17), 1 / 289)
 
         print('Saving variance, mean and index of previous created blocks...')
         for index, block in enumerate(pxx_blocks):
             block_info.append({
                 'variance': np.var(block),
-                'percentile_95': np.percentile(block, 88),
+                'percentile_95': np.percentile(block, 95),
                 'index': index,
             })
 
@@ -537,7 +540,6 @@ class Spectrogram:
             if block['percentile_95'] == max_percentile
         ]
         used_block = pxx_blocks[block_info[0]['index']]
-        print(np.max(used_block))
 
         # min_max_objective = 0.05 * (used_block.max() - used_block.mean())
         # print(f'Min max objective : {min_max_objective}')
@@ -547,14 +549,18 @@ class Spectrogram:
         #         used_block, kernel, boundary='symm', mode='same'
         #     )
         #     print('hello')
-        # used_block = signal.convolve2d(
-        #         used_block,
-        #         np.full((5, 5), 1 / 25),
-        #         boundary='symm',
-        #         mode='same'
-        #     )
+        used_block = signal.convolve2d(
+                used_block,
+                np.full((5, 5), 1 / 25),
+                boundary='symm',
+                mode='same'
+            )
         # flat_used_block = used_block.flatten()
-        return block_info[0]['percentile_95']
+        # return block_info[0]['percentile_95']
+        percentile = np.percentile(used_block, 97)
+        print(f'Original percentile is {block_info[0]["percentile_95"]}.')
+        print(f'Percentile after convolution is {percentile}.')
+        return percentile
         # return (
         #     stats.t.interval(
         #         0.95,
@@ -564,31 +570,26 @@ class Spectrogram:
         #     )[1]
         # )
 
-    def filter_by_mean(self, start=0, end=None, filter_all=False):
+    def filter_by_percentile(
+        self,
+        start=0,
+        end=None,
+        filter_all=False,
+        percentile=95
+    ):
         if filter_all:
             end = len(self.times) - 1
 
         spectrogram_slice = self.__get_slice(start, end)
 
-        for index, column in enumerate(spectrogram_slice.T):
-            if index == 510:
-                plt.figure(self.figure_n)
-                self.figure_n += 1
-                plt.plot(
-                    self.frequencies[:-1],
-                    np.diff(column)/np.diff(self.frequencies)
-                )
-            # column[column > np.mean(column)] = 1000000
-            mean = np.mean(column)
-            column[column > 2 * mean] = mean
-            mean = np.mean(column)
-            column[column <= 1.5 * mean] = 0.01
+        print('\nFiltering each column...')
+        print(
+            'During this procedure, the system will first calculate the '
+            f'{percentile}th percentile of the column.\n'
+            'All the values of the column below that percentile will be set '
+            'to 0.001.'
+        )
 
-            if index == 510:
-                plt.figure(self.figure_n)
-                self.figure_n += 1
-                plt.plot(
-                    self.frequencies[:-1],
-                    np.diff(column)/np.diff(self.frequencies)
-                )
-                column[:] = 100000
+        for index, column in enumerate(spectrogram_slice.T):
+            column_percentile = np.percentile(column, percentile)
+            column[column < column_percentile] = 0.001

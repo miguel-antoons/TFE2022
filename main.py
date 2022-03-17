@@ -7,15 +7,15 @@ import numpy as np
 def main(cmd_arguments):
     print(cmd_arguments)
     kernel = np.zeros((27, 7))
-    kernel[12:15, 0] = -1
-    kernel[12:15, -1] = -1
+    kernel[12:15, 0] = -1.5
+    kernel[12:15, -1] = -1.5
     kernel[3:-3, 3] = 1
     kernel[2, 3] = 7
     kernel[-3, 3] = 7
-    kernel[1, 3] = 8
-    kernel[-2, 3] = 8
-    kernel[0, 3] = 9
-    kernel[-1, 3] = 9
+    kernel[1, 3] = 9
+    kernel[-2, 3] = 9
+    kernel[0, 3] = 15
+    kernel[-1, 3] = 15
     # kernel[21:, 3] = 5
     # kernel[0, 0] = -1
     # kernel[-1, -1] = -1
@@ -25,7 +25,7 @@ def main(cmd_arguments):
 
     print("Loading wav file into memory...")
     sample_frequency, audio_signal = wavfile.read(
-        './recordings/RAD_BEDOUR_20220211_1735_BEGRIM_SYS001.wav'
+        './recordings/RAD_BEDOUR_20220211_1735_BEMONS_SYS001.wav'
     )
 
     test_spectrogram = Spectrogram(audio_signal)
@@ -34,11 +34,12 @@ def main(cmd_arguments):
     test_spectrogram.filter_with_kernel(
         filter_all=True, coefficient=1, kernel=kernel
     )
-    test_spectrogram.filter_low(filter_all=True)
-    # test_spectrogram.filter_with_kernel(
-    #     filter_all=True
-    # )
-    # test_spectrogram.filter_by_mean(filter_all=True)
+    test_spectrogram.filter_by_percentile(filter_all=True)
+    # test_spectrogram.filter_low(filter_all=True)
+    # # test_spectrogram.filter_with_kernel(
+    # #     filter_all=True
+    # # )
+    # # test_spectrogram.filter_by_mean(filter_all=True)
 
     test_spectrogram.delete_area(27, delete_all=True)
 
