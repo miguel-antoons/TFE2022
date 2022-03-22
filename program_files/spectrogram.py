@@ -358,9 +358,6 @@ class Spectrogram:
         # print('Storing the convolution result...')
         spectrogram_slice[:] = spectrogram_slice_copy
 
-        self.default_treshold = self.find_noise_mean()
-        print(self.default_treshold)
-
     def __retrieve_transmitter_signal(self, fmin=800, fmax=1200):
         same_index = 0
         previous_index = 0
@@ -435,7 +432,7 @@ class Spectrogram:
             end = len(self.times) - 1
 
         bin_spectrogram_slice = self.__binarize_slice(
-            10, start, end
+            1, start, end
         )
         spectrogram_slice = self.__get_slice(start, end)
 
