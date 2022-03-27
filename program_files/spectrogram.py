@@ -167,7 +167,7 @@ class Spectrogram:
         if show:
             self.show_figures()
 
-    def __get_slice(self, start, end, original_spectrogram=0):
+    def __get_slice(self, start, end, original_spectrogram=0, get_copy=False):
         spectrogram = self.Pxx_modified
 
         if original_spectrogram == 1:
@@ -176,10 +176,15 @@ class Spectrogram:
         # if end value is set
         if end:
             # take columns from 'start' to 'end'
-            return spectrogram[:, start:end]
+            spectrogram = spectrogram[:, start:end]
+        else:
+            # else, just take column 'start'
+            spectrogram = spectrogram[:, start:start + 1]
 
-        # else, just take column 'start'
-        return spectrogram[:, start:start + 1]
+        if get_copy:
+            return spectrogram.copy()
+
+        return spectrogram
 
     """
         Plot the original spectre
@@ -437,23 +442,15 @@ class Spectrogram:
         if delete_all:
             end = len(self.times)
 
-        bin_spectrogram_slice = self.__binarize_slice(
-            1, start, end
-        )
         spectrogram_slice = self.__get_slice(start, end)
 
         if get_copy:
             spectrogram_slice = spectrogram_slice.copy()
 
-        # spectrogram_slice[:] = ndimage.binary_dilation(
-        #     spectrogram_slice, iterations=2
-        # )
-
-        labeled_spectrogram, num_labels = ndimage.label(bin_spectrogram_slice)
-        objects = ndimage.find_objects(labeled_spectrogram)
+        objects = self.get_object_coords(start, end)
 
         for object in objects:
-            height, width = bin_spectrogram_slice[object].shape
+            height, width = spectrogram_slice[object].shape
 
             if height < area_treshold:
                 spectrogram_slice[object] = 0.001
@@ -607,7 +604,7 @@ class Spectrogram:
         column_info = []
 
         if filter_all:
-            end = len(self.times) - 1
+            end = len(self.times)
 
         bin_spectrogram = self.__binarize_slice(10, start, end)
 
@@ -624,9 +621,23 @@ class Spectrogram:
 
     def get_potential_meteors(self, start=0, end=None, get_all=False):
         if get_all:
-            reach = range(len(self.times))
-        else:
-            reach = range(start, end)
+            end = len(self.times)
 
-        for i in reach:
+        spectrogram_copy = self.__get_slice(start, end, get_copy=True)
+
+        for i in range(len(spectrogram_copy.T)):
             self.delete_area(27, start=i)
+
+        object_coords = self.get_object_coords(get_all=True)
+        print(object_coords[0][0].start)
+
+    def get_object_coords(self, start=0, end=None, get_all=False, treshold=1):
+        if get_all:
+            end = len(self.times)
+
+        bin_spectrogram_slice = self.__binarize_slice(
+            treshold, start, end
+        )
+
+        labeled_spectrogram, num_labels = ndimage.label(bin_spectrogram_slice)
+        return ndimage.find_objects(labeled_spectrogram)
