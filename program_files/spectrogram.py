@@ -1,4 +1,4 @@
-from scipy import signal, ndimage, stats
+from scipy import signal, ndimage
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -327,20 +327,19 @@ class Spectrogram:
         end=None,
         filter_all=False,
         kernel=np.array(
-            [[0, 1/5, 0],
-             [0, 1/5, 0],
-             [0, 0, 0],
-             [0, 1/5, 0],
-             [0, 1/5, 0]],
+            [[0, 1/3, 0],
+             [0, 1/3, 0],
+             [0, 1/3, 0]],
             dtype=float
         ),
         coefficient=1
     ):
         if filter_all:
-            end = len(self.times - 1)
-
-        spectrogram_slice = self.__get_slice(start, end)
-        spectrogram_slice_copy = np.copy(spectrogram_slice)
+            spectrogram_slice = self.Pxx_modified
+            spectrogram_slice_copy = self.Pxx_modified.copy()
+        else:
+            spectrogram_slice = self.__get_slice(start, end)
+            spectrogram_slice_copy = np.copy(spectrogram_slice)
 
         # print(
         #     'Performing convolution between kernel and the copy'
@@ -427,14 +426,24 @@ class Spectrogram:
         spectrogram_slice = self.__get_slice(start, end)
         return np.where(spectrogram_slice > treshold, 1, 0)
 
-    def delete_area(self, area_treshold, start=0, end=None, delete_all=False):
+    def delete_area(
+        self,
+        area_treshold,
+        start=0,
+        end=None,
+        delete_all=False,
+        get_copy=False
+    ):
         if delete_all:
-            end = len(self.times) - 1
+            end = len(self.times)
 
         bin_spectrogram_slice = self.__binarize_slice(
             1, start, end
         )
         spectrogram_slice = self.__get_slice(start, end)
+
+        if get_copy:
+            spectrogram_slice = spectrogram_slice.copy()
 
         # spectrogram_slice[:] = ndimage.binary_dilation(
         #     spectrogram_slice, iterations=2
@@ -448,6 +457,9 @@ class Spectrogram:
 
             if height < area_treshold:
                 spectrogram_slice[object] = 0.001
+
+        if get_copy:
+            return spectrogram_slice
 
     def count_meteors(self, area_treshold, start=0, end=None):
         bin_spectrogram_slice = self.__binarize_slice(
@@ -575,9 +587,9 @@ class Spectrogram:
         percentile=95
     ):
         if filter_all:
-            end = len(self.times) - 1
-
-        spectrogram_slice = self.__get_slice(start, end)
+            spectrogram_slice = self.Pxx_modified
+        else:
+            spectrogram_slice = self.__get_slice(start, end)
 
         print('\nFiltering each column...')
         print(
@@ -609,3 +621,12 @@ class Spectrogram:
                 'column_index': index,
                 'objects': num_labels,
             })
+
+    def get_potential_meteors(self, start=0, end=None, get_all=False):
+        if get_all:
+            reach = range(len(self.times))
+        else:
+            reach = range(start, end)
+
+        for i in reach:
+            self.delete_area(27, start=i)
