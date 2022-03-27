@@ -631,6 +631,11 @@ class Spectrogram:
         object_coords = self.get_object_coords(get_all=True)
         print(object_coords[0][0].start)
 
+        for object in object_coords:
+            start = object[1].start - 20
+            end = object[1].end + 20
+            print(object)
+
     def get_object_coords(self, start=0, end=None, get_all=False, treshold=1):
         if get_all:
             end = len(self.times)
