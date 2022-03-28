@@ -373,7 +373,6 @@ class Spectrogram:
 
         while not same_index == 50 and index < len(self.times):
             max_column_index = self.Pxx[min_row:max_row, index].argmax()
-            print(index)
 
             if max_column_index in [
                 previous_index - 1, previous_index, previous_index + 1
@@ -427,9 +426,10 @@ class Spectrogram:
 
         return Pxx_copy
 
-    def __binarize_slice(self, treshold, start=0, end=None):
-        spectrogram_slice = self.__get_slice(start, end)
-        return np.where(spectrogram_slice > treshold, 1, 0)
+    def __binarize_slice(self, treshold, start=0, end=None, spectrogram=None):
+        if spectrogram is None:
+            spectrogram = self.__get_slice(start, end)
+        return np.where(spectrogram > treshold, 1, 0)
 
     def delete_area(
         self,
@@ -620,6 +620,7 @@ class Spectrogram:
             })
 
     def get_potential_meteors(self, start=0, end=None, get_all=False):
+        pot_meteors = []
         if get_all:
             end = len(self.times)
 
@@ -629,19 +630,57 @@ class Spectrogram:
             self.delete_area(27, start=i)
 
         object_coords = self.get_object_coords(get_all=True)
-        print(object_coords[0][0].start)
 
         for object in object_coords:
+            total_width = 0
+            previous_coords = 0
             start = object[1].start - 20
-            end = object[1].end + 20
-            print(object)
+            end = object[1].stop + 20
+            fmax = object[0].stop + 4
+            fmin = object[0].start - 4
+            pot_meteor_height = object[0].stop - object[0].start
+            pot_meteor_width = object[1].stop - object[1].start
 
-    def get_object_coords(self, start=0, end=None, get_all=False, treshold=1):
+            if pot_meteor_width < 6 and pot_meteor_height > 100:
+                pot_meteors.append(object)
+            elif pot_meteor_width > 1:
+                print(object)
+                print(
+                    f'height: {pot_meteor_height}, width : {pot_meteor_width}'
+                )
+                for column in range(object[1].start, start, -1):
+                    column_objects = self.get_object_coords(
+                        spectrogram=spectrogram_copy[fmin:fmax, column]
+                    )
+                    if len(column_objects) > 1:
+                        print('several_items')
+                        # for column_object in column_objects:
+                        #     print()
+                    elif len(column_objects):
+                        print(column_objects)
+                        # ! review the below condition
+                        if (column_objects[0][0].stop - column_objects[0][0].start) > (fmax - fmin - 3):
+                            total_width += 1
+                            fmin += column_objects[0][0].start
+                            fmax = fmin + column_objects[0][0].stop
+                    else:
+                        print('no objects')
+                    print(total_width)
+                    
+
+    def get_object_coords(
+        self,
+        start=0,
+        end=None,
+        get_all=False,
+        treshold=1,
+        spectrogram=None
+    ):
         if get_all:
             end = len(self.times)
 
         bin_spectrogram_slice = self.__binarize_slice(
-            treshold, start, end
+            treshold, start, end, spectrogram
         )
 
         labeled_spectrogram, num_labels = ndimage.label(bin_spectrogram_slice)
