@@ -631,9 +631,10 @@ class Spectrogram:
 
         object_coords = self.get_object_coords(get_all=True)
 
+        # iterate over all the spectrogram objects
         for object in object_coords:
+            print('---------------------------------------------------------------')
             total_width = 0
-            previous_coords = 0
             start = object[1].start - 20
             end = object[1].stop + 20
             fmax = object[0].stop + 4
@@ -648,7 +649,8 @@ class Spectrogram:
                 print(
                     f'height: {pot_meteor_height}, width : {pot_meteor_width}'
                 )
-                for column in range(object[1].start, start, -1):
+                # iterate over the 20 columns coming before the start of the current object
+                for column in range(object[1].start - 1, start, -1):
                     column_objects = self.get_object_coords(
                         spectrogram=spectrogram_copy[fmin:fmax, column]
                     )
@@ -659,14 +661,19 @@ class Spectrogram:
                     elif len(column_objects):
                         print(column_objects)
                         # ! review the below condition
-                        if (column_objects[0][0].stop - column_objects[0][0].start) > (fmax - fmin - 3):
+                        print(f'fmax: {fmax}')
+                        print(f'fmin : {fmin}')
+                        print(f'stop : {column_objects[0][0].stop}')
+                        print(f'start : {column_objects[0][0].start}')
+                        if (column_objects[0][0].stop - column_objects[0][0].start) > (fmax - fmin - 12):
                             total_width += 1
-                            fmin += column_objects[0][0].start
                             fmax = fmin + column_objects[0][0].stop
+                            fmin += column_objects[0][0].start
                     else:
                         print('no objects')
                     print(total_width)
-                    
+            else:
+                print('object width lower than 2')
 
     def get_object_coords(
         self,
