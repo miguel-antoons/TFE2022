@@ -642,36 +642,101 @@ class Spectrogram:
             pot_meteor_height = object[0].stop - object[0].start
             pot_meteor_width = object[1].stop - object[1].start
 
-            if pot_meteor_width < 6 and pot_meteor_height > 100:
+            if pot_meteor_width < 6 and pot_meteor_height > 60:
                 pot_meteors.append(object)
             elif pot_meteor_width > 1:
                 print(object)
                 print(
                     f'height: {pot_meteor_height}, width : {pot_meteor_width}'
                 )
+                column = object[1].start - 1
+                no_objects = 0
                 # iterate over the 20 columns coming before the start of the current object
-                for column in range(object[1].start - 1, start, -1):
+                while column > (object[1].start - 22) and no_objects < 2:
+                # for column in range(object[1].start - 1, start, -1):
                     column_objects = self.get_object_coords(
                         spectrogram=spectrogram_copy[fmin:fmax, column]
                     )
-                    if len(column_objects) > 1:
-                        print('several_items')
-                        # for column_object in column_objects:
-                        #     print()
-                    elif len(column_objects):
+                    if len(column_objects):
+                        slice_object = column_objects[0][0]
+                        if len(column_objects) > 1:
+                            print('several_items')
+                            print(column_objects)
+                            fstart = 0
+                            fstop = -4
+                            for column_object in column_objects:
+                                if column_object[0].start > (fstop + 4):
+                                    fstart = column_object[0].start
+                                fstop = column_object[0].stop
+
+                            slice_object = slice(fstart, fstop, None)
+                                
                         print(column_objects)
                         # ! review the below condition
                         print(f'fmax: {fmax}')
                         print(f'fmin : {fmin}')
-                        print(f'stop : {column_objects[0][0].stop}')
-                        print(f'start : {column_objects[0][0].start}')
-                        if (column_objects[0][0].stop - column_objects[0][0].start) > (fmax - fmin - 12):
+                        print(f'stop : {slice_object.stop}')
+                        print(f'start : {slice_object.start}')
+                        no_objects += 1
+                        if (slice_object.stop - slice_object.start) > (fmax - fmin - 12):
+                            if no_objects > 0:
+                                no_objects -= 2
                             total_width += 1
-                            fmax = fmin + column_objects[0][0].stop
-                            fmin += column_objects[0][0].start
+                            fmax = fmin + slice_object.stop
+                            fmin += slice_object.start
                     else:
+                        no_objects += 1
                         print('no objects')
                     print(total_width)
+                    column -= 1
+
+                    if (no_objects == 2):
+                        print('too many empty spaces')
+
+                column = object[1].stop + 1
+                no_objects = 0
+
+                fmax = object[0].stop + 4
+                fmin = object[0].start - 4
+                # ! review below and above code !!!
+                # iterate over the 20 columns coming after the stop of the current object
+                while column < (object[1].stop + 22) and no_objects < 2:
+                # for column in range(object[1].start - 1, start, -1):
+                    column_objects = self.get_object_coords(
+                        spectrogram=spectrogram_copy[fmin:fmax, column]
+                    )
+                    if len(column_objects):
+                        slice_object = column_objects[0][0]
+                        if len(column_objects) > 1:
+                            print('several_items')
+                            print(column_objects)
+                            fstart = 0
+                            fstop = -4
+                            for column_object in column_objects:
+                                if column_object[0].start > (fstop + 4):
+                                    fstart = column_object[0].start
+                                fstop = column_object[0].stop
+
+                            slice_object = slice(fstart, fstop, None)
+                                
+                        print(column_objects)
+                        # ! review the below condition
+                        print(f'fmax: {fmax}')
+                        print(f'fmin : {fmin}')
+                        print(f'stop : {slice_object.stop}')
+                        print(f'start : {slice_object.start}')
+                        no_objects += 1
+                        if (slice_object.stop - slice_object.start) > (fmax - fmin - 12):
+                            if no_objects > 0:
+                                no_objects -= 2
+                            total_width += 1
+                            fmax = fmin + slice_object.stop
+                            fmin += slice_object.start
+                    else:
+                        no_objects += 1
+                        print('no objects')
+                    print(total_width)
+                    column += 1
             else:
                 print('object width lower than 2')
 
