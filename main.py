@@ -32,6 +32,7 @@ def main(cmd_arguments):
     # kernel[0:2, 3] = 30
     # kernel[26:28, 3] = 5
     # kernel[2:25, 3] = 1/23
+    # hello
 
     print(kernel)
 
