@@ -737,8 +737,15 @@ class Spectrogram:
                         print('no objects')
                     print(total_width)
                     column += 1
+
+                if total_width < 20:
+                    pot_meteors.append(object)
             else:
                 print('object width lower than 2')
+
+        print(pot_meteors)
+        for meteor in pot_meteors:
+            self.Pxx_modified[meteor] = 100000000
 
     def get_object_coords(
         self,
