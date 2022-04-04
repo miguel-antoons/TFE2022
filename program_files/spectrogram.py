@@ -633,7 +633,9 @@ class Spectrogram:
 
         # iterate over all the spectrogram objects
         for object in object_coords:
-            print('---------------------------------------------------------------')
+            print(
+                '-------------------------------------------------------------'
+            )
             total_width = 0
             start = object[1].start - 20
             end = object[1].stop + 20
@@ -642,8 +644,12 @@ class Spectrogram:
             pot_meteor_height = object[0].stop - object[0].start
             pot_meteor_width = object[1].stop - object[1].start
 
+            # if the object is higher than 60 and smaller than 6
             if pot_meteor_width < 6 and pot_meteor_height > 60:
+                # consider the oibject as a meteor
                 pot_meteors.append(object)
+
+            # if the object is wider than 1
             elif pot_meteor_width > 1:
                 print(object)
                 print(
@@ -651,39 +657,48 @@ class Spectrogram:
                 )
                 column = object[1].start - 1
                 no_objects = 0
-                # iterate over the 20 columns coming before the start of the current object
+                # iterate over the 20 columns coming before the start of the
+                # current object
                 while column > (object[1].start - 22) and no_objects < 2:
-                # for column in range(object[1].start - 1, start, -1):
+                    # get all the objects from the current column
                     column_objects = self.get_object_coords(
                         spectrogram=spectrogram_copy[fmin:fmax, column]
                     )
+
+                    # if there are any objects
                     if len(column_objects):
                         slice_object = column_objects[0][0]
+
+                        # if there are several objects
                         if len(column_objects) > 1:
                             print('several_items')
                             print(column_objects)
                             fstart = 0
                             fstop = -4
+
                             for column_object in column_objects:
+                                # check if the 2 objects lay close to each
+                                # other
                                 if column_object[0].start > (fstop + 4):
                                     fstart = column_object[0].start
                                 fstop = column_object[0].stop
 
                             slice_object = slice(fstart, fstop, None)
-                                
+
                         print(column_objects)
                         # ! review the below condition
                         print(f'fmax: {fmax}')
                         print(f'fmin : {fmin}')
-                        print(f'stop : {slice_object.stop}')
-                        print(f'start : {slice_object.start}')
                         no_objects += 1
-                        if (slice_object.stop - slice_object.start) > (fmax - fmin - 12):
+                        if (
+                            (slice_object.stop - slice_object.start)
+                            > (fmax - fmin - 12)
+                        ):
                             if no_objects > 0:
                                 no_objects -= 2
                             total_width += 1
-                            fmax = fmin + slice_object.stop
-                            fmin += slice_object.start
+                            fmax = fmin + slice_object.stop + 3
+                            fmin += slice_object.start - 3
                     else:
                         no_objects += 1
                         print('no objects')
@@ -699,9 +714,9 @@ class Spectrogram:
                 fmax = object[0].stop + 4
                 fmin = object[0].start - 4
                 # ! review below and above code !!!
-                # iterate over the 20 columns coming after the stop of the current object
+                # iterate over the 20 columns coming after the stop of the
+                # current object
                 while column < (object[1].stop + 22) and no_objects < 2:
-                # for column in range(object[1].start - 1, start, -1):
                     column_objects = self.get_object_coords(
                         spectrogram=spectrogram_copy[fmin:fmax, column]
                     )
@@ -713,20 +728,21 @@ class Spectrogram:
                             fstart = 0
                             fstop = -4
                             for column_object in column_objects:
-                                if column_object[0].start > (fstop + 4):
+                                if column_object[0].start > (fstop + 6):
                                     fstart = column_object[0].start
                                 fstop = column_object[0].stop
 
                             slice_object = slice(fstart, fstop, None)
-                                
+
                         print(column_objects)
                         # ! review the below condition
                         print(f'fmax: {fmax}')
                         print(f'fmin : {fmin}')
-                        print(f'stop : {slice_object.stop}')
-                        print(f'start : {slice_object.start}')
                         no_objects += 1
-                        if (slice_object.stop - slice_object.start) > (fmax - fmin - 12):
+                        if (
+                            (slice_object.stop - slice_object.start)
+                            > (fmax - fmin - 12)
+                        ):
                             if no_objects > 0:
                                 no_objects -= 2
                             total_width += 1

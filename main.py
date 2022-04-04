@@ -37,7 +37,8 @@ def main(cmd_arguments):
 
     print("Loading wav file into memory...")
     sample_frequency, audio_signal = wavfile.read(
-        '/home/niutalol/shared/TFE/recordings/RAD_BEDOUR_20220211_1735_BEPLAN_SYS001.wav'
+        '/home/niutalol/shared/TFE/recordings/'
+        'RAD_BEDOUR_20220211_1735_BEHUMA_SYS001.wav'
     )
 
     test_spectrogram = Spectrogram(audio_signal)
