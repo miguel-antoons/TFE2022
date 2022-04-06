@@ -9,19 +9,7 @@ def main(cmd_arguments):
     kernel = np.zeros((27, 7))
     kernel[12:15, 0] = -1.5
     kernel[12:15, -1] = -1.5
-    # # kernel[3:-3, 3] = 1
-    # # kernel[2, 3] = 7
-    # # kernel[-3, 3] = 7
-    # # kernel[1, 3] = 9
-    # # kernel[-2, 3] = 9
-    # # kernel[0, 3] = 15
-    # # kernel[-1, 3] = 15
 
-    # kernel[3:-3, 3] = 1 / 23
-    # kernel[2, 3] = 1 / 23
-    # kernel[-3, 3] = 1 / 23
-    # kernel[1, 3] = 1 / 23
-    # kernel[-2, 3] = 1 / 23
     kernel[0:2, 3] = 50
     kernel[-1, 3] = 50
     kernel[-2, 3] = 50
