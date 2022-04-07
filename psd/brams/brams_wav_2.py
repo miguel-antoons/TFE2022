@@ -73,21 +73,24 @@ class BramsWavFile:
         if len(hstring) == 0:
             raise EOFError
         head = np.frombuffer(hstring, dtype=self.head_t, count=1)[0]
+        print(head)
         size = head['size']
         subchunk = f.read(size)
         return head['ID'], head['size'], subchunk
 
     def getRiffChunk(self, f):
-        # cur_pos = f.tell()
+        # get first available chunk from the .wav file
+        # (aka RIFF chunk descriptor)
         riff = np.frombuffer(
             f.read(self.riff_t.itemsize), dtype=self.riff_t, count=1)[0]
-        # print(riff['head']['ID'])
-        # print(riff['head']['size'])
-        # print(riff['format'])
         if (riff['head']['ID'] != b"RIFF") or (riff['format'] != b"WAVE"):
             raise BramsError(f.name)
-        # return riff['head']['size']
-        return riff['head']['size'] - self.riff_t.itemsize
+        print(self.riff_t.itemsize)
+
+        # return the total size following the RIFF chunk
+        return (
+            riff['head']['size'] - self.riff_t.itemsize + self.head_t.itemsize
+        )
 
     def putRiffChunk(self, f, size_bytes):
         riff = np.zeros(1, self.riff_t)
@@ -138,7 +141,9 @@ class BramsWavFile:
         # import ipdb; ipdb.set_trace()
         f = open(filename, 'rb')
         n_to_read = self.getRiffChunk(f)
+        # total size of the .wav file
         self.size = n_to_read + self.riff_t.itemsize
+        print('file size : ', self.size)
         # print(self.size, n_to_read)
         self.bra1 = None
         self.bra2 = None

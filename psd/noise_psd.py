@@ -12,7 +12,7 @@ written by Michel Anciaux, 25-Mar-2022
 
 '''
 from brams.brams_wav_2 import BramsWavFile
-import argparse
+import argparse, os
 
 
 def SSB_noise(f, flow=800, fhigh=900, skip_seconds=0.1, verbosity=1):
@@ -51,5 +51,7 @@ args = GetArguments()
 if args.verbosity > 0:
     print(args)
 
+size = os.path.getsize(args.filename)
+print('Size of file is', size, 'bytes')
 f = BramsWavFile(args.filename, args.verbosity)
 power, psd, rms = SSB_noise(f, verbosity=args.verbosity)
