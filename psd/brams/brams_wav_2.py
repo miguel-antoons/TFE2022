@@ -40,6 +40,8 @@ class BramsWavFile:
         ('num_channels', '<u2'),
         ('sample_rate', '<u4'),
         ('byte_rate', '<u4'),
+        # number of bytes per sample
+        # (num_channels * bits_per_sample / 8 bits/byte)
         ('block_align', '<u2'),
         ('bits_per_sample', '<u2')])
 
@@ -69,13 +71,16 @@ class BramsWavFile:
 
     def getNextSubChunk(self, f):
         # cur_pos = f.tell()
+        # read next chunk header
         hstring = f.read(self.head_t.itemsize)
         if len(hstring) == 0:
             raise EOFError
+
+        # convert the header to readable data
         head = np.frombuffer(hstring, dtype=self.head_t, count=1)[0]
-        print(head)
-        size = head['size']
-        subchunk = f.read(size)
+
+        # read the chunk following the header
+        subchunk = f.read(head['size'])
         return head['ID'], head['size'], subchunk
 
     def getRiffChunk(self, f):
@@ -85,7 +90,6 @@ class BramsWavFile:
             f.read(self.riff_t.itemsize), dtype=self.riff_t, count=1)[0]
         if (riff['head']['ID'] != b"RIFF") or (riff['format'] != b"WAVE"):
             raise BramsError(f.name)
-        print(self.riff_t.itemsize)
 
         # return the total size following the RIFF chunk
         return (
@@ -143,7 +147,7 @@ class BramsWavFile:
         n_to_read = self.getRiffChunk(f)
         # total size of the .wav file
         self.size = n_to_read + self.riff_t.itemsize
-        print('file size : ', self.size)
+
         # print(self.size, n_to_read)
         self.bra1 = None
         self.bra2 = None
@@ -169,8 +173,11 @@ class BramsWavFile:
             elif hid == b'data':
                 self.nsamples = hsize // fmt['block_align']
                 data = np.frombuffer(subchunk, dtype='<i2', count=-1)
+
                 if self.nchannels == 2:
+                    # get every even index starting from 0
                     self.Isamples = data[0::2]
+                    # get every even index STARTING FROM 1
                     self.Qsamples = data[1::2]
                 else:
                     self.Isamples = data[:]
@@ -249,12 +256,15 @@ class BramsWavFile:
             Isamples = self.Isamples
         if Qsamples is None and self.Qsamples:
             Qsamples = self.Qsamples
+
         nsamples = Isamples.size
         w = windows.hann(Isamples.size)
         w_scale = 1 / w.mean()
         Isamples = Isamples * w * w_scale
         if self.Qsamples:
             Qsamples = Qsamples * w * w_scale
+
+        # x axis of the fourier tranform
         self.freq = np.fft.rfftfreq(nsamples, 1 / self.fs)
 
         if self.nchannels == 2 and (self.bra1 or both_sidebands):
@@ -272,6 +282,7 @@ class BramsWavFile:
             S[1: -1] *= 2
         self.S = S
         self.fbin = self.fs / nsamples
+
         return self.freq, self.S, self.fbin
 
     def print_spectral_stats(

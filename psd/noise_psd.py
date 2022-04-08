@@ -12,7 +12,7 @@ written by Michel Anciaux, 25-Mar-2022
 
 '''
 from brams.brams_wav_2 import BramsWavFile
-import argparse, os
+import argparse
 
 
 def SSB_noise(f, flow=800, fhigh=900, skip_seconds=0.1, verbosity=1):
@@ -23,7 +23,7 @@ def SSB_noise(f, flow=800, fhigh=900, skip_seconds=0.1, verbosity=1):
     p = (S[idx] * S[idx].conj()).real / 2
     power = p.sum()
     # psd = power / idx.sum() / fbin
-    psd = p.mean() / f.fbin
+    psd = p.mean() / fbin
     if verbosity > 0:
         print(
             "\tSSB noise in [{:.0f}, {:.0f}] Hz".format(
@@ -46,12 +46,12 @@ def GetArguments():
     return args
 
 
-args = GetArguments()
+if __name__ == '__main__':
+    args = GetArguments()
 
-if args.verbosity > 0:
-    print(args)
+    if args.verbosity > 0:
+        print(args)
 
-size = os.path.getsize(args.filename)
-print('Size of file is', size, 'bytes')
-f = BramsWavFile(args.filename, args.verbosity)
-power, psd, rms = SSB_noise(f, verbosity=args.verbosity)
+    f = BramsWavFile(args.filename, args.verbosity)
+    power, psd, rms = SSB_noise(f, verbosity=args.verbosity)
+    print(power, psd, rms)
