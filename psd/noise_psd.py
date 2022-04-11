@@ -24,13 +24,13 @@ def SSB_noise(f, flow=800, fhigh=900, skip_seconds=0.1, verbosity=1):
     power = p.sum()
     # psd = power / idx.sum() / fbin
     psd = p.mean() / fbin
-    if verbosity > 0:
-        print(
-            "\tSSB noise in [{:.0f}, {:.0f}] Hz".format(
-                flow, fhigh))
-        print(
-            "\t\tpower: {:.2g} [ADU²] psd: {:.3g} [ADU²/Hz]".format(
-                power, psd))
+    # if verbosity > 0:
+    #     print(
+    #         "\tSSB noise in [{:.0f}, {:.0f}] Hz".format(
+    #             flow, fhigh))
+    #     print(
+    #         "\t\tpower: {:.2g} [ADU²] psd: {:.3g} [ADU²/Hz]".format(
+    #             power, psd))
     return (power, psd, Isamples.std())
 
 

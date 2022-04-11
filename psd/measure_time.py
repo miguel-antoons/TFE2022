@@ -4,18 +4,17 @@ from noise_psd import SSB_noise
 from brams.brams_wav_2 import BramsWavFile
 
 
-def main(directory=None, n_files=288, time_all=False):
+def main(directory='recordings/BEHAAC', n_files=288, time_all=False):
     start_time = time.time()
 
-    if directory is None:
-        directory = os.path.join(os.getcwd(), 'recordings/BEHAAC')
+    directory = os.path.join(os.getcwd(), directory)
     directory_content = os.listdir(directory)
 
     if time_all:
         n_files = len(directory_content)
 
     for i in range(n_files):
-        print(i)
+        # print(i)
         file_path = os.path.join(directory, directory_content[i])
 
         # check the path is a file
