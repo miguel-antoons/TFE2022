@@ -29,7 +29,7 @@ def main(cmd_arguments):
     #     'RAD_BEDOUR_20220211_1735_BEDINA_SYS001.wav'
     # )
     sample_frequency, audio_signal = wavfile.read(
-        './recordings/RAD_BEDOUR_20220211_1735_BEHUMA_SYS001.wav'
+        './recordings/meteor_search/RAD_BEDOUR_20220211_1735_BEHUMA_SYS001.wav'
     )
 
     test_spectrogram = Spectrogram(audio_signal)

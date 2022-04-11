@@ -8,7 +8,7 @@ def main(directory=None, n_files=288, time_all=False):
     start_time = time.time()
 
     if directory is None:
-        directory = os.path.join(os.getcwd(), 'psd\\recordings\\BEHAAC')
+        directory = os.path.join(os.getcwd(), 'recordings/BEHAAC')
     directory_content = os.listdir(directory)
 
     if time_all:
