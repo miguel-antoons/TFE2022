@@ -20,7 +20,8 @@ def main(directory='recordings/BEHAAC', n_files=288, time_all=False):
         # check the path is a file
         if os.path.isfile(file_path):
             f = BramsWavFile(file_path)
-            power, psd, rms = SSB_noise(f)
+            power, psd = SSB_noise(f)
+            print(psd)
 
     return time.time() - start_time
 

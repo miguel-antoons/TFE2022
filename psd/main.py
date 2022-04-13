@@ -88,7 +88,7 @@ def main(args):
         # check the path is a file
         if os.path.isfile(file_path):
             f = BramsWavFile(file_path)
-            power, psd, rms = SSB_noise(f)
+            power, psd = SSB_noise(f)
             file["psd"] = psd
 
     print(asked_files)
