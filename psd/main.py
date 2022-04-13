@@ -5,6 +5,7 @@ from brams.brams_wav_2 import BramsWavFile
 import os
 from datetime import datetime
 import mysql.connector
+from dotenv import load_dotenv
 
 
 default_dir = 'recordings/BEHAAC'
@@ -18,9 +19,11 @@ class psdError(Exception):
 
 
 def get_cursor_connection():
+    load_dotenv()
+    print(os.getenv('DB_USER'))
     db = mysql.connector.connect(
         host=os.getenv('HOST'),
-        user=os.getenv('USER'),
+        user=os.getenv('DB_USER'),
         password=os.getenv('PASSWORD'),
         database=os.getenv('DATABASE')
     )
