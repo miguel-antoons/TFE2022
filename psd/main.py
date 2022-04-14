@@ -1,11 +1,12 @@
 #! /usr/bin/env python3
 import argparse
-from noise_psd import SSB_noise
-from brams.brams_wav_2 import BramsWavFile
-import os
-from datetime import datetime
 import mysql.connector
+import os
+from brams.brams_wav_2 import BramsWavFile
+from noise_psd import SSB_noise
+from datetime import datetime
 from dotenv import load_dotenv
+from tqdm import tqdm
 
 
 default_dir = 'recordings/BEHAAC'
@@ -31,29 +32,40 @@ def get_cursor_connection():
 
 
 def close_connection(connection, cursor):
-    connection.close()
     cursor.close()
+    connection.close()
 
 
 def insert_into_db(psd_data):
     connection, cursor = get_cursor_connection()
 
+    close_connection(connection, cursor)
+
 
 def get_station_ids(stations):
     arguments = ['%s' for i in range(len(stations))]
-    ids = []
+    ids = {}
     connection, cursor = get_cursor_connection()
 
+    # get system_id for each location and antenna
     sql_query = (
-        "SELECT system.id, location.id\n"
-        "FROM system, location\n"
+        "SELECT system.id, location_code, antenna\n"
+        "FROM `system`, location\n"
         "WHERE location.id = system.location_id AND location_code in (%s);"
         % ', '.join(arguments)
     )
 
     cursor.execute(sql_query, tuple(stations))
-    for (sys_id, loc_id) in cursor:
-        ids.append(sys_id)
+
+    print('Structuring data received from the database...')
+    # structure the system id's first by location code and then by antenna
+    for (sys_id, loc_code, antenna) in tqdm(cursor):
+        if loc_code not in ids:
+            ids[loc_code] = {}
+
+        ids[loc_code][str(antenna)] = sys_id
+
+    close_connection(connection, cursor)
 
     return ids
 
@@ -62,14 +74,15 @@ def main(args):
     start_date = datetime.strptime(args.start_date[0], '%Y-%m-%d')
     end_date = datetime.strptime(args.end_date, '%Y-%m-%d')
     stations = args.stations
-    print(get_station_ids(stations))
-    return
+    station_ids = get_station_ids(stations)
 
     directory = os.path.join(os.getcwd(), args.directory)
     directory_content = os.listdir(directory)
     asked_files = []
 
-    for filename in directory_content:
+    print('Retrieving relevant files...')
+    # check which files are relevant and store them in an array
+    for filename in tqdm(directory_content):
         split_filename = filename.split('_')
         # get date and time of the file
         file_date = datetime.strptime(
@@ -85,10 +98,21 @@ def main(args):
         ):
             asked_files.append({
                 "filename": filename,
-                "time": file_date.strftime('%Y-%m-%d %H:%M')
+                "time": file_date.strftime('%Y-%m-%d %H:%M'),
+                "system_id": (
+                    station_ids
+                    [split_filename[4]]
+                    [str(int(
+                        split_filename[5]
+                        .replace('SYS', '')
+                        .replace('.wav', '')
+                    ))]
+                ),
             })
 
-    for file in asked_files:
+    print('Calculating psd for each file...')
+    # calculating psd for each file
+    for file in tqdm(asked_files):
         # print(i)
         file_path = os.path.join(directory, file['filename'])
 
@@ -156,5 +180,11 @@ def arguments():
 
 
 if __name__ == '__main__':
-    args = arguments()
+    args = argparse.Namespace(
+        start_date=['2020-09-20'],
+        end_date='2020-09-25',
+        stations=['BEHAAC'],
+        directory=default_dir,
+    )
+    # args = arguments()
     main(args)
