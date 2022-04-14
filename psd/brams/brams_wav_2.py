@@ -14,7 +14,7 @@ written by Michel Anciaux 10-Mar-2015
 '''
 import numpy as np
 from scipy.signal import windows
-import os
+from scipy.io import wavfile
 
 
 class BramsError(Exception):
@@ -97,11 +97,9 @@ class BramsWavFile:
         )
 
     def __init__(self, filename):
-        # import ipdb; ipdb.set_trace()
         f = open(filename, 'rb')
         n_to_read = self.getRiffChunk(f)
 
-        # print(self.size, n_to_read)
         self.fs = None
         while n_to_read >= self.head_t.itemsize:
             try:
@@ -113,10 +111,6 @@ class BramsWavFile:
             if hid == b'fmt ':
                 fmt = np.frombuffer(subchunk, dtype=self.fmt_t, count=1)[0]
 
-                self.nchannels = fmt['num_channels']
-                if self.nchannels > 2:
-                    raise BramsError(
-                        "Unable to handle {} channels".format(self.nchannels))
             elif hid == b'BRA1':
                 bra1 = np.frombuffer(
                     subchunk, dtype=self.bra1_t, count=1)[0]
@@ -125,16 +119,10 @@ class BramsWavFile:
                 self.nsamples = hsize // fmt['block_align']
                 data = np.frombuffer(subchunk, dtype='<i2', count=-1)
 
-                if self.nchannels == 2:
-                    # get every even index starting from 0
-                    self.Isamples = data[0::2]
-                    # get every even index STARTING FROM 1
-                    self.Qsamples = data[1::2]
-                else:
-                    self.Isamples = data[:]
-                    self.Qsamples = None
-            elif self.fs is not None and self.fs is not None:
-                break
+                self.Isamples = data[:]
+
+                if self.fs is not None:
+                    break
 
         f.close()
 
@@ -148,30 +136,16 @@ class BramsWavFile:
         stop_index = self.nsamples
 
         Isamples = self.Isamples[start_index:stop_index]
-        if self.nchannels == 2:
-            Qsamples = self.Qsamples[start_index:stop_index]
-        else:
-            Qsamples = None
-        return (Isamples, Qsamples)
 
-    def FFT(self, Isamples=None, Qsamples=None):
-        if Isamples is None:
-            Isamples = self.Isamples
-        if Qsamples is None and self.Qsamples:
-            Qsamples = self.Qsamples
+        return Isamples
 
+    def FFT(self, Isamples):
         nsamples = Isamples.size
         w = windows.hann(Isamples.size)
         w_scale = 1 / w.mean()
         Isamples = Isamples * w * w_scale
-        if self.Qsamples:
-            Qsamples = Qsamples * w * w_scale
 
-        if self.nchannels == 2 and self.fs is not None:
-            S = np.fft.fft(Isamples + 1j * Qsamples) / nsamples
-            S[1: -1] *= 2
-        else:
-            S = np.fft.rfft(Isamples) / nsamples
-            S[1: -1] *= 2
+        S = np.fft.rfft(Isamples) / nsamples
+        S[1: -1] *= 2
 
         return np.fft.rfftfreq(nsamples, 1 / self.fs), S, self.fs / nsamples

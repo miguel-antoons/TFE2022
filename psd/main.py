@@ -20,7 +20,6 @@ class psdError(Exception):
 
 def get_cursor_connection():
     load_dotenv()
-    print(os.getenv('DB_USER'))
     db = mysql.connector.connect(
         host=os.getenv('HOST'),
         user=os.getenv('DB_USER'),
@@ -28,7 +27,7 @@ def get_cursor_connection():
         database=os.getenv('DATABASE')
     )
 
-    return db, db.cursor
+    return db, db.cursor()
 
 
 def close_connection(connection, cursor):
@@ -41,25 +40,30 @@ def insert_into_db(psd_data):
 
 
 def get_station_ids(stations):
+    arguments = ['%s' for i in range(len(stations))]
+    ids = []
     connection, cursor = get_cursor_connection()
 
     sql_query = (
-        "SELECT system.id, location_id"
-        "FROM system"
-        "JOIN location on location.id = location_id"
-        "WHERE location_code = %d"
+        "SELECT system.id, location.id\n"
+        "FROM system, location\n"
+        "WHERE location.id = system.location_id AND location_code in (%s);"
+        % ', '.join(arguments)
     )
 
-    cursor.executemany(sql_query, stations)
-    for (id, loc_id) in cursor:
-        print(id, loc_id)
+    cursor.execute(sql_query, tuple(stations))
+    for (sys_id, loc_id) in cursor:
+        ids.append(sys_id)
+
+    return ids
 
 
 def main(args):
     start_date = datetime.strptime(args.start_date[0], '%Y-%m-%d')
     end_date = datetime.strptime(args.end_date, '%Y-%m-%d')
     stations = args.stations
-    get_station_ids(stations)
+    print(get_station_ids(stations))
+    return
 
     directory = os.path.join(os.getcwd(), args.directory)
     directory_content = os.listdir(directory)

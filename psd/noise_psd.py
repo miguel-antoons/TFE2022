@@ -17,8 +17,8 @@ import argparse
 
 def SSB_noise(f, flow=800, fhigh=900, skip_seconds=0.1, verbosity=1):
     # f = brams_wav.BramsWavFile(filename)
-    Isamples, Qsamples = f.skip_samples(skip_seconds)
-    freq, S, fbin = f.FFT(Isamples, Qsamples)
+    Isamples = f.skip_samples(skip_seconds)
+    freq, S, fbin = f.FFT(Isamples)
     idx = (freq >= flow) * (freq < fhigh)
     p = (S[idx] * S[idx].conj()).real / 2
     power = p.sum()
