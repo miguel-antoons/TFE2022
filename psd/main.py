@@ -2,6 +2,8 @@
 import argparse
 import mysql.connector
 import os
+
+from numpy import insert
 from brams.brams_wav_2 import BramsWavFile
 from noise_psd import SSB_noise
 from datetime import datetime
@@ -38,6 +40,22 @@ def close_connection(connection, cursor):
 
 def insert_into_db(psd_data):
     connection, cursor = get_cursor_connection()
+    print('Saving values in the database...')
+
+    sql_query = (
+        "UPDATE file"
+        "SET psd = %(psd)d"
+        "WHERE "
+        "system_id = %(system_id)d"
+        "AND start = %(time)s"
+    )
+
+    try:
+        cursor.executemany(sql_query, psd_data)
+        connection.commit()
+    except mysql.connector.Error as e:
+        connection.rollback()
+        print(e)
 
     close_connection(connection, cursor)
 
@@ -122,6 +140,7 @@ def main(args):
             power, psd = SSB_noise(f)
             file["psd"] = psd
 
+    insert_into_db(asked_files)
     print(asked_files)
 
 

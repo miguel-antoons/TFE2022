@@ -97,43 +97,51 @@ class BramsWavFile:
         )
 
     def __init__(self, filename):
-        f = open(filename, 'rb')
-        n_to_read = self.getRiffChunk(f)
+        self.fs = np.fromfile(filename, dtype='<u4', count=1, offset=24)[0]
+        byte_length = np.fromfile(filename, dtype=np.int32, count=1, offset=40)[0]
+        data_offset = (self.riff_t.itemsize + self.bra1_t.itemsize + self.fmt_t.itemsize + 2 * self.head_t.itemsize)
+        self.Isamples = np.fromfile(filename, dtype='<i2', count=byte_length, offset=670)
+        
+        # f = open(filename, 'rb')
+        # n_to_read = self.getRiffChunk(f)
 
-        self.fs = None
-        while n_to_read >= self.head_t.itemsize:
-            try:
-                hid, hsize, subchunk = self.getNextSubChunk(f)
-            except EOFError:
-                raise BramsError("Unexpected EOF")
-            n_to_read -= hsize + self.head_t.itemsize
-            # print(hid, hsize)
-            if hid == b'fmt ':
-                fmt = np.frombuffer(subchunk, dtype=self.fmt_t, count=1)[0]
+        # self.fs = None
+        # data_offset = 0
+        # while n_to_read >= self.head_t.itemsize:
+        #     try:
+        #         hid, hsize, subchunk = self.getNextSubChunk(f)
+        #     except EOFError:
+        #         raise BramsError("Unexpected EOF")
+        #     data_offset += hsize - self.head_t.itemsize
+        #     n_to_read -= hsize + self.head_t.itemsize
+        #     # print(hid, hsize)
+        #     if hid == b'fmt ':
+        #         fmt = np.frombuffer(subchunk, dtype=self.fmt_t, count=1)[0]
 
-            elif hid == b'BRA1':
-                bra1 = np.frombuffer(
-                    subchunk, dtype=self.bra1_t, count=1)[0]
-                self.fs = bra1['sample_rate']
-            elif hid == b'data':
-                self.nsamples = hsize // fmt['block_align']
-                data = np.frombuffer(subchunk, dtype='<i2', count=-1)
+        #     elif hid == b'BRA1':
+        #         print(data_offset)
+        #         bra1 = np.frombuffer(
+        #             subchunk, dtype=self.bra1_t, count=1)[0]
+        #         self.fs = bra1['sample_rate']
+        #     elif hid == b'data':
+        #         self.nsamples = hsize // fmt['block_align']
+        #         data = np.frombuffer(subchunk, dtype='<i2', count=-1)
 
-                self.Isamples = data[:]
+        #         self.Isamples = data[:]
 
-                if self.fs is not None:
-                    break
+        #         if self.fs is not None:
+        #             break
 
-        f.close()
+        # f.close()
 
-        if self.fs is None:
-            # print(self.fmt)
-            self.fs = fmt['sample_rate']
+        # if self.fs is None:
+        #     # print(self.fmt)
+        #     self.fs = fmt['sample_rate']
 
     def skip_samples(self, start_second=0.1):
 
         start_index = int(start_second * self.fs)
-        stop_index = self.nsamples
+        stop_index = len(self.Isamples)
 
         Isamples = self.Isamples[start_index:stop_index]
 
