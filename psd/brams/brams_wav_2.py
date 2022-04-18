@@ -14,7 +14,6 @@ written by Michel Anciaux 10-Mar-2015
 '''
 import numpy as np
 from scipy.signal import windows
-from scipy.io import wavfile
 
 
 class BramsError(Exception):
@@ -69,27 +68,25 @@ class BramsWavFile:
         ('description', '<S234'),
         ('reserved', '<S256')])
 
-    def getNextSubChunk(self, f):
-        # cur_pos = f.tell()
-        # read next chunk header
-        hstring = f.read(self.head_t.itemsize)
-        if len(hstring) == 0:
-            raise EOFError
-
-        # convert the header to readable data
-        head = np.frombuffer(hstring, dtype=self.head_t, count=1)[0]
+    def getNextSubChunk(self, filename, offset=0):
+        head = np.fromfile(
+            filename,
+            dtype=self.head_t,
+            count=1,
+            offset=offset
+        )[0]
 
         # read the chunk following the header
-        subchunk = f.read(head['size'])
-        return head['ID'], head['size'], subchunk
+        subchunk_offset = offset + self.head_t.itemsize
+        return head['ID'], head['size'], subchunk_offset
 
-    def getRiffChunk(self, f):
+    def getRiffChunk(self, filename):
         # get first available chunk from the .wav file
         # (aka RIFF chunk descriptor)
-        riff = np.frombuffer(
-            f.read(self.riff_t.itemsize), dtype=self.riff_t, count=1)[0]
+        riff = np.fromfile(
+            filename, dtype=self.riff_t, count=1)[0]
         if (riff['head']['ID'] != b"RIFF") or (riff['format'] != b"WAVE"):
-            raise BramsError(f.name)
+            raise BramsError(filename.name)
 
         # return the total size following the RIFF chunk
         return (
@@ -97,46 +94,54 @@ class BramsWavFile:
         )
 
     def __init__(self, filename):
-        self.fs = np.fromfile(filename, dtype='<u4', count=1, offset=24)[0]
-        byte_length = np.fromfile(filename, dtype=np.int32, count=1, offset=40)[0]
-        data_offset = (self.riff_t.itemsize + self.bra1_t.itemsize + self.fmt_t.itemsize + 2 * self.head_t.itemsize)
-        self.Isamples = np.fromfile(filename, dtype='<i2', count=byte_length, offset=670)
-        
-        # f = open(filename, 'rb')
-        # n_to_read = self.getRiffChunk(f)
+        n_to_read = self.getRiffChunk(filename)
 
-        # self.fs = None
-        # data_offset = 0
-        # while n_to_read >= self.head_t.itemsize:
-        #     try:
-        #         hid, hsize, subchunk = self.getNextSubChunk(f)
-        #     except EOFError:
-        #         raise BramsError("Unexpected EOF")
-        #     data_offset += hsize - self.head_t.itemsize
-        #     n_to_read -= hsize + self.head_t.itemsize
-        #     # print(hid, hsize)
-        #     if hid == b'fmt ':
-        #         fmt = np.frombuffer(subchunk, dtype=self.fmt_t, count=1)[0]
+        # ? new method
+        self.fs = None
+        data_offset = self.riff_t.itemsize
+        while n_to_read >= self.head_t.itemsize:
+            try:
+                hid, hsize, subchunk_offset = self.getNextSubChunk(
+                    filename,
+                    data_offset
+                )
+            except EOFError:
+                raise BramsError("Unexpected EOF")
+            data_offset = hsize + subchunk_offset
+            n_to_read -= hsize + self.head_t.itemsize
 
-        #     elif hid == b'BRA1':
-        #         print(data_offset)
-        #         bra1 = np.frombuffer(
-        #             subchunk, dtype=self.bra1_t, count=1)[0]
-        #         self.fs = bra1['sample_rate']
-        #     elif hid == b'data':
-        #         self.nsamples = hsize // fmt['block_align']
-        #         data = np.frombuffer(subchunk, dtype='<i2', count=-1)
+            if hid == b'fmt ':
+                fmt = np.fromfile(
+                    filename,
+                    dtype=self.fmt_t,
+                    count=1,
+                    offset=subchunk_offset
+                )[0]
 
-        #         self.Isamples = data[:]
+            elif hid == b'BRA1':
+                bra1 = np.fromfile(
+                    filename,
+                    dtype=self.bra1_t,
+                    count=1,
+                    offset=subchunk_offset
+                )[0]
+                self.fs = bra1['sample_rate']
+            elif hid == b'data':
+                data = np.fromfile(
+                    filename,
+                    dtype='<i2',
+                    count=int(hsize/2),
+                    offset=subchunk_offset
+                )
 
-        #         if self.fs is not None:
-        #             break
+                self.Isamples = data[:]
 
-        # f.close()
+                if self.fs is not None:
+                    break
 
-        # if self.fs is None:
-        #     # print(self.fmt)
-        #     self.fs = fmt['sample_rate']
+        if self.fs is None:
+            # print(self.fmt)
+            self.fs = fmt['sample_rate']
 
     def skip_samples(self, start_second=0.1):
 
@@ -149,7 +154,7 @@ class BramsWavFile:
 
     def FFT(self, Isamples):
         nsamples = Isamples.size
-        w = windows.hann(Isamples.size)
+        w = windows.hann(nsamples)
         w_scale = 1 / w.mean()
         Isamples = Isamples * w * w_scale
 

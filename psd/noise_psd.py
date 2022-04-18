@@ -17,11 +17,9 @@ import argparse
 
 def SSB_noise(f, flow=800, fhigh=900, skip_seconds=0.1, verbosity=1):
     # f = brams_wav.BramsWavFile(filename)
-    Isamples = f.skip_samples(skip_seconds)
-    freq, S, fbin = f.FFT(Isamples)
+    freq, S, fbin = f.FFT(f.Isamples)
     idx = (freq >= flow) * (freq < fhigh)
     p = (S[idx] * S[idx].conj()).real / 2
-    power = p.sum()
     # psd = power / idx.sum() / fbin
     psd = p.mean() / fbin
     # if verbosity > 0:
@@ -31,7 +29,7 @@ def SSB_noise(f, flow=800, fhigh=900, skip_seconds=0.1, verbosity=1):
     #     print(
     #         "\t\tpower: {:.2g} [ADU²] psd: {:.3g} [ADU²/Hz]".format(
     #             power, psd))
-    return (power, psd)
+    return psd
 
 
 def GetArguments():
@@ -53,5 +51,3 @@ if __name__ == '__main__':
         print(args)
 
     f = BramsWavFile(args.filename, args.verbosity)
-    power, psd, rms = SSB_noise(f, verbosity=args.verbosity)
-    print(power, psd, rms)

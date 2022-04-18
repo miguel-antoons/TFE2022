@@ -2,16 +2,17 @@
 import argparse
 import mysql.connector
 import os
+import matplotlib.pyplot as plt
 
-from numpy import insert
 from brams.brams_wav_2 import BramsWavFile
+from packages.variations import detect_noise_decrease
 from noise_psd import SSB_noise
 from datetime import datetime
 from dotenv import load_dotenv
 from tqdm import tqdm
 
 
-default_dir = 'recordings/BEHAAC'
+default_dir = 'recordings/'
 
 
 class psdError(Exception):
@@ -43,10 +44,10 @@ def insert_into_db(psd_data):
     print('Saving values in the database...')
 
     sql_query = (
-        "UPDATE file"
-        "SET psd = %(psd)d"
+        "UPDATE file "
+        "SET noise = %(psd)s "
         "WHERE "
-        "system_id = %(system_id)d"
+        "system_id = %(system_id)s "
         "AND start = %(time)s"
     )
 
@@ -94,7 +95,7 @@ def main(args):
     stations = args.stations
     station_ids = get_station_ids(stations)
 
-    directory = os.path.join(os.getcwd(), args.directory)
+    directory = os.path.join(os.getcwd(), args.directory, args.stations[0])
     directory_content = os.listdir(directory)
     asked_files = []
 
@@ -129,6 +130,9 @@ def main(args):
             })
 
     print('Calculating psd for each file...')
+    i = 0
+    x = []
+    y = []
     # calculating psd for each file
     for file in tqdm(asked_files):
         # print(i)
@@ -136,12 +140,17 @@ def main(args):
 
         # check the path is a file
         if os.path.isfile(file_path):
+            i += 1
+            x.append(i)
             f = BramsWavFile(file_path)
-            power, psd = SSB_noise(f)
+            psd = SSB_noise(f)
+            y.append(psd)
             file["psd"] = psd
+            # detect_noise_decrease(x, y, i)
 
+    plt.plot(x, y)
+    plt.show()
     insert_into_db(asked_files)
-    print(asked_files)
 
 
 def arguments():
@@ -199,11 +208,18 @@ def arguments():
 
 
 if __name__ == '__main__':
+    # args = argparse.Namespace(
+    #     start_date=['2021-07-01'],
+    #     end_date='2021-08-31',
+    #     stations=['BEHAAC'],
+    #     directory=default_dir,
+    # )
     args = argparse.Namespace(
-        start_date=['2020-09-20'],
-        end_date='2020-09-25',
-        stations=['BEHAAC'],
+        start_date=['2020-06-01'],
+        end_date='2020-09-30',
+        stations=['BEOOSE'],
         directory=default_dir,
     )
     # args = arguments()
     main(args)
+    # test_methods(args)
