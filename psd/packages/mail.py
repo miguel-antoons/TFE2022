@@ -1,6 +1,9 @@
 import smtplib
 import ssl
 import os
+from dotenv import load_dotenv
+
+from email.mime.text import MIMEText
 
 
 def send_mail(
@@ -12,7 +15,11 @@ def send_mail(
     password=None
 ):
     if password is None:
+        load_dotenv()
         password = os.getenv('MAIL_PSWD')
+
+    mail_text['From'] = sender
+    mail_text['To'] = receiver
 
     # create a secure SSL context
     context = ssl.create_default_context()
@@ -20,7 +27,8 @@ def send_mail(
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         try:
             server.login(sender, password)
-        except smtplib.SMTPAuthenticationError:
+        except smtplib.SMTPAuthenticationError as e:
+            print(e)
             print("""
                 The server didn't accept the username/password combination.
             """)
@@ -30,7 +38,7 @@ def send_mail(
             """)
 
         try:
-            server.sendmail(sender, receiver, mail_text)
+            server.sendmail(sender, [receiver], mail_text.as_string())
         except smtplib.SMTPRecipientsRefused:
             print("""
                 All recipients were refused. Nobody got the mail. The
@@ -51,3 +59,10 @@ def send_mail(
                 The server replied with an unexpected error code (other than a
                 refusal of a recipient).
             """)
+
+
+if __name__ == '__main__':
+    mail_text = MIMEText("Hi there, how are you?")
+    mail_text['Subject'] = 'Test'
+
+    send_mail(mail_text)

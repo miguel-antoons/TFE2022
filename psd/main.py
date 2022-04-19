@@ -5,7 +5,7 @@ import os
 import matplotlib.pyplot as plt
 
 from brams.brams_wav_2 import BramsWavFile
-from packages.variations import detect_noise_decrease
+from packages.variations import detect_noise_decrease, detect_noise_increase
 from noise_psd import SSB_noise
 from datetime import datetime
 from dotenv import load_dotenv
@@ -45,7 +45,7 @@ def insert_into_db(psd_data):
 
     sql_query = (
         "UPDATE file "
-        "SET noise = %(psd)s "
+        "SET psd = %(psd)s "
         "WHERE "
         "system_id = %(system_id)s "
         "AND start = %(time)s"
@@ -115,19 +115,22 @@ def main(args):
             and file_date <= end_date
             and split_filename[4] in stations
         ):
-            asked_files.append({
-                "filename": filename,
-                "time": file_date.strftime('%Y-%m-%d %H:%M'),
-                "system_id": (
-                    station_ids
-                    [split_filename[4]]
-                    [str(int(
-                        split_filename[5]
-                        .replace('SYS', '')
-                        .replace('.wav', '')
-                    ))]
-                ),
-            })
+            file_path = os.path.join(directory, filename)
+            # check the path is a file
+            if os.path.isfile(file_path):
+                asked_files.append({
+                    "filename": file_path,
+                    "time": file_date.strftime('%Y-%m-%d %H:%M'),
+                    "system_id": (
+                        station_ids
+                        [split_filename[4]]
+                        [str(int(
+                            split_filename[5]
+                            .replace('SYS', '')
+                            .replace('.wav', '')
+                        ))]
+                    ),
+                })
 
     print('Calculating psd for each file...')
     i = 0
@@ -135,18 +138,15 @@ def main(args):
     y = []
     # calculating psd for each file
     for file in tqdm(asked_files):
-        # print(i)
-        file_path = os.path.join(directory, file['filename'])
-
-        # check the path is a file
-        if os.path.isfile(file_path):
-            i += 1
-            x.append(i)
-            f = BramsWavFile(file_path)
-            psd = SSB_noise(f)
-            y.append(psd)
-            file["psd"] = psd
-            # detect_noise_decrease(x, y, i)
+        i += 1
+        x.append(i)
+        f = BramsWavFile(file['filename'])
+        psd = SSB_noise(f)
+        y.append(psd)
+        file["psd"] = psd
+        if i > 1:
+            detect_noise_increase(asked_files[i - 2]['psd'], psd, i)
+        # detect_noise_decrease(x, y, i)
 
     plt.plot(x, y)
     plt.show()

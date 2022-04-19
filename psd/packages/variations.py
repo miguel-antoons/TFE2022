@@ -24,3 +24,8 @@ def detect_noise_decrease(x_data, y_data, start_index=0, interval=150):
         plt.plot(x, fit_func(x, *popt), 'r-')
         plt.plot(x, y)
         plt.show()
+
+
+def detect_noise_increase(previous_value, current_value, current_index):
+    if current_value > previous_value * 10:
+        print(f'A signigicative noise increase at index {current_index}')
