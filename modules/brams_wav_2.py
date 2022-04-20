@@ -11,6 +11,7 @@ usage:
     f = BramsWavFile(args.filename)
 
 written by Michel Anciaux 10-Mar-2015
+modified by Miguel Antoons april-2022
 '''
 import numpy as np
 from scipy.signal import windows

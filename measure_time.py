@@ -1,7 +1,7 @@
 import os
 import time
 from noise_psd import SSB_noise
-from brams.brams_wav_2 import BramsWavFile
+from modules.brams_wav_2 import BramsWavFile
 
 
 def main(directory='recordings/BEHAAC', n_files=288, time_all=False):

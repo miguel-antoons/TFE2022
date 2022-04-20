@@ -1,6 +1,6 @@
 import sys
 from scipy.io import wavfile
-from program_files.spectrogram import Spectrogram
+from modules.meteor_detect.spectrogram import Spectrogram
 import numpy as np
 
 

@@ -3,12 +3,12 @@ import argparse
 import os
 import matplotlib.pyplot as plt
 
-from brams.brams_wav_2 import BramsWavFile
-from packages.variations import detect_noise_decrease, detect_noise_increase
-from packages.database import (
+from modules.brams_wav_2 import BramsWavFile
+from modules.psd.variations import detect_noise_decrease, detect_noise_increase
+from modules.psd.database import (
     get_station_ids, insert_into_db
 )
-from noise_psd import SSB_noise
+from modules.psd.noise_psd import SSB_noise
 from datetime import datetime
 from tqdm import tqdm
 
