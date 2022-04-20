@@ -14,7 +14,7 @@ def main():
 
 
 def get_audio_signal():
-    
+    ...
 
 
 if __name__ == '__main__':
