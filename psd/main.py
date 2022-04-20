@@ -1,14 +1,15 @@
 #! /usr/bin/env python3
 import argparse
-import mysql.connector
 import os
 import matplotlib.pyplot as plt
 
 from brams.brams_wav_2 import BramsWavFile
 from packages.variations import detect_noise_decrease, detect_noise_increase
+from packages.database import (
+    get_station_ids, insert_into_db
+)
 from noise_psd import SSB_noise
 from datetime import datetime
-from dotenv import load_dotenv
 from tqdm import tqdm
 
 
@@ -20,73 +21,6 @@ class psdError(Exception):
         if msg is None:
             msg = 'Unknown error during the program execution.'
         super(psdError, self).__init__(msg)
-
-
-def get_cursor_connection():
-    load_dotenv()
-    db = mysql.connector.connect(
-        host=os.getenv('HOST'),
-        user=os.getenv('DB_USER'),
-        password=os.getenv('PASSWORD'),
-        database=os.getenv('DATABASE')
-    )
-
-    return db, db.cursor()
-
-
-def close_connection(connection, cursor):
-    cursor.close()
-    connection.close()
-
-
-def insert_into_db(psd_data):
-    connection, cursor = get_cursor_connection()
-    print('Saving values in the database...')
-
-    sql_query = (
-        "UPDATE file "
-        "SET psd = %(psd)s "
-        "WHERE "
-        "system_id = %(system_id)s "
-        "AND start = %(time)s"
-    )
-
-    try:
-        cursor.executemany(sql_query, psd_data)
-        connection.commit()
-    except mysql.connector.Error as e:
-        connection.rollback()
-        print(e)
-
-    close_connection(connection, cursor)
-
-
-def get_station_ids(stations):
-    arguments = ['%s' for i in range(len(stations))]
-    ids = {}
-    connection, cursor = get_cursor_connection()
-
-    # get system_id for each location and antenna
-    sql_query = (
-        "SELECT system.id, location_code, antenna\n"
-        "FROM `system`, location\n"
-        "WHERE location.id = system.location_id AND location_code in (%s);"
-        % ', '.join(arguments)
-    )
-
-    cursor.execute(sql_query, tuple(stations))
-
-    print('Structuring data received from the database...')
-    # structure the system id's first by location code and then by antenna
-    for (sys_id, loc_code, antenna) in tqdm(cursor):
-        if loc_code not in ids:
-            ids[loc_code] = {}
-
-        ids[loc_code][str(antenna)] = sys_id
-
-    close_connection(connection, cursor)
-
-    return ids
 
 
 def main(args):
@@ -146,10 +80,10 @@ def main(args):
         file["psd"] = psd
         if i > 1:
             detect_noise_increase(asked_files[i - 2]['psd'], psd, i)
-        # detect_noise_decrease(x, y, i)
+        detect_noise_decrease(x, y, i)
 
-    plt.plot(x, y)
-    plt.show()
+    # plt.plot(x, y)
+    # plt.show()
     insert_into_db(asked_files)
 
 

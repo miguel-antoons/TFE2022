@@ -19,11 +19,11 @@ def detect_noise_decrease(x_data, y_data, start_index=0, interval=150):
     popt, pcov = curve_fit(fit_func, x, y)
 
     if popt[0] < -15:
-        print(popt)
+        # print(popt)
         print(f'A significative decrease at index {start_index}')
-        plt.plot(x, fit_func(x, *popt), 'r-')
-        plt.plot(x, y)
-        plt.show()
+        # plt.plot(x, fit_func(x, *popt), 'r-')
+        # plt.plot(x, y)
+        # plt.show()
 
 
 def detect_noise_increase(previous_value, current_value, current_index):

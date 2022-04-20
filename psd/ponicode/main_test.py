@@ -1,4 +1,4 @@
-import main
+import meteor_detect.main as main
 
 
 class Test_Main_Arguments:
