@@ -1,9 +1,9 @@
-from scipy import signal, ndimage
+from scipy import signal
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-def main():
+def main(audio_signal):
     frequencies, times, Pxx = signal.spectrogram(
         audio_signal,
         5512,
