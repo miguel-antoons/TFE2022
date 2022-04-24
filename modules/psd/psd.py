@@ -13,7 +13,7 @@ written by Michel Anciaux, 25-Mar-2022
 '''
 
 
-def SSB_noise(f, flow=800, fhigh=900, skip_seconds=0.1, verbosity=1):
+def SSB_noise(f, flow=800, fhigh=900):
     # f = brams_wav.BramsWavFile(filename)
     freq, S, fbin = f.FFT(f.Isamples)
     idx = (freq >= flow) * (freq < fhigh)

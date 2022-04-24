@@ -1,8 +1,8 @@
 import sys
-from scipy.io import wavfile
+import numpy as np
+
 from modules.brams_wav_2 import BramsWavFile
 from modules.meteor_detect.spectrogram import Spectrogram
-import numpy as np
 
 
 def main(cmd_arguments):
@@ -27,6 +27,9 @@ def main(cmd_arguments):
     print("Loading wav file into memory...")
     wav_file = BramsWavFile(
         './recordings/meteor_search/RAD_BEDOUR_20220211_1735_BEHUMA_SYS001.wav'
+    )
+    wav_file = BramsWavFile(
+        './recordings/BEHAAC/RAD_BEDOUR_20200602_0000_BEHAAC_SYS001.wav'
     )
 
     test_spectrogram = Spectrogram(
