@@ -46,9 +46,9 @@ def close_connection(connection, cursor):
     connection.close()
 
 
-def insert_into_db(psd_data):
+def insert_noise(psd_data):
     """
-    Function inserts and/or updates the psd value of a set of files.
+    Function inserts and/or updates the noise psd value of a set of files.
     The files it modifies depends on the values received in the
     psd_data array it receives as argument.
 
@@ -65,6 +65,41 @@ def insert_into_db(psd_data):
     sql_query = (
         "UPDATE file "
         "SET psd = %(psd)s "
+        "WHERE "
+        "system_id = %(system_id)s "
+        "AND start = %(time)s"
+    )
+
+    # execute and commit the values
+    try:
+        cursor.executemany(sql_query, psd_data)
+        connection.commit()
+    except mysql.connector.Error as e:
+        connection.rollback()
+        print(e)
+
+    close_connection(connection, cursor)
+
+
+def insert_calibrator(psd_data):
+    """
+    Function inserts and/or updates the calibrator psd value of a set of files.
+    The files it modifies depends on the values received in the
+    psd_data array it receives as argument.
+
+    Parameters
+    ----------
+    psd_data : array
+        Array which contains dictionnaries. Each dictionnary is composed of
+        the psd value, a system_id and the start time of the file.
+    """
+    connection, cursor = get_cursor_connection()
+    print('Saving values in the database...')
+
+    # sql query to update the database values
+    sql_query = (
+        "UPDATE file "
+        "SET calibrator = %(psd)s "
         "WHERE "
         "system_id = %(system_id)s "
         "AND start = %(time)s"

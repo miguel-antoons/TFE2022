@@ -1,8 +1,8 @@
 import argparse
 import os
 import modules.psd.database as db
-import numpy as np
-import matplotlib.pyplot as plt
+# import numpy as np
+# import matplotlib.pyplot as plt
 
 from datetime import datetime
 from tqdm import tqdm
@@ -77,22 +77,35 @@ def main(args):
         )
 
         if calibrator_frequency:
-            psd = SSB_noise(f, calibrator_frequency - 5, calibrator_frequency + 5)
-            print(psd)
+            psd = SSB_noise(
+                f,
+                calibrator_frequency - 5,
+                calibrator_frequency + 5
+            )
+            # print(psd)
             file["psd"] = psd
             file['calibrator_frequency'] = calibrator_frequency
         else:
             file["psd"] = None
             file['calibrator_frequency'] = None
 
-def find_calibrator(Pxx, frequency_resolution, search_length=50, fmin=1350, fmax=1650):
+    db.insert_calibrator(asked_files)
+
+
+def find_calibrator(
+    Pxx,
+    frequency_resolution,
+    search_length=50,
+    fmin=1350,
+    fmax=1650
+):
     same_index = 0
     previous_index = 0
     index = 0
     min_row = round(fmin / frequency_resolution)
     max_row = round(fmax / frequency_resolution)
 
-    print(f'Searching direct signal between {fmin} Hz and {fmax} Hz...')
+    # print(f'Searching direct signal between {fmin} Hz and {fmax} Hz...')
 
     while not same_index == 50 and index < search_length:
         max_column_index = Pxx[min_row:max_row, index].argmax()
@@ -108,16 +121,16 @@ def find_calibrator(Pxx, frequency_resolution, search_length=50, fmin=1350, fmax
         index += 1
 
     if same_index < 50:
-        print(
-            'Calibrator signal was not found, therefore psd cannot be '
-            'calculated.'
-        )
+        # print(
+        #     'Calibrator signal was not found, therefore psd cannot be '
+        #     'calculated.'
+        # )
         return False
 
-    print(
-        'Direct signal was found around '
-        f'{(previous_index + min_row) * frequency_resolution} Hz.'
-    )
+    # print(
+    #     'Direct signal was found around '
+    #     f'{(previous_index + min_row) * frequency_resolution} Hz.'
+    # )
     return (previous_index + min_row) * frequency_resolution
 
 
