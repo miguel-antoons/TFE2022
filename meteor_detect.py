@@ -1,5 +1,6 @@
 import sys
 from scipy.io import wavfile
+from modules.brams_wav_2 import BramsWavFile
 from modules.meteor_detect.spectrogram import Spectrogram
 import numpy as np
 
@@ -24,15 +25,14 @@ def main(cmd_arguments):
     print(kernel)
 
     print("Loading wav file into memory...")
-    # sample_frequency, audio_signal = wavfile.read(
-    #     '/home/niutalol/shared/TFE/recordings/'
-    #     'RAD_BEDOUR_20220211_1735_BEDINA_SYS001.wav'
-    # )
-    sample_frequency, audio_signal = wavfile.read(
+    wav_file = BramsWavFile(
         './recordings/meteor_search/RAD_BEDOUR_20220211_1735_BEHUMA_SYS001.wav'
     )
 
-    test_spectrogram = Spectrogram(audio_signal)
+    test_spectrogram = Spectrogram(
+        wav_file.Isamples,
+        sample_frequency=wav_file.fs
+    )
     test_spectrogram.filter_with_kernel(
         filter_all=True, coefficient=1, kernel=kernel
     )

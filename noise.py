@@ -8,7 +8,7 @@ from modules.psd.variations import detect_noise_decrease, detect_noise_increase
 from modules.psd.database import (
     get_station_ids, insert_into_db
 )
-from modules.psd.noise_psd import SSB_noise
+from modules.psd.psd import SSB_noise
 from datetime import datetime
 from tqdm import tqdm
 

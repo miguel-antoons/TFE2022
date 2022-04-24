@@ -1,4 +1,5 @@
 from scipy import signal, ndimage
+import numba
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -11,9 +12,9 @@ class Spectrogram:
         sample_frequency=5512,
         noverlap=14384,
         window='hamming',
-        max_normalization=100000
+        max_normalization=1
     ):
-        frequencies, times, Pxx = signal.spectrogram(
+        self.frequencies, self.times, Pxx = signal.spectrogram(
             audio_signal,
             sample_frequency,
             nperseg=nfft,
@@ -21,17 +22,19 @@ class Spectrogram:
             window=window,
         )
         print(f'Sample frequency : {sample_frequency}')
-        print(f'Signal length in frequency segments : {len(frequencies)}')
-        print(f'Signal length in time segments : {len(times)}')
+        print(f'Signal length in frequency segments : {len(self.frequencies)}')
+        print(f'Signal length in time segments : {len(self.times)}')
         print(f'Linear singal values go from 0 to {max_normalization}')
 
-        self.frequency_resolution = sample_frequency / 2 / len(frequencies)
+        self.frequency_resolution = (
+            sample_frequency / 2 / len(self.frequencies)
+        )
         # sample frequency of the wav audio signal
         self.sample_frequency = sample_frequency
         # frequencies contained by the audio signal
-        self.frequencies = np.frombuffer(frequencies, dtype=float)
+        # self.frequencies = np.frombuffer(frequencies, dtype=float)
         # time segments contained in the audio signal
-        self.times = np.frombuffer(times, dtype=float)
+        # self.times = np.frombuffer(times, dtype=float)
         # signal strength
         self.Pxx = self.__normalize_spectrogram(max_normalization, Pxx)
         # signal strength in dB
@@ -355,8 +358,13 @@ class Spectrogram:
 
         # performing convolution as many times as requested by the user
         for i in range(coefficient):
-            spectrogram_slice_copy = signal.convolve2d(
-                spectrogram_slice_copy, kernel, boundary='symm', mode='same'
+            # spectrogram_slice_copy = signal.convolve2d(
+            #     spectrogram_slice_copy, kernel, boundary='symm', mode='same'
+            # )
+            spectrogram_slice_copy = ndimage.convolve(
+                spectrogram_slice_copy,
+                kernel,
+                mode='constant'
             )
 
         # print('Storing the convolution result...')
@@ -453,7 +461,7 @@ class Spectrogram:
             height, width = spectrogram_slice[object].shape
 
             if height < area_treshold:
-                spectrogram_slice[object] = 0.001
+                spectrogram_slice[object] = 0.0000001
 
         if get_copy:
             return spectrogram_slice
@@ -768,7 +776,7 @@ class Spectrogram:
         start=0,
         end=None,
         get_all=False,
-        treshold=1,
+        treshold=0.01,
         spectrogram=None
     ):
         if get_all:
