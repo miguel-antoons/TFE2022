@@ -37,7 +37,8 @@ def main(args):
         )
 
     print('Calculating psd for each file...')
-    # ! below arrays have to change to dictionnaries in order to support multiple stations
+    # ! below arrays have to change to dictionnaries in order to support
+    # ! multiple stations
     noise_memory = {}
     # calculating psd for each file
     for file in tqdm(asked_files):
@@ -51,7 +52,8 @@ def main(args):
         psd = SSB_noise(f)
 
         noise_memory[file['station_code']]['i'] += 1
-        noise_memory[file['station_code']]['x'].append(i)
+        noise_memory[file['station_code']]['x'].append(
+            noise_memory[file['station_code']]['i'])
         noise_memory[file['station_code']]['y'].append(psd)
 
         file["psd"] = float(psd)
@@ -167,6 +169,7 @@ def get_archived_files():
                 f'{split_filename[2]} {split_filename[3]}',
                 '%Y%m%d %H%M'
             )
+            print(file_date)
 
 
 def arguments():
