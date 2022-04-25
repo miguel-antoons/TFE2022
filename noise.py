@@ -8,7 +8,7 @@ from modules.brams_wav_2 import BramsWavFile
 from modules.psd.variations import detect_noise_decrease, detect_noise_increase
 from modules.psd.database import get_station_ids, insert_noise
 from modules.psd.psd import SSB_noise
-from datetime import datetime
+from datetime import datetime, timedelta
 from tqdm import tqdm
 
 
@@ -37,20 +37,38 @@ def main(args):
         )
 
     print('Calculating psd for each file...')
-    i = 0
-    x = []
-    y = []
+    # ! below arrays have to change to dictionnaries in order to support multiple stations
+    noise_memory = {}
     # calculating psd for each file
     for file in tqdm(asked_files):
-        i += 1
-        x.append(i)
+        if noise_memory[file['station_code']] is None:
+            noise_memory[file['station_code']] = {
+                "i": 0,
+                "x": [],
+                "Y": []
+            }
         f = BramsWavFile(file['filename'])
         psd = SSB_noise(f)
-        y.append(psd)
+
+        noise_memory[file['station_code']]['i'] += 1
+        noise_memory[file['station_code']]['x'].append(i)
+        noise_memory[file['station_code']]['y'].append(psd)
+
         file["psd"] = float(psd)
-        if i > 1:
-            detect_noise_increase(asked_files[i - 2]['psd'], psd, i)
-        detect_noise_decrease(x, y, i)
+        if noise_memory[file['station_code']]['i'] > 1:
+            detect_noise_increase(
+                noise_memory
+                [file['station_code']]
+                ['y']
+                [noise_memory[file['station_code']]['i'] - 2],
+                psd,
+                noise_memory[file['station_code']]['i']
+            )
+        detect_noise_decrease(
+            noise_memory[file['station_code']]['x'],
+            noise_memory[file['station_code']]['y'],
+            noise_memory[file['station_code']]['i']
+        )
 
     # plt.plot(x, y)
     # plt.show()
@@ -84,6 +102,7 @@ def get_asked_files(start_date, end_date, stations, parent_directory):
             # check the path is a file
             if os.path.isfile(file_path):
                 asked_files.append({
+                    "station_code": split_filename[4],
                     "filename": file_path,
                     "time": file_date.strftime('%Y-%m-%d %H:%M'),
                     "system_id": (
@@ -100,41 +119,54 @@ def get_asked_files(start_date, end_date, stations, parent_directory):
     return asked_files
 
 
+def verify_archive_date(start_date, dir_content):
+    if str(start_date.year) not in dir_content:
+        print('No new files were archived.')
+        return False
+
+    directory = os.path.join(default_dir, str(start_date.year))
+    dir_content = os.listdir(directory)
+
+    if str(start_date.month) not in dir_content:
+        print('No new files were archived.')
+        return False
+
+    directory = os.path.join(directory, str(start_date.month))
+    dir_content = os.listdir(directory)
+
+    if str(start_date.day) not in dir_content:
+        print('No new files were archived.')
+        return False
+
+    return os.listdir(os.path.join(directory, str(start_date.day)))
+
+
 def get_archived_files():
+    data = None
     with open('program_data.json') as f:
         data = json.load(f)
 
-    previous_date = datetime.strptime(data['previous_date'], '%Y-%m-%d')
+    # if no file was found
+    if data is None:
+        start_date = datetime.now() - timedelta(1)
+        print(
+            'No data file found, setting default date (yesterday)'
+        )
+    else:
+        start_date = (
+            datetime.strptime(data['previous_date'], '%Y-%m-%d') + timedelta(1)
+        )
 
-    directory = default_dir
-    dir_content = os.listdir(directory)
-
-    if (
-        str(previous_date.year) not in dir_content
-        or str(previous_date.year + 1) not in dir_content
+    while (
+        dir_content := verify_archive_date(start_date, os.listdir(default_dir))
     ):
-        print('No new files were archived.')
-        return False
-
-    directory = os.path.join(directory, str(previous_date.year))
-    dir_content = os.listdir(directory)
-
-    if (
-        str(previous_date.month) not in dir_content
-        or str(previous_date.month + 1) not in dir_content
-    ):
-        print('No new files were archived.')
-        return False
-
-    directory = os.path.join(directory, str(previous_date.month))
-    dir_content = os.listdir(directory)
-
-    if str(previous_date.day + 1) not in dir_content:
-        print('No new files were archived.')
-        return False
-
-    # ? From here, add all the files following the previous date to the
-    # ? asked files var
+        for filename in tqdm(dir_content):
+            split_filename = filename.split('_')
+            # get date and time of the file
+            file_date = datetime.strptime(
+                f'{split_filename[2]} {split_filename[3]}',
+                '%Y%m%d %H%M'
+            )
 
 
 def arguments():
