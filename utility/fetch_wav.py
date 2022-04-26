@@ -53,7 +53,7 @@ def arguments():
         metavar='START DATE',
         help="""
             begin date of the files to fetch. This date must be in the
-            YYY-MM-DD format.
+            YYYY-MM-DD format.
         """,
         nargs=1
     )
@@ -62,7 +62,7 @@ def arguments():
         metavar='END DATE',
         help="""
             end date of the files to fetch. This date must be in the
-            YYY-MM-DD format.
+            YYYY-MM-DD format.
         """,
         nargs='?',
         default=None

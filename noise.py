@@ -2,25 +2,18 @@
 import argparse
 import json
 import os
+import modules.psd.database as db
+import modules.psd.variations as variations
+import modules.psd.psd as psd
 # import matplotlib.pyplot as plt
 
 from modules.brams_wav_2 import BramsWavFile
-from modules.psd.variations import detect_noise_decrease, detect_noise_increase
-from modules.psd.database import get_station_ids, insert_noise
-from modules.psd.psd import SSB_noise
 from datetime import datetime, timedelta
 from tqdm import tqdm
 
 
 default_dir = 'recordings/'
 # default_dir = /bira-iasb/data/GROUNDBASED/BRAMS
-
-
-class psdError(Exception):
-    def __init__(self, msg=None):
-        if msg is None:
-            msg = 'Unknown error during the program execution.'
-        super(psdError, self).__init__(msg)
 
 
 def main(args):
@@ -35,50 +28,109 @@ def main(args):
             stations,
             args.directory
         )
+    else:
+        asked_files = get_archived_files()
 
-    print('Calculating psd for each file...')
-    # ! below arrays have to change to dictionnaries in order to support
-    # ! multiple stations
     noise_memory = {}
+    print('Calculating psd for each file...')
     # calculating psd for each file
     for file in tqdm(asked_files):
-        if noise_memory[file['station_code']] is None:
-            noise_memory[file['station_code']] = {
-                "i": 0,
-                "x": [],
-                "Y": []
-            }
-        f = BramsWavFile(file['filename'])
-        psd = SSB_noise(f)
+        # if it is the first (during program execution) time that psd will be
+        # calculated for this station
+        if file['station_code'] not in noise_memory.keys():
+            # get the preious psd values from the database
+            previous_psd = db.get_previous_noise_psd(
+                [file['system_id']],
+                False
+            )
+            previous_calibrator = db.get_previous_calibrator_psd(
+                [file['system_id']],
+                False
+            )
 
+            # check if there are any psd values received from the database
+            if file['system_id'] not in previous_psd.keys():
+                # if there are no values, set an empty array as previous psd
+                # values
+                previous_psd[file['system_id']] = []
+
+            # add a dict to the noise_memory variable representing psd values
+            # for the current station
+            noise_memory[file['station_code']] = {
+                "i": len(previous_psd[file['system_id']]) - 1,
+                "x": range(len(previous_psd[file['system_id']])),
+                "y": previous_psd[file['system_id']],
+                "previous_calibrator": previous_calibrator[file['system_id']],
+                "previous_f": None
+            }
+
+        # read the wav file and calculate the noise and callibrator psd value
+        f = BramsWavFile(file['filename'])
+        noise_psd = psd.get_noise_psd(f)
+        calibrator_psd, calibrator_f = psd.get_calibrator_psd(f)
+
+        # increment the counter, append an x value and apprend the psd value
+        # to the y array
         noise_memory[file['station_code']]['i'] += 1
         noise_memory[file['station_code']]['x'].append(
             noise_memory[file['station_code']]['i'])
-        noise_memory[file['station_code']]['y'].append(psd)
+        noise_memory[file['station_code']]['y'].append(noise_psd)
 
-        file["psd"] = float(psd)
+        # if the length exceeds 150
+        if len(noise_memory[file['station_code']]['x']) > 150:
+            # trim the y and x array since we need no more than 150 values
+            noise_memory[file['station_code']]['x'] = (
+                noise_memory
+                [file['station_code']]
+                ['x']
+                [-150:]
+            )
+            noise_memory[file['station_code']]['y'] = (
+                noise_memory
+                [file['station_code']]
+                ['y']
+                [-150:]
+            )
+
+        # store the psd value in the file dict
+        file["noise_psd"] = float(noise_psd)
+        file["calibrator_psd"] = float(calibrator_psd)
+
+        variations.detect_calibrator_variations(
+            noise_memory[file['station_code']]['previous_calibrator'],
+            calibrator_psd
+        )
+
+        # if there is a value to compare to
         if noise_memory[file['station_code']]['i'] > 1:
-            detect_noise_increase(
+            # compare the current psd to the previous one in order
+            # to detect high noise increases
+            variations.detect_noise_increase(
                 noise_memory
                 [file['station_code']]
                 ['y']
                 [noise_memory[file['station_code']]['i'] - 2],
-                psd,
+                noise_psd,
                 noise_memory[file['station_code']]['i']
             )
-        detect_noise_decrease(
+
+        # finally, detect if there is a noise decrease
+        variations.detect_noise_decrease(
             noise_memory[file['station_code']]['x'],
             noise_memory[file['station_code']]['y'],
             noise_memory[file['station_code']]['i']
         )
 
+    noise_memory[file['station_code']]['previous_calibrator'] = calibrator_psd
+    noise_memory[file['station_code']]['previous_f'] = calibrator_f
     # plt.plot(x, y)
     # plt.show()
-    insert_noise(asked_files)
+    # insert the noise psd values into the database
+    db.insert_noise(asked_files)
 
 
 def get_asked_files(start_date, end_date, stations, parent_directory):
-    station_ids = get_station_ids(stations)
+    station_ids = db.get_station_ids(stations, False)
 
     directory = os.path.join(os.getcwd(), parent_directory, args.stations[0])
     directory_content = os.listdir(directory)
@@ -101,12 +153,14 @@ def get_asked_files(start_date, end_date, stations, parent_directory):
             and split_filename[4] in stations
         ):
             file_path = os.path.join(directory, filename)
+
             # check the path is a file
             if os.path.isfile(file_path):
                 asked_files.append({
                     "station_code": split_filename[4],
                     "filename": file_path,
                     "time": file_date.strftime('%Y-%m-%d %H:%M'),
+                    "datetime": file_date,
                     "system_id": (
                         station_ids
                         [split_filename[4]]
@@ -118,35 +172,45 @@ def get_asked_files(start_date, end_date, stations, parent_directory):
                     ),
                 })
 
-    return asked_files
+    # return the list of new files ordered by their date
+    return sorted(asked_files, key=lambda d: d['datetime'])
 
 
 def verify_archive_date(start_date, dir_content):
-    if str(start_date.year) not in dir_content:
+    if (year := start_date.strftime('%Y')) not in dir_content:
+        print(year)
         print('No new files were archived.')
         return False
 
-    directory = os.path.join(default_dir, str(start_date.year))
+    directory = os.path.join(default_dir, year)
     dir_content = os.listdir(directory)
 
-    if str(start_date.month) not in dir_content:
+    if (month := start_date.strftime('%m')) not in dir_content:
+        print(month)
         print('No new files were archived.')
         return False
 
-    directory = os.path.join(directory, str(start_date.month))
+    directory = os.path.join(directory, month)
     dir_content = os.listdir(directory)
 
-    if str(start_date.day) not in dir_content:
+    if (day := start_date.strftime('%d')) not in dir_content:
+        print(day)
         print('No new files were archived.')
         return False
 
-    return os.listdir(os.path.join(directory, str(start_date.day)))
+    return {
+        "path": os.path.join(directory, day),
+        "content": os.listdir(os.path.join(directory, day))
+    }
 
 
 def get_archived_files():
-    data = None
-    with open('program_data.json') as f:
-        data = json.load(f)
+    try:
+        with open('program_data.json') as f:
+            data = json.load(f)
+    except FileNotFoundError as e:
+        # logging.warning(e)
+        data = None
 
     # if no file was found
     if data is None:
@@ -159,17 +223,47 @@ def get_archived_files():
             datetime.strptime(data['previous_date'], '%Y-%m-%d') + timedelta(1)
         )
 
+    files_to_archive = []
+    station_ids = db.get_station_ids()
+
+    # while a new directory with new files is found
     while (
-        dir_content := verify_archive_date(start_date, os.listdir(default_dir))
+        directory := verify_archive_date(
+            start_date,
+            os.listdir(default_dir)
+        )
     ):
-        for filename in tqdm(dir_content):
+        for filename in tqdm(directory['content']):
             split_filename = filename.split('_')
             # get date and time of the file
             file_date = datetime.strptime(
                 f'{split_filename[2]} {split_filename[3]}',
                 '%Y%m%d %H%M'
             )
-            print(file_date)
+            file_path = os.path.join(directory['path'], filename)
+
+            # check the path is a file
+            if os.path.isfile(file_path):
+                files_to_archive.append({
+                    "station_code": split_filename[4],
+                    "filename": file_path,
+                    "time": file_date.strftime('%Y-%m-%d %H:%M'),
+                    "datetime": file_date,
+                    "system_id": (
+                        station_ids
+                        [split_filename[4]]
+                        [str(int(
+                            split_filename[5]
+                            .replace('SYS', '')
+                            .replace('.wav', '')
+                        ))]
+                    ),
+                })
+
+        # increase the date by 1 day
+        start_date += timedelta(1)
+
+    return sorted(files_to_archive, key=lambda d: d['datetime'])
 
 
 def arguments():
@@ -204,7 +298,8 @@ def arguments():
         help="""
             list with the codes of the stations to detect noise variations on.
         """,
-        nargs='+'
+        nargs='*',
+        default=None
     )
     parser.add_argument(
         '-i', '--interval',
@@ -228,18 +323,18 @@ def arguments():
 
 
 if __name__ == '__main__':
-    args = argparse.Namespace(
-        start_date='2021-07-01',
-        end_date='2021-08-31',
-        stations=['BEHAAC'],
-        directory=default_dir,
-    )
+    # args = argparse.Namespace(
+    #     start_date='2021-07-01',
+    #     end_date='2021-08-31',
+    #     stations=['BEHAAC'],
+    #     directory=default_dir,
+    # )
     # args = argparse.Namespace(
     #     start_date='2020-06-01',
     #     end_date='2020-09-30',
     #     stations=['BEOOSE'],
     #     directory=default_dir,
     # )
-    # args = arguments()
+    args = arguments()
     main(args)
     # test_methods(args)

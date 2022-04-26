@@ -64,7 +64,7 @@ def insert_noise(psd_data):
     # sql query to update the database values
     sql_query = (
         "UPDATE file "
-        "SET psd = %(psd)s "
+        "SET psd = %(noise_psd)s "
         "WHERE "
         "system_id = %(system_id)s "
         "AND start = %(time)s"
@@ -99,7 +99,7 @@ def insert_calibrator(psd_data):
     # sql query to update the database values
     sql_query = (
         "UPDATE file "
-        "SET calibrator = %(psd)s "
+        "SET calibrator = %(calibrator_psd)s "
         "WHERE "
         "system_id = %(system_id)s "
         "AND start = %(time)s"
@@ -116,7 +116,7 @@ def insert_calibrator(psd_data):
     close_connection(connection, cursor)
 
 
-def get_station_ids(stations):
+def get_station_ids(stations=[], get_all=True):
     """
     Function receives location codes ('BEHAAC', 'BEGRIM', ...) as argument
     and returns the system_id(s) it finds for a location code (i.e. suppose
@@ -131,7 +131,11 @@ def get_station_ids(stations):
     Parameters
     ----------
     stations : array
-        array of the string location codes
+        array of the string location codes, defaults to an empty array
+    get_all : boolean
+        determines wheter to get all the station ids or only to get those
+        that are part of the location_codes specified in the 'stations'
+        array
 
     Returns
     -------
@@ -147,10 +151,15 @@ def get_station_ids(stations):
     # get system_id for each location and antenna
     sql_query = (
         "SELECT system.id, location_code, antenna\n"
-        "FROM `system`, location\n"
-        "WHERE location.id = system.location_id AND location_code in (%s);"
-        % ', '.join(arguments)
+        "FROM `system`\n"
+        "JOIN location on system.location_id = location.id\n"
     )
+
+    if not get_all:
+        sql_query += (
+            "WHERE location.id = system.location_id AND location_code in (%s);"
+            % ', '.join(arguments)
+        )
 
     cursor.execute(sql_query, tuple(stations))
 
@@ -165,3 +174,132 @@ def get_station_ids(stations):
     close_connection(connection, cursor)
 
     return ids
+
+
+def get_previous_noise_psd(stations=[], get_all=True, limit=150):
+    """
+    Function gets last inserted psd values from the database. Then
+    number of psd values returned depends on the 'limit' arg.
+    It is possible to only get psd value from specific stations,
+    this is done by setting the get_all flag to false and pass
+    and array with the system_ids to select psd values from.
+    Note than if the get_all value is set to True, the limit  and
+    station args will be ignored.
+
+    Parameters
+    ----------
+    stations : list, optional
+        list of the station ids to get psd values from, by default []
+    get_all : bool, optional
+        determines wheter to get all the psd values from the table or not,
+        by default True
+    limit : int, optional
+        limit of values per station, is multiplied by the length of the
+        stations list, by default 150
+
+    Returns
+    -------
+    dict
+        a dictionnary where the system ids are the keys and the values are
+        lists of psd values
+    """
+    arguments = ['%s' for i in range(len(stations))]
+    psd = {}
+    connection, cursor = get_cursor_connection()
+    limit_statement = ""
+
+    # get the last noise psd values and system_id from the database
+    sql_query = (
+        "SELECT system_id, psd\n"
+        "FROM file\n"
+        "WHERE psd is not null"
+    )
+
+    # filter system_id if asked
+    if not get_all:
+        sql_query += (
+            "AND system_id in (%s)\n"
+            % ', '.join(arguments)
+        )
+
+        # add limit to get only the 150 last values for each station
+        limit_statement = "LIMIT %s" % (limit * len(stations))
+
+    # order by statement in order to get the last psd values
+    sql_query += f"ORDER BY file.precise_start\n{limit_statement}"
+
+    cursor.execute(sql_query, tuple(stations))
+
+    print('Structuring data received from the database...')
+    # structure the data received from the database into a dictionnary of
+    # arrays
+    for (sys_id, psd_val) in tqdm(cursor):
+        if sys_id not in psd:
+            psd[sys_id] = []
+
+        psd[sys_id].append(psd_val)
+
+    close_connection(cursor, connection)
+
+    return psd
+
+
+def get_previous_calibrator_psd(stations=[], get_all=True):
+    """
+    Function gets the last calibrator psd value from the database
+    for each station.
+    If the get_all flag is set to False, only the calibrator psd
+    values from the stations specified in the stations array will
+    be returned.
+
+    Parameters
+    ----------
+    stations : list, optional
+        List of stations to get calibrator psd from. This list is
+        ignored if get_all is set to Trye, by default []
+    get_all : bool, optional
+        determines wheter to get the last psd value from all the
+        stations or only the stations specified in the stations
+        list, by default True
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    arguments = ['%s' for i in range(len(stations))]
+    psd = {}
+    connection, cursor = get_cursor_connection()
+
+    # get the last calibrator psd value for the requested systems (stations)
+    sql_query = (
+        "SELECT system_id, calibrator\n"
+        "FROM file\n"
+        "INNER JOIN\n"
+        "   (SELECT system_id, max(precise_start) as top_date\n"
+        "   FROM file\n"
+        "   WHERE calibrator is not null\n"
+        "   GROUP BY system_id)\n"
+        "   AS latest\n"
+        "   ON latest.top_date = file.precise_start\n"
+        "   AND latest.system_id = file.system_id\n"
+    )
+
+    # filter system ids if asked
+    if not get_all:
+        sql_query += (
+            "WHERE system_id in (%s)\n"
+            % ', '.join(arguments)
+        )
+
+    cursor.execute(sql_query, tuple(stations))
+
+    print('Structuring data received from the database...')
+    # structure the data received from the database into a dictionnary of
+    # arrays
+    for (sys_id, psd_val) in tqdm(cursor):
+        psd[sys_id] = psd_val
+
+    close_connection(cursor, connection)
+
+    return psd
