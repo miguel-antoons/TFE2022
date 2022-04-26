@@ -1,4 +1,5 @@
 import sys
+import argparse
 import numpy as np
 
 from modules.brams_wav_2 import BramsWavFile
@@ -55,6 +56,29 @@ def main(cmd_arguments):
     # )
 
 
+def arguments():
+    parser = argparse.ArgumentParser(
+        description="""
+            Program searches for meteor detection found on one system
+            on other systems.
+            To use this program, enter the program name followed by the
+            station id or the station location_code with the staion
+            antenna number attached to it (i.e. BEHAAC1, BEHUMA3, ...).
+        """
+    )
+    parser.add_argument(
+        'detection_time',
+        metavar='DETECTION TIME',
+        help="""
+            Time ot the meteor detection use either '%Y-%m-%dT%H%i' or
+            '%Y-%m-%d_%H%i' format to specify the date and the time.
+            All other formats are prone to fail.
+        """,
+        nargs=1
+    )
+
+
 if __name__ == '__main__':
-    main(sys.argv)
+    args = arguments()
+    main(args)
     print('Exiting...')

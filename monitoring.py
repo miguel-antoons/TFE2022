@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 
 default_dir = 'recordings/'
-# default_dir = /bira-iasb/data/GROUNDBASED/BRAMS
+# default_dir = /bira-iasb/data/GROUNDBASED/BRAMS/
 
 
 def main(args):
