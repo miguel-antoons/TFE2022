@@ -48,4 +48,5 @@ def detect_calibrator_variations(previous_value, current_value):
     if abs(difference) > 50:
         print('ATTENTION : hight calibrator change detected!!')
 
-    print(f'Detected a difference of {difference}%')
+    print(f'Detected a difference of {difference} %')
+    print(f'{previous_value} --> {current_value}')

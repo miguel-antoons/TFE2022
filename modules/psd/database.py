@@ -57,6 +57,11 @@ def insert_noise(psd_data):
     psd_data : array
         Array which contains dictionnaries. Each dictionnary is composed of
         the psd value, a system_id and the start time of the file.
+
+    Returns
+    -------
+    boolean
+        Returns True on success, False on fail
     """
     connection, cursor = get_cursor_connection()
     print('Saving values in the database...')
@@ -74,11 +79,14 @@ def insert_noise(psd_data):
     try:
         cursor.executemany(sql_query, psd_data)
         connection.commit()
+        return_value = True
     except mysql.connector.Error as e:
         connection.rollback()
         print(e)
+        return_value = False
 
     close_connection(connection, cursor)
+    return return_value
 
 
 def insert_calibrator(psd_data):
@@ -92,6 +100,11 @@ def insert_calibrator(psd_data):
     psd_data : array
         Array which contains dictionnaries. Each dictionnary is composed of
         the psd value, a system_id and the start time of the file.
+
+    Returns
+    -------
+    boolean
+        Returns True on success, False on fail
     """
     connection, cursor = get_cursor_connection()
     print('Saving values in the database...')
@@ -109,11 +122,14 @@ def insert_calibrator(psd_data):
     try:
         cursor.executemany(sql_query, psd_data)
         connection.commit()
+        return_value = True
     except mysql.connector.Error as e:
         connection.rollback()
         print(e)
+        return_value = False
 
     close_connection(connection, cursor)
+    return return_value
 
 
 def get_station_ids(stations=[], get_all=True):
@@ -163,7 +179,6 @@ def get_station_ids(stations=[], get_all=True):
 
     cursor.execute(sql_query, tuple(stations))
 
-    print('Structuring data received from the database...')
     # structure the system id's first by location code and then by antenna
     for (sys_id, loc_code, antenna) in tqdm(cursor):
         if loc_code not in ids:
@@ -212,7 +227,7 @@ def get_previous_noise_psd(stations=[], get_all=True, limit=150):
     sql_query = (
         "SELECT system_id, psd\n"
         "FROM file\n"
-        "WHERE psd is not null"
+        "WHERE psd is not null\n"
     )
 
     # filter system_id if asked
@@ -230,7 +245,6 @@ def get_previous_noise_psd(stations=[], get_all=True, limit=150):
 
     cursor.execute(sql_query, tuple(stations))
 
-    print('Structuring data received from the database...')
     # structure the data received from the database into a dictionnary of
     # arrays
     for (sys_id, psd_val) in tqdm(cursor):
@@ -264,8 +278,9 @@ def get_previous_calibrator_psd(stations=[], get_all=True):
 
     Returns
     -------
-    _type_
-        _description_
+    dict
+        a dictionnary where the system ids are the keys and the values are
+        the calibrator psd values
     """
     arguments = ['%s' for i in range(len(stations))]
     psd = {}
@@ -273,7 +288,7 @@ def get_previous_calibrator_psd(stations=[], get_all=True):
 
     # get the last calibrator psd value for the requested systems (stations)
     sql_query = (
-        "SELECT system_id, calibrator\n"
+        "SELECT file.system_id, calibrator\n"
         "FROM file\n"
         "INNER JOIN\n"
         "   (SELECT system_id, max(precise_start) as top_date\n"
@@ -288,13 +303,12 @@ def get_previous_calibrator_psd(stations=[], get_all=True):
     # filter system ids if asked
     if not get_all:
         sql_query += (
-            "WHERE system_id in (%s)\n"
+            "WHERE file.system_id in (%s)\n"
             % ', '.join(arguments)
         )
 
     cursor.execute(sql_query, tuple(stations))
 
-    print('Structuring data received from the database...')
     # structure the data received from the database into a dictionnary of
     # arrays
     for (sys_id, psd_val) in tqdm(cursor):

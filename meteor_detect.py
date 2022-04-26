@@ -28,9 +28,6 @@ def main(cmd_arguments):
     wav_file = BramsWavFile(
         './recordings/meteor_search/RAD_BEDOUR_20220211_1735_BEHUMA_SYS001.wav'
     )
-    wav_file = BramsWavFile(
-        './recordings/BEHAAC/RAD_BEDOUR_20200602_0000_BEHAAC_SYS001.wav'
-    )
 
     test_spectrogram = Spectrogram(
         wav_file.Isamples,

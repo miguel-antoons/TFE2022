@@ -28,16 +28,20 @@ def main(args):
             stations,
             args.directory
         )
+        last_date = None
     else:
-        asked_files = get_archived_files()
+        asked_files, last_date = get_archived_files()
 
     noise_memory = {}
     print('Calculating psd for each file...')
     # calculating psd for each file
-    for file in tqdm(asked_files):
+    # for file in tqdm(asked_files):
+    for file in asked_files:
+        print('\n-----------------------------------------------------')
+        print(file['station_code'])
         # if it is the first (during program execution) time that psd will be
         # calculated for this station
-        if file['station_code'] not in noise_memory.keys():
+        if file['system_id'] not in noise_memory.keys():
             # get the preious psd values from the database
             previous_psd = db.get_previous_noise_psd(
                 [file['system_id']],
@@ -54,11 +58,16 @@ def main(args):
                 # values
                 previous_psd[file['system_id']] = []
 
+            # check if there were any calibrator psd values for this station
+            if file['system_id'] not in previous_calibrator.keys():
+                # if non values were found, default to None
+                previous_calibrator[file['system_id']] = None
+
             # add a dict to the noise_memory variable representing psd values
             # for the current station
-            noise_memory[file['station_code']] = {
+            noise_memory[file['system_id']] = {
                 "i": len(previous_psd[file['system_id']]) - 1,
-                "x": range(len(previous_psd[file['system_id']])),
+                "x": [i for i in range(len(previous_psd[file['system_id']]))],
                 "y": previous_psd[file['system_id']],
                 "previous_calibrator": previous_calibrator[file['system_id']],
                 "previous_f": None
@@ -68,65 +77,82 @@ def main(args):
         f = BramsWavFile(file['filename'])
         noise_psd = psd.get_noise_psd(f)
         calibrator_psd, calibrator_f = psd.get_calibrator_psd(f)
+        print(calibrator_psd)
+        print(noise_psd)
 
         # increment the counter, append an x value and apprend the psd value
         # to the y array
-        noise_memory[file['station_code']]['i'] += 1
-        noise_memory[file['station_code']]['x'].append(
-            noise_memory[file['station_code']]['i'])
-        noise_memory[file['station_code']]['y'].append(noise_psd)
+        noise_memory[file['system_id']]['i'] += 1
+        noise_memory[file['system_id']]['x'].append(
+            noise_memory[file['system_id']]['i'])
+        noise_memory[file['system_id']]['y'].append(noise_psd)
 
         # if the length exceeds 150
-        if len(noise_memory[file['station_code']]['x']) > 150:
+        if len(noise_memory[file['system_id']]['x']) > 150:
             # trim the y and x array since we need no more than 150 values
-            noise_memory[file['station_code']]['x'] = (
+            noise_memory[file['system_id']]['x'] = (
                 noise_memory
-                [file['station_code']]
+                [file['system_id']]
                 ['x']
                 [-150:]
             )
-            noise_memory[file['station_code']]['y'] = (
+            noise_memory[file['system_id']]['y'] = (
                 noise_memory
-                [file['station_code']]
+                [file['system_id']]
                 ['y']
                 [-150:]
             )
 
         # store the psd value in the file dict
         file["noise_psd"] = float(noise_psd)
-        file["calibrator_psd"] = float(calibrator_psd)
+        if calibrator_psd is not None:
+            file["calibrator_psd"] = float(calibrator_psd)
+        else:
+            file["calibrator_psd"] = calibrator_psd
 
         variations.detect_calibrator_variations(
-            noise_memory[file['station_code']]['previous_calibrator'],
+            noise_memory[file['system_id']]['previous_calibrator'],
             calibrator_psd
         )
 
         # if there is a value to compare to
-        if noise_memory[file['station_code']]['i'] > 1:
+        if noise_memory[file['system_id']]['i'] > 1:
             # compare the current psd to the previous one in order
             # to detect high noise increases
             variations.detect_noise_increase(
                 noise_memory
-                [file['station_code']]
+                [file['system_id']]
                 ['y']
-                [noise_memory[file['station_code']]['i'] - 2],
+                [noise_memory[file['system_id']]['i'] - 2],
                 noise_psd,
-                noise_memory[file['station_code']]['i']
+                noise_memory[file['system_id']]['i']
             )
 
         # finally, detect if there is a noise decrease
         variations.detect_noise_decrease(
-            noise_memory[file['station_code']]['x'],
-            noise_memory[file['station_code']]['y'],
-            noise_memory[file['station_code']]['i']
+            noise_memory[file['system_id']]['x'],
+            noise_memory[file['system_id']]['y'],
+            noise_memory[file['system_id']]['i']
         )
 
-    noise_memory[file['station_code']]['previous_calibrator'] = calibrator_psd
-    noise_memory[file['station_code']]['previous_f'] = calibrator_f
+        noise_memory[file['system_id']]['previous_calibrator'] = calibrator_psd
+        noise_memory[file['system_id']]['previous_f'] = calibrator_f
+
     # plt.plot(x, y)
     # plt.show()
     # insert the noise psd values into the database
-    db.insert_noise(asked_files)
+    if (
+        db.insert_noise(asked_files)
+        and db.insert_calibrator(asked_files)
+        and last_date is not None
+    ):
+        with open('program_data.json', 'w') as f:
+            json.dump(
+                {
+                    "previous_date": last_date
+                },
+                f
+            )
 
 
 def get_asked_files(start_date, end_date, stations, parent_directory):
@@ -263,7 +289,10 @@ def get_archived_files():
         # increase the date by 1 day
         start_date += timedelta(1)
 
-    return sorted(files_to_archive, key=lambda d: d['datetime'])
+    return (
+        sorted(files_to_archive, key=lambda d: d['datetime']),
+        start_date.strftime('%Y-%m-%d')
+    )
 
 
 def arguments():

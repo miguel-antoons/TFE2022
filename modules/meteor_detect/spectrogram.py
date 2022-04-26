@@ -10,7 +10,7 @@ class Spectrogram:
         audio_signal,
         nfft=16384,
         sample_frequency=5512,
-        noverlap=14384,
+        noverlap=14488,
         window='hamming',
         max_normalization=1
     ):

@@ -12,7 +12,7 @@ written by Michel Anciaux, 25-Mar-2022
 updated by Miguel Antoons, Apr-2022
 
 '''
-import signal
+from scipy import signal
 
 
 def get_psd(f, flow=800, fhigh=900):
@@ -50,7 +50,6 @@ def get_calibrator_psd(f):
 
 def get_calibrator_f(
     f,
-    search_length=50,
     fmin=1350,
     fmax=1650
 ):
@@ -71,7 +70,7 @@ def get_calibrator_f(
 
     # print(f'Searching direct signal between {fmin} Hz and {fmax} Hz...')
 
-    while not same_index == 50 and index < search_length:
+    while not same_index == 50 and index < len(times):
         max_column_index = Pxx[min_row:max_row, index].argmax()
 
         if max_column_index in [
