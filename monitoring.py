@@ -2,7 +2,8 @@
 import argparse
 import json
 import os
-import modules.psd.database as db
+import modules.database.file as f
+import modules.database.system as sys
 import modules.psd.variations as variations
 import modules.psd.psd as psd
 # import matplotlib.pyplot as plt
@@ -43,11 +44,11 @@ def main(args):
         # calculated for this station
         if file['system_id'] not in noise_memory.keys():
             # get the preious psd values from the database
-            previous_psd = db.get_previous_noise_psd(
+            previous_psd = f.get_previous_noise_psd(
                 [file['system_id']],
                 False
             )
-            previous_calibrator = db.get_previous_calibrator_psd(
+            previous_calibrator = f.get_previous_calibrator_psd(
                 [file['system_id']],
                 False
             )
@@ -74,11 +75,9 @@ def main(args):
             }
 
         # read the wav file and calculate the noise and callibrator psd value
-        f = BramsWavFile(file['filename'])
-        noise_psd = psd.get_noise_psd(f)
-        calibrator_psd, calibrator_f = psd.get_calibrator_psd(f)
-        print(calibrator_psd)
-        print(noise_psd)
+        wav = BramsWavFile(file['filename'])
+        noise_psd = psd.get_noise_psd(wav)
+        calibrator_psd, calibrator_f = psd.get_calibrator_psd(wav)
 
         # increment the counter, append an x value and apprend the psd value
         # to the y array
@@ -135,28 +134,30 @@ def main(args):
             noise_memory[file['system_id']]['i']
         )
 
-        noise_memory[file['system_id']]['previous_calibrator'] = calibrator_psd
+        noise_memory[file['system_id']]['previous_calibrator'] = (
+            calibrator_psd
+        )
         noise_memory[file['system_id']]['previous_f'] = calibrator_f
 
     # plt.plot(x, y)
     # plt.show()
     # insert the noise psd values into the database
     if (
-        db.insert_noise(asked_files)
-        and db.insert_calibrator(asked_files)
+        f.insert_noise(asked_files)
+        and f.insert_calibrator(asked_files)
         and last_date is not None
     ):
-        with open('program_data.json', 'w') as f:
+        with open('program_data.json', 'w') as json_file:
             json.dump(
                 {
                     "previous_date": last_date
                 },
-                f
+                json_file
             )
 
 
 def get_asked_files(start_date, end_date, stations, parent_directory):
-    station_ids = db.get_station_ids(stations, False)
+    station_ids = sys.get_station_ids(stations, False)
 
     directory = os.path.join(os.getcwd(), parent_directory, args.stations[0])
     directory_content = os.listdir(directory)
@@ -202,26 +203,22 @@ def get_asked_files(start_date, end_date, stations, parent_directory):
     return sorted(asked_files, key=lambda d: d['datetime'])
 
 
-def verify_archive_date(start_date, dir_content):
+def verify_archive_date(start_date):
+    dir_content = os.listdir(default_dir)
+
     if (year := start_date.strftime('%Y')) not in dir_content:
-        print(year)
-        print('No new files were archived.')
         return False
 
     directory = os.path.join(default_dir, year)
     dir_content = os.listdir(directory)
 
     if (month := start_date.strftime('%m')) not in dir_content:
-        print(month)
-        print('No new files were archived.')
         return False
 
     directory = os.path.join(directory, month)
     dir_content = os.listdir(directory)
 
     if (day := start_date.strftime('%d')) not in dir_content:
-        print(day)
-        print('No new files were archived.')
         return False
 
     return {
@@ -250,15 +247,10 @@ def get_archived_files():
         )
 
     files_to_archive = []
-    station_ids = db.get_station_ids()
+    station_ids = sys.get_station_ids()
 
     # while a new directory with new files is found
-    while (
-        directory := verify_archive_date(
-            start_date,
-            os.listdir(default_dir)
-        )
-    ):
+    while (directory := verify_archive_date(start_date)):
         for filename in tqdm(directory['content']):
             split_filename = filename.split('_')
             # get date and time of the file
@@ -288,6 +280,8 @@ def get_archived_files():
 
         # increase the date by 1 day
         start_date += timedelta(1)
+    else:
+        print('All new archived files were retrieved.')
 
     return (
         sorted(files_to_archive, key=lambda d: d['datetime']),

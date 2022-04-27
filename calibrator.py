@@ -1,6 +1,6 @@
 import argparse
 import os
-import modules.psd.database as db
+import modules.database.database as db
 # import numpy as np
 # import matplotlib.pyplot as plt
 

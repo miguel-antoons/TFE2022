@@ -1,9 +1,11 @@
-import sys
 import argparse
 import numpy as np
 
 from modules.brams_wav_2 import BramsWavFile
 from modules.meteor_detect.spectrogram import Spectrogram
+
+default_dir = 'recordings/'
+# default_dir = /bira-iasb/data/GROUNDBASED/BRAMS/
 
 
 def main(cmd_arguments):
@@ -60,10 +62,13 @@ def arguments():
     parser = argparse.ArgumentParser(
         description="""
             Program searches for meteor detection found on one system
-            on other systems.
+            on other systems and returns the result in a csv file.
             To use this program, enter the program name followed by the
             station id or the station location_code with the staion
             antenna number attached to it (i.e. BEHAAC1, BEHUMA3, ...).
+            If this argument in not specified, the program will simply
+            look for meteors on all of the available wav files at the
+            specified detection time.
         """
     )
     parser.add_argument(
@@ -75,6 +80,56 @@ def arguments():
             All other formats are prone to fail.
         """,
         nargs=1
+    )
+    parser.add_argument(
+        'reference_station',
+        metavar='REFERENCE STATION',
+        help="""
+            Stations where the meteor signal was detected and from where
+            the distance between other stations will be calculated. This
+            means that, if a meteor detection was found on another
+            station that was not specified in this list, that station's
+            location will be compared to all the station's location
+            of this list.
+            If this argument in not specified, the program will simply
+            look for meteors on all of the available wav files at the
+            specified detection time.
+        """,
+        nargs='*',
+        default=[]
+    )
+    parser.add_argument(
+        '-s', '--stations',
+        help="""
+            Stations where to look for the detected meteor signal.
+            If no stations is specified, the program will look for the
+            meteor signal on all available wav files at the meteor the
+            specified detection time.
+        """,
+        nargs='*',
+        default=[]
+    )
+    parser.add_argument(
+        '-d', '--file-directory',
+        help=f"""
+            Directory where to get the wav files. If no directory is
+            specified, the program will look for files in the
+            {default_dir} directory and according to the specified date.
+        """,
+        nargs='?',
+        default=None
+    )
+    parser.add_argument(
+        '-c', '--csv-destination',
+        help="""
+            Destination file/directory of the results csv file. If the
+            destination is a folder, the file's name will be
+            'meteor_detect_YYYYMMDD_HHmmss.csv'.
+            This argument can be ignored in which case the destination
+            file will be stored in the current directory.
+        """,
+        nargs='?',
+        default=None
     )
 
 

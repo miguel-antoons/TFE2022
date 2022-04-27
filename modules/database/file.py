@@ -1,49 +1,6 @@
 import mysql.connector
-import os
 
-from tqdm import tqdm
-from dotenv import load_dotenv
-
-
-def get_cursor_connection():
-    """
-    Function makes a connection to a mysql database
-    with connection information if finds in a environnement file
-    ant returns the database connection and cursor
-
-    Returns
-    -------
-    MySQLConnection, MySQLCursor
-        Returns the database connection and cursor
-    """
-    # load the .env file
-    load_dotenv()
-
-    # connect to the database with values coming from the .env file
-    db = mysql.connector.connect(
-        host=os.getenv('HOST'),
-        user=os.getenv('DB_USER'),
-        password=os.getenv('PASSWORD'),
-        database=os.getenv('DATABASE')
-    )
-
-    return db, db.cursor()
-
-
-def close_connection(connection, cursor):
-    """
-    Function closes the database connection and cursor it
-    receives as arguments.
-
-    Parameters
-    ----------
-    connection : MySQLConnection
-        the mysql database connection object
-    cursor : MySQLCursor
-        the mysql database cursor object
-    """
-    cursor.close()
-    connection.close()
+from . import database as db
 
 
 def insert_noise(psd_data):
@@ -63,7 +20,7 @@ def insert_noise(psd_data):
     boolean
         Returns True on success, False on fail
     """
-    connection, cursor = get_cursor_connection()
+    connection, cursor = db.get_cursor_connection()
     print('Saving values in the database...')
 
     # sql query to update the database values
@@ -85,7 +42,7 @@ def insert_noise(psd_data):
         print(e)
         return_value = False
 
-    close_connection(connection, cursor)
+    db.close_connection(connection, cursor)
     return return_value
 
 
@@ -106,7 +63,7 @@ def insert_calibrator(psd_data):
     boolean
         Returns True on success, False on fail
     """
-    connection, cursor = get_cursor_connection()
+    connection, cursor = db.get_cursor_connection()
     print('Saving values in the database...')
 
     # sql query to update the database values
@@ -128,67 +85,8 @@ def insert_calibrator(psd_data):
         print(e)
         return_value = False
 
-    close_connection(connection, cursor)
+    db.close_connection(connection, cursor)
     return return_value
-
-
-def get_station_ids(stations=[], get_all=True):
-    """
-    Function receives location codes ('BEHAAC', 'BEGRIM', ...) as argument
-    and returns the system_id(s) it finds for a location code (i.e. suppose
-    'BEGRIM' has 2 systems with ids 1 and 2, it will generate a dictionnary
-    as follows: {
-        'BEGRIM': {
-            '1': 1,
-            '2': 2,
-        }
-    })
-
-    Parameters
-    ----------
-    stations : array
-        array of the string location codes, defaults to an empty array
-    get_all : boolean
-        determines wheter to get all the station ids or only to get those
-        that are part of the location_codes specified in the 'stations'
-        array
-
-    Returns
-    -------
-    array
-        array of dictionnaries containing all the system ids of the asked
-        location codes.
-        The system ids are grouped by location codes and by antenna.
-    """
-    arguments = ['%s' for i in range(len(stations))]
-    ids = {}
-    connection, cursor = get_cursor_connection()
-
-    # get system_id for each location and antenna
-    sql_query = (
-        "SELECT system.id, location_code, antenna\n"
-        "FROM `system`\n"
-        "JOIN location on system.location_id = location.id\n"
-    )
-
-    if not get_all:
-        sql_query += (
-            "WHERE location.id = system.location_id AND location_code in (%s);"
-            % ', '.join(arguments)
-        )
-
-    cursor.execute(sql_query, tuple(stations))
-
-    # structure the system id's first by location code and then by antenna
-    for (sys_id, loc_code, antenna) in tqdm(cursor):
-        if loc_code not in ids:
-            ids[loc_code] = {}
-
-        ids[loc_code][str(antenna)] = sys_id
-
-    close_connection(connection, cursor)
-
-    return ids
 
 
 def get_previous_noise_psd(stations=[], get_all=True, limit=150):
@@ -220,7 +118,7 @@ def get_previous_noise_psd(stations=[], get_all=True, limit=150):
     """
     arguments = ['%s' for i in range(len(stations))]
     psd = {}
-    connection, cursor = get_cursor_connection()
+    connection, cursor = db.get_cursor_connection()
     limit_statement = ""
 
     # get the last noise psd values and system_id from the database
@@ -247,13 +145,13 @@ def get_previous_noise_psd(stations=[], get_all=True, limit=150):
 
     # structure the data received from the database into a dictionnary of
     # arrays
-    for (sys_id, psd_val) in tqdm(cursor):
+    for (sys_id, psd_val) in cursor:
         if sys_id not in psd:
             psd[sys_id] = []
 
         psd[sys_id].append(psd_val)
 
-    close_connection(cursor, connection)
+    db.close_connection(cursor, connection)
 
     return psd
 
@@ -284,7 +182,7 @@ def get_previous_calibrator_psd(stations=[], get_all=True):
     """
     arguments = ['%s' for i in range(len(stations))]
     psd = {}
-    connection, cursor = get_cursor_connection()
+    connection, cursor = db.get_cursor_connection()
 
     # get the last calibrator psd value for the requested systems (stations)
     sql_query = (
@@ -311,9 +209,9 @@ def get_previous_calibrator_psd(stations=[], get_all=True):
 
     # structure the data received from the database into a dictionnary of
     # arrays
-    for (sys_id, psd_val) in tqdm(cursor):
+    for (sys_id, psd_val) in cursor:
         psd[sys_id] = psd_val
 
-    close_connection(cursor, connection)
+    db.close_connection(cursor, connection)
 
     return psd
