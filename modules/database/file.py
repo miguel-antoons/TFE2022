@@ -215,3 +215,46 @@ def get_previous_calibrator_psd(stations=[], get_all=True):
     db.close_connection(cursor, connection)
 
     return psd
+
+
+def get_file_by_interval(stations, interval):
+    arguments = ['%s' for i in range(len(stations))]
+    files = {}
+    connection, cursor = db.get_cursor_connection()
+
+    # get the files that are contain the interva
+    sql_query = (
+        "SELECT location_code, antenna, precise_start, precise_end, start\n"
+        "FROM file\n"
+        "JOIN `system` on file.system_id = system.id\n"
+        "JOIN location on system.location_id = location.id\n"
+        "WHERE (\n"
+        "   (\n"
+        "       precise_start >= %(start_time)d\n"
+        "       AND precise_end >= %(start_time)d\n"
+        "   ) OR (\n"
+        "       precise_end <= %(end_time)d\n"
+        "       AND precise_start <= %(end_time)d\n"
+        "   )\n"
+        ")\n"
+    )
+
+    where_clause = "AND file.system_id in (%s)\n" % ', '.join(arguments)
+    sql_query += where_clause
+
+    cursor.execute(sql_query, interval)
+
+    # structure all the data received from the database in a dictionnary
+    # where the location codes and teh antennas are the keys
+    for (code, antenna, start, end, date) in cursor:
+        if code not in files.keys():
+            files[code] = {}
+
+        if str(antenna) not in files[code].keys():
+            files[code][str(antenna)] = []
+
+        files[code][antenna].append({
+            start,
+            end,
+            date
+        })

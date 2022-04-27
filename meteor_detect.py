@@ -3,9 +3,29 @@ import numpy as np
 
 from modules.brams_wav_2 import BramsWavFile
 from modules.meteor_detect.spectrogram import Spectrogram
+from datetime import datetime
 
 default_dir = 'recordings/'
 # default_dir = /bira-iasb/data/GROUNDBASED/BRAMS/
+
+
+def get_interval(string_date):
+    if 'T' in string_date:
+        utc0_date = datetime.strptime('%Y-%m-%dT%H%M%S')
+    elif 't' in string_date:
+        utc0_date = datetime.strptime('%Y-%m-%dt%H%M%S')
+    elif '_' in string_date:
+        utc0_date = datetime.strptime('%Y-%m-%d_%H%M%S')
+    else:
+        return False
+
+    utc0_date -= datetime.timedelta(hours=2)
+
+    return {
+        'start_time': utc0_date - datetime.timedelta(seconds=3),
+        'occurence_time': utc0_date,
+        'end_time': utc0_date + datetime.timedelta(seconds=3)
+    }
 
 
 def main(cmd_arguments):
@@ -131,6 +151,9 @@ def arguments():
         nargs='?',
         default=None
     )
+
+    # args = parser.parse_args()
+    # return args
 
 
 if __name__ == '__main__':
