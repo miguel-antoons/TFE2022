@@ -1,7 +1,6 @@
 import os
 
 from datetime import datetime
-from ..database import database as db
 
 
 def verify_archive_date(search_date, parent_directory):
@@ -28,11 +27,9 @@ def verify_archive_date(search_date, parent_directory):
     }
 
 
-def get_archived_files(precise_time, station_ids, parent_directory):
+def get_archived_files(requested_files, precise_time, parent_directory):
     if not (directory := verify_archive_date(precise_time, parent_directory)):
         return False
-
-    database_request_data = []
 
     for filename in directory['content']:
         split_filename = filename.split('_')
@@ -46,25 +43,60 @@ def get_archived_files(precise_time, station_ids, parent_directory):
 
         if (
             os.path.isfile(file_path)
-            and file_date > (precise_time - datetime.timedelta(min=1))
-            and file_date < (precise_time + datetime.timedelta(min=6))
-            and split_filename[4] in station_ids.keys()
+            and split_filename[4] in requested_files.keys()
         ):
-            database_request_data.append({
-                "station_code": split_filename[4],
-                "file_path": file_path,
-                "time": file_date.strftime('%Y-%m-%d %H:%M'),
-                "datetime": file_date,
-                "system_id": (
-                    station_ids
-                    [split_filename[4]]
-                    [str(int(
-                        split_filename[5]
-                        .replace('SYS', '')
-                        .replace('.wav', '')
-                    ))]
-                )
-            })
+            if (
+                antenna := str(int(
+                    split_filename[5]
+                    .replace('SYS', '')
+                    .replace('.wav', '')
+                ))
+            ) in requested_files[split_filename[4]].keys():
+                if (
+                    (date := file_date.strftime('%Y%m%d%H%M'))
+                    in requested_files[split_filename[4]][antenna].keys()
+                ):
+                    print(requested_files[split_filename[4]][antenna][date])
+                    requested_files[
+                        split_filename[4]][antenna][date]["file_path"] = (
+                            file_path
+                        )
 
-if __name__ == '__main__':
-    print(datetime.fromtimestamp(1312189216461538 // 1000000).strftime('%Y-%m-%d %H:%M:%S'))
+    return requested_files
+
+
+# if __name__ == '__main__':
+#     print(get_archived_files(
+#         {
+#             'BEGRIM': {
+#                 '1': {
+#                     '202204231055': {
+#                         'start': 1647341699673655,
+#                         'end': 1647341999671442,
+#                         'date': datetime(2022, 4, 23, 10, 55)
+#                     },
+#                     '202204231100': {
+#                         'start': 1647341999671660,
+#                         'end': 1647342299669398,
+#                         'date': datetime(2022, 4, 23, 11, 0)
+#                     }
+#                 }
+#             },
+#             'BEHAAC': {
+#                 '1': {
+#                     '202204231055': {
+#                         'start': 1647341701695598,
+#                         'end': 1647342001700517,
+#                         'date': datetime(2022, 4, 23, 10, 55)
+#                     },
+#                     '202204231100': {
+#                         'start': 1647342001700496,
+#                         'end': 1647342301705364,
+#                         'date': datetime(2022, 4, 23, 11, 0)
+#                     }
+#                 }
+#             }
+#         },
+#         datetime(2022, 4, 23),
+#         'recordings/'
+#     ))

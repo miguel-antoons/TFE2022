@@ -218,43 +218,81 @@ def get_previous_calibrator_psd(stations=[], get_all=True):
 
 
 def get_file_by_interval(stations, interval):
+    """
+    Function gets files that contain the interval passed as argument
+    and were produced by one of the systems passed in the stations
+    argument, from the database.
+    It then structures all that data in a dict where the first layer
+    keys are the location codes and the second key layer the antenna
+    numbers (ie {'CODE': {'ANTENNA': {}}}).
+
+    Parameters
+    ----------
+    stations : list
+        list with the station ids to take files from
+    interval : dict
+        dict with the start_time and the end_time if the interval as a
+        timestamp
+
+    Returns
+    -------
+    dict
+        dictionnary with all the data from the database, structured by
+        antenna id and location code
+    """
     arguments = ['%s' for i in range(len(stations))]
     files = {}
     connection, cursor = db.get_cursor_connection()
 
     # get the files that are contain the interva
     sql_query = (
-        "SELECT location_code, antenna, precise_start, precise_end, start\n"
+        "SELECT\n"
+        "   location_code,\n"
+        "   antenna,\n"
+        "   precise_start,\n"
+        "   precise_end,\n"
+        "   file.start,\n"
+        "   longitude,\n"
+        "   latitude\n"
         "FROM file\n"
         "JOIN `system` on file.system_id = system.id\n"
         "JOIN location on system.location_id = location.id\n"
         "WHERE (\n"
         "   (\n"
-        "       precise_start >= %(start_time)d\n"
-        "       AND precise_end >= %(start_time)d\n"
+        "       precise_start <= %(start_time)s\n"
+        "       AND precise_end >= %(start_time)s\n"
         "   ) OR (\n"
-        "       precise_end <= %(end_time)d\n"
-        "       AND precise_start <= %(end_time)d\n"
+        "       precise_end >= %(end_time)s\n"
+        "       AND precise_start <= %(end_time)s\n"
         "   )\n"
         ")\n"
     )
 
+    # add the system_id condition
     where_clause = "AND file.system_id in (%s)\n" % ', '.join(arguments)
+    where_clause = where_clause % tuple(stations)
     sql_query += where_clause
 
     cursor.execute(sql_query, interval)
 
     # structure all the data received from the database in a dictionnary
     # where the location codes and teh antennas are the keys
-    for (code, antenna, start, end, date) in cursor:
+    for (code, antenna, start, end, date, longitude, latitude) in cursor:
         if code not in files.keys():
-            files[code] = {}
+            files[code] = {
+                'longitude': longitude,
+                'latitide': latitude
+            }
 
         if str(antenna) not in files[code].keys():
-            files[code][str(antenna)] = []
+            files[code][str(antenna)] = {}
 
-        files[code][antenna].append({
-            start,
-            end,
-            date
-        })
+        files[code][str(antenna)][date.strftime('%Y%m%d%H%M')] = {
+            'start': start,
+            'end': end,
+            'date': date
+        }
+
+    db.close_connection(cursor, connection)
+
+    return files

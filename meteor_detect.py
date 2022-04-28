@@ -1,4 +1,5 @@
 import argparse
+import math
 import numpy as np
 
 from modules.brams_wav_2 import BramsWavFile
@@ -76,6 +77,17 @@ def main(cmd_arguments):
     # test_spectrogram.plot_modified_spectre(
     #     temp_start, temp_end, fmin, fmax, True
     # )
+
+
+def get_close(reference_station_code, stations, max_distance=0.313159):
+    ref_station = stations[reference_station_code]
+    for location in stations:
+        location['is_close'] = math.sqrt(
+            (location['latitude'] - ref_station['latitude']) ** 2
+            + (location['longitude'] - ref_station['longitude']) ** 2
+        ) <= max_distance
+
+    return stations
 
 
 def arguments():
