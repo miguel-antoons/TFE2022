@@ -1,32 +1,131 @@
 import argparse
 import math
+from re import I
 import numpy as np
 
 from modules.brams_wav_2 import BramsWavFile
 from modules.meteor_detect.spectrogram import Spectrogram
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 default_dir = 'recordings/'
 # default_dir = /bira-iasb/data/GROUNDBASED/BRAMS/
 
 
-def get_interval(string_date):
+def get_interval(string_date='2022-04-29T000000'):
     if 'T' in string_date:
-        utc0_date = datetime.strptime('%Y-%m-%dT%H%M%S')
+        utc0_date = datetime.strptime(string_date, '%Y-%m-%dT%H%M%S')
     elif 't' in string_date:
-        utc0_date = datetime.strptime('%Y-%m-%dt%H%M%S')
+        utc0_date = datetime.strptime(string_date, '%Y-%m-%dt%H%M%S')
     elif '_' in string_date:
-        utc0_date = datetime.strptime('%Y-%m-%d_%H%M%S')
+        utc0_date = datetime.strptime(string_date, '%Y-%m-%d_%H%M%S')
     else:
         return False
 
-    utc0_date -= datetime.timedelta(hours=2)
+    utc0_date = utc0_date.replace(tzinfo=timezone.utc)
 
     return {
-        'start_time': utc0_date - datetime.timedelta(seconds=3),
-        'occurence_time': utc0_date,
-        'end_time': utc0_date + datetime.timedelta(seconds=3)
+        'start_time': (
+            datetime.timestamp(utc0_date - timedelta(seconds=3))
+            * 1000000
+        ),
+        'occurence_time': datetime.timestamp(utc0_date) * 1000000,
+        'end_time': (
+            datetime.timestamp(utc0_date + timedelta(seconds=3))
+            * 1000000
+        )
     }
+
+
+def get_meteor_coords(stations, interval):
+    kernel = [
+        [0.,   0.,   0.,  50.,   0.,   0.,   0.],
+        [0.,   0.,   0.,  50.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [-1.5, 0.,   0.,   0.,   0.,   0.,  -1.5],
+        [-1.5, 0.,   0.,   0.,   0.,   0.,  -1.5],
+        [-1.5, 0.,   0.,   0.,   0.,   0.,  -1.5],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
+        [0.,   0.,   0.,  50.,   0.,   0.,   0.],
+        [0.,   0.,   0.,  50.,   0.,   0.,   0.]
+    ]
+
+    for location in stations.keys():
+        for antenna in stations[location].keys():
+            wav = BramsWavFile(stations[location][antenna]['file_path'])
+
+            spectrogram = Spectrogram(
+                wav.Isamples,
+                sample_frequency=wav.fs
+            )
+
+            spectrogram_length = len(spectrogram.times)
+            time_length = (
+                stations[location][antenna]['end']
+                - stations[location][antenna]['start']
+            )
+            time_res = spectrogram_length / time_length
+
+            if interval['start_time'] > stations[location][antenna]['start']:
+                interval_start = math.floor(
+                    (
+                        interval['start_time']
+                        - stations[location][antenna]['start']
+                    ) * time_res
+                )
+            else:
+                interval_start = 0
+
+            if interval['end_time'] < stations[location][antenna]['end']:
+                interval_end = math.ceil(
+                    (
+                        interval['end_time']
+                        - stations[location][antenna]['start']
+                    ) * time_res
+                )
+            else:
+                interval_end = spectrogram_length -1
+
+            spectrogram.filter_with_kernel(
+                start=interval_start,
+                end=interval_end,
+                kernel=kernel
+            )
+            spectrogram.filter_by_percentile(
+                start=interval_start,
+                end=interval_end,
+                percentile=95
+            )
+            spectrogram.delete_area(
+                15,
+                start=interval_start,
+                end=interval_end
+            )
+            spectrogram.filter_with_kernel(
+                start=interval_start,
+                end=interval_end
+            )
+            spectrogram.get_potential_meteors(
+                start=interval_start,
+                end=interval_end
+            )
 
 
 def main(cmd_arguments):
@@ -172,3 +271,4 @@ if __name__ == '__main__':
     args = arguments()
     main(args)
     print('Exiting...')
+    get_interval()

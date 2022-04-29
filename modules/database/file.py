@@ -1,6 +1,7 @@
 import mysql.connector
 
 from . import database as db
+from datetime import timezone
 
 
 def insert_noise(psd_data):
@@ -278,6 +279,7 @@ def get_file_by_interval(stations, interval):
     # structure all the data received from the database in a dictionnary
     # where the location codes and teh antennas are the keys
     for (code, antenna, start, end, date, longitude, latitude) in cursor:
+        date = date.replace(tzinfo=timezone.utc)
         if code not in files.keys():
             files[code] = {
                 'longitude': longitude,

@@ -31,11 +31,6 @@ class Spectrogram:
         )
         # sample frequency of the wav audio signal
         self.sample_frequency = sample_frequency
-        # frequencies contained by the audio signal
-        # self.frequencies = np.frombuffer(frequencies, dtype=float)
-        # time segments contained in the audio signal
-        # self.times = np.frombuffer(times, dtype=float)
-        # signal strength
         self.Pxx = self.__normalize_spectrogram(max_normalization, Pxx)
         # signal strength in dB
         self.Pxx_DB = 10. * np.log10(self.Pxx)
@@ -50,9 +45,7 @@ class Spectrogram:
         # initialize the figure number to 1
         self.figure_n = 1
 
-        self.default_treshold = self.find_noise_mean()
-
-        print(f'Default treshold value : {self.default_treshold}')
+        self.default_treshold = self.__find_noise_value()
 
         # DEVELOP
         print(f'Max spectrogram value : {np.max(self.Pxx)}')
@@ -114,7 +107,7 @@ class Spectrogram:
         plt.title(title)
 
         if show:
-            self.show_figures()
+            self.__show_figures()
 
     def plot_modified_spectrogram(
         self,
@@ -168,7 +161,7 @@ class Spectrogram:
         plt.title(title)
 
         if show:
-            self.show_figures()
+            self.__show_figures()
 
     def __get_slice(self, start, end, original_spectrogram=0, get_copy=False):
         spectrogram = self.Pxx_modified
@@ -229,7 +222,7 @@ class Spectrogram:
         plt.title(title)
 
         if show:
-            self.show_figures()
+            self.__show_figures()
 
     """
         Plot the modified spectre
@@ -271,12 +264,12 @@ class Spectrogram:
         plt.title(title)
 
         if show:
-            self.show_figures()
+            self.__show_figures()
 
     """
         Plot figures of this plot
     """
-    def show_figures(self):
+    def __show_figures(self):
         print('Showing figure(s)...')
         plt.show(block=False)
         input('Press any key to end the program...')
@@ -349,18 +342,8 @@ class Spectrogram:
             spectrogram_slice = self.__get_slice(start, end)
             spectrogram_slice_copy = np.copy(spectrogram_slice)
 
-        # print(
-        #     'Performing convolution between kernel and the copy'
-        #     'of the spectrogram...'
-        # )
-        # print(f'Convolution kernel : \n{kernel}')
-        # print(f'Filter coefficient : {coefficient}')
-
         # performing convolution as many times as requested by the user
         for i in range(coefficient):
-            # spectrogram_slice_copy = signal.convolve2d(
-            #     spectrogram_slice_copy, kernel, boundary='symm', mode='same'
-            # )
             spectrogram_slice_copy = ndimage.convolve(
                 spectrogram_slice_copy,
                 kernel,
@@ -455,7 +438,7 @@ class Spectrogram:
         if get_copy:
             spectrogram_slice = spectrogram_slice.copy()
 
-        objects = self.get_object_coords(start, end)
+        objects = self.__get_object_coords(start, end)
 
         for object in objects:
             height, width = spectrogram_slice[object].shape
@@ -465,21 +448,6 @@ class Spectrogram:
 
         if get_copy:
             return spectrogram_slice
-
-    def count_meteors(self, area_treshold, start=0, end=None):
-        bin_spectrogram_slice = self.__binarize_slice(
-            3.5 * self.default_treshold, start, end
-        )
-        spectrogram_slice = self.__get_slice(start, end)
-
-        labeled_spectrogram, num_labels = ndimage.label(bin_spectrogram_slice)
-        objects = ndimage.find_objects(labeled_spectrogram)
-
-        for object in objects:
-            height, width = bin_spectrogram_slice[object].shape
-
-            if width > area_treshold and height > 27:
-                spectrogram_slice[object] = 1000000
 
     def __create_blocks(self, height=3, width=10, fmin=600, fmax=1400):
         print(f'\nDividing spectrogram into {height * width} blocks...')
@@ -519,7 +487,7 @@ class Spectrogram:
             .reshape((height * width), row_per_block, col_per_block)
         )
 
-    def find_noise_mean(self):
+    def __find_noise_value(self):
         pxx_blocks = self.__create_blocks()
         print(f'Block array shape : {pxx_blocks.shape}')
         print('\nFinding best filter treshold...')
@@ -608,25 +576,6 @@ class Spectrogram:
             column_percentile = np.percentile(column, percentile)
             column[column < column_percentile] = 0.001
 
-    def keep_meteors_only(self, start=0, end=None, filter_all=False):
-        column_info = []
-
-        if filter_all:
-            end = len(self.times)
-
-        bin_spectrogram = self.__binarize_slice(10, start, end)
-
-        for index, column in enumerate(bin_spectrogram.T):
-            print(index)
-            labeled_spectrogram, num_labels = ndimage.label(column)
-            objects = ndimage.find_objects(labeled_spectrogram)
-            for object in objects:
-                print(object)
-            column_info.append({
-                'column_index': index,
-                'objects': num_labels,
-            })
-
     def get_potential_meteors(self, start=0, end=None, get_all=False):
         pot_meteors = []
         if get_all:
@@ -637,13 +586,10 @@ class Spectrogram:
         for i in range(len(spectrogram_copy.T)):
             self.delete_area(27, start=i)
 
-        object_coords = self.get_object_coords(get_all=True)
+        object_coords = self.__get_object_coords(get_all=True)
 
         # iterate over all the spectrogram objects
         for object in object_coords:
-            print(
-                '-------------------------------------------------------------'
-            )
             total_width = 0
             start = object[1].start - 20
             end = object[1].stop + 20
@@ -659,17 +605,13 @@ class Spectrogram:
 
             # if the object is wider than 1
             elif pot_meteor_width > 1:
-                print(object)
-                print(
-                    f'height: {pot_meteor_height}, width : {pot_meteor_width}'
-                )
                 column = object[1].start - 1
                 no_objects = 0
                 # iterate over the 20 columns coming before the start of the
                 # current object
                 while column > (object[1].start - 22) and no_objects < 2:
                     # get all the objects from the current column
-                    column_objects = self.get_object_coords(
+                    column_objects = self.__get_object_coords(
                         spectrogram=spectrogram_copy[fmin:fmax, column]
                     )
 
@@ -679,8 +621,6 @@ class Spectrogram:
 
                         # if there are several objects
                         if len(column_objects) > 1:
-                            print('several_items')
-                            print(column_objects)
                             fstart = 0
                             fstop = -4
 
@@ -693,10 +633,6 @@ class Spectrogram:
 
                             slice_object = slice(fstart, fstop, None)
 
-                        print(column_objects)
-                        # ! review the below condition
-                        print(f'fmax: {fmax}')
-                        print(f'fmin : {fmin}')
                         no_objects += 1
                         if (
                             (slice_object.stop - slice_object.start)
@@ -709,30 +645,23 @@ class Spectrogram:
                             fmin += slice_object.start - 3
                     else:
                         no_objects += 1
-                        print('no objects')
-                    print(total_width)
                     column -= 1
-
-                    if (no_objects == 2):
-                        print('too many empty spaces')
 
                 column = object[1].stop + 1
                 no_objects = 0
 
                 fmax = object[0].stop + 4
                 fmin = object[0].start - 4
-                # ! review below and above code !!!
+
                 # iterate over the 20 columns coming after the stop of the
                 # current object
                 while column < (object[1].stop + 22) and no_objects < 2:
-                    column_objects = self.get_object_coords(
+                    column_objects = self.__get_object_coords(
                         spectrogram=spectrogram_copy[fmin:fmax, column]
                     )
                     if len(column_objects):
                         slice_object = column_objects[0][0]
                         if len(column_objects) > 1:
-                            print('several_items')
-                            print(column_objects)
                             fstart = 0
                             fstop = -4
                             for column_object in column_objects:
@@ -742,10 +671,6 @@ class Spectrogram:
 
                             slice_object = slice(fstart, fstop, None)
 
-                        print(column_objects)
-                        # ! review the below condition
-                        print(f'fmax: {fmax}')
-                        print(f'fmin : {fmin}')
                         no_objects += 1
                         if (
                             (slice_object.stop - slice_object.start)
@@ -758,20 +683,18 @@ class Spectrogram:
                             fmin += slice_object.start
                     else:
                         no_objects += 1
-                        print('no objects')
-                    print(total_width)
                     column += 1
 
                 if total_width < 20:
                     pot_meteors.append(object)
-            else:
-                print('object width lower than 2')
 
-        print(pot_meteors)
-        for meteor in pot_meteors:
-            self.Pxx_modified[meteor] = 100000000
+        # * below code is for debugging putposes only
+        # for meteor in pot_meteors:
+        #     self.Pxx_modified[meteor] = 100000000
 
-    def get_object_coords(
+        return pot_meteors
+
+    def __get_object_coords(
         self,
         start=0,
         end=None,

@@ -9,7 +9,7 @@ import modules.psd.psd as psd
 # import matplotlib.pyplot as plt
 
 from modules.brams_wav_2 import BramsWavFile
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from tqdm import tqdm
 
 
@@ -358,26 +358,26 @@ if __name__ == '__main__':
     #     stations=['BEOOSE'],
     #     directory=default_dir,
     # )
-    args = arguments()
-    main(args)
+    # args = arguments()
+    # main(args)
     # test_methods(args)
 
-    # print(
-    #     f.get_file_by_interval(
-    #         [2, 53],
-    #         {
-    #             'start_time': datetime.timestamp(
-    #                 datetime.strptime(
-    #                     '2022-04-23 11:59:57',
-    #                     '%Y-%m-%d %H:%M:%S'
-    #                 )
-    #             ) * 1000000,
-    #             'end_time': datetime.timestamp(
-    #                 datetime.strptime(
-    #                     '2022-04-23 12:00:03',
-    #                     '%Y-%m-%d %H:%M:%S'
-    #                 )
-    #             ) * 1000000,
-    #         }
-    #     )
-    # )
+    print(
+        f.get_file_by_interval(
+            [2, 53],
+            {
+                'start_time': datetime.timestamp(
+                    datetime.strptime(
+                        '2022-03-15 11:59:57',
+                        '%Y-%m-%d %H:%M:%S'
+                    ).replace(tzinfo=timezone.utc)
+                ) * 1000000,
+                'end_time': datetime.timestamp(
+                    datetime.strptime(
+                        '2022-03-15 12:00:03',
+                        '%Y-%m-%d %H:%M:%S'
+                    ).replace(tzinfo=timezone.utc)
+                ) * 1000000,
+            }
+        )
+    )
