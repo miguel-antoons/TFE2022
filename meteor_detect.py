@@ -1,11 +1,13 @@
 import argparse
 import math
-from re import I
 import numpy as np
+import matplotlib.pyplot as plt
 
 from modules.brams_wav_2 import BramsWavFile
 from modules.meteor_detect.spectrogram import Spectrogram
 from datetime import datetime, timedelta, timezone
+from scipy.fft import rfft, rfftfreq
+from scipy.signal import windows
 
 default_dir = 'recordings/'
 # default_dir = /bira-iasb/data/GROUNDBASED/BRAMS/
@@ -34,6 +36,30 @@ def get_interval(string_date='2022-04-29T000000'):
             * 1000000
         )
     }
+
+
+def get_meteor_specs(wav_file, meteor_coords=[]):
+    for meteor in meteor_coords:
+        start = math.floor(meteor['t_start'] / 1000000 * wav_file.fs)
+        stop = math.ceil(meteor['t_stop'] / 1000000 * wav_file.fs)
+
+        print(f"{meteor['t_start'] / 1000000}-->{start}")
+        print(f"{meteor['t_stop'] / 1000000}-->{stop}")
+        meteor_samples = wav_file.Isamples[
+            start:
+            stop
+        ]
+
+        w = windows.hann(meteor_samples.size)
+        w_scale = 1 / w.mean()
+
+        Isamples = meteor_samples * w * w_scale
+        yf = rfft(Isamples)
+        xf = rfftfreq(meteor_samples.size, (1 / wav_file.fs))
+
+        plt.figure(10)
+        plt.plot(xf, np.abs(yf))
+        #plt.show()
 
 
 def get_meteor_coords(stations, interval):
@@ -81,14 +107,15 @@ def get_meteor_coords(stations, interval):
                 stations[location][antenna]['end']
                 - stations[location][antenna]['start']
             )
-            time_res = spectrogram_length / time_length
+            spectrogram_res = spectrogram_length / time_length
+            time_res = time_length / spectrogram_length
 
             if interval['start_time'] > stations[location][antenna]['start']:
                 interval_start = math.floor(
                     (
                         interval['start_time']
                         - stations[location][antenna]['start']
-                    ) * time_res
+                    ) * spectrogram_res
                 )
             else:
                 interval_start = 0
@@ -98,10 +125,10 @@ def get_meteor_coords(stations, interval):
                     (
                         interval['end_time']
                         - stations[location][antenna]['start']
-                    ) * time_res
+                    ) * spectrogram_res
                 )
             else:
-                interval_end = spectrogram_length -1
+                interval_end = spectrogram_length - 1
 
             spectrogram.filter_with_kernel(
                 start=interval_start,
@@ -122,10 +149,16 @@ def get_meteor_coords(stations, interval):
                 start=interval_start,
                 end=interval_end
             )
-            spectrogram.get_potential_meteors(
-                start=interval_start,
-                end=interval_end
+            coords = structure_meteor_slices(
+                spectrogram.get_potential_meteors(
+                    start=interval_start,
+                    end=interval_end
+                ),
+                time_res,
+                spectrogram.frequency_resolution
             )
+
+            return coords
 
 
 def main(cmd_arguments):
@@ -164,18 +197,12 @@ def main(cmd_arguments):
 
     test_spectrogram.delete_area(15, delete_all=True)
     test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
-    test_spectrogram.get_potential_meteors(get_all=True)
-
-    # test_spectrogram.filter_by_percentile(filter_all=True, percentile=96)
-    # test_spectrogram.filter_with_kernel(filter_all=True)
-    # test_spectrogram.get_potential_meteors(get_all=True)
+    coords = test_spectrogram.get_potential_meteors(get_all=True)
+    print(coords)
+    get_meteor_specs(wav_file, coords)
 
     test_spectrogram.plot_original_spectrogram(250)
     test_spectrogram.plot_modified_spectrogram(250, show=True)
-    # test_spectrogram.plot_original_spectre(temp_start, temp_end, fmin, fmax)
-    # test_spectrogram.plot_modified_spectre(
-    #     temp_start, temp_end, fmin, fmax, True
-    # )
 
 
 def get_close(reference_station_code, stations, max_distance=0.313159):

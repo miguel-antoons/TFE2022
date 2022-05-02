@@ -15,6 +15,7 @@ modified by Miguel Antoons april-2022
 '''
 import numpy as np
 from scipy.signal import windows
+from scipy.fft import rfft, rfftfreq
 
 
 class BramsError(Exception):
@@ -99,6 +100,9 @@ class BramsWavFile:
 
         # ? new method
         self.fs = None
+        self.fft_freq = None
+        self.fft_fbin = None
+        self.fft = None
         data_offset = self.riff_t.itemsize
         while n_to_read >= self.head_t.itemsize:
             try:
@@ -153,13 +157,24 @@ class BramsWavFile:
 
         return Isamples
 
-    def FFT(self, Isamples):
+    def FFT(self, Isamples, force_new=False):
+        if (
+            self.fft is not None
+            and self.fft_fbin is not None
+            and self.fft_freq is not None
+            and not force_new
+        ):
+            return self.fft_freq, self.fft, self.fft_fbin
         nsamples = Isamples.size
         w = windows.hann(nsamples)
         w_scale = 1 / w.mean()
         Isamples = Isamples * w * w_scale
 
-        S = np.fft.rfft(Isamples) / nsamples
+        S = rfft(Isamples) / nsamples
         S[1: -1] *= 2
 
-        return np.fft.rfftfreq(nsamples, 1 / self.fs), S, self.fs / nsamples
+        self.fft = S
+        self.fft_fbin = self.fs / nsamples
+        self.fft_freq = rfftfreq(nsamples, 1 / self.fs)
+
+        return self.fft_freq, S, self.fft_fbin

@@ -692,7 +692,7 @@ class Spectrogram:
         # for meteor in pot_meteors:
         #     self.Pxx_modified[meteor] = 100000000
 
-        return pot_meteors
+        return self.__get_structured_meteor_coords(pot_meteors)
 
     def __get_object_coords(
         self,
@@ -711,3 +711,17 @@ class Spectrogram:
 
         labeled_spectrogram, num_labels = ndimage.label(bin_spectrogram_slice)
         return ndimage.find_objects(labeled_spectrogram)
+
+    def __get_structured_meteor_coords(self, meteor_slices):
+        meteor_coords = []
+
+        for meteor_slice in meteor_slices:
+            meteor_coords.append({
+                't_start': self.times[meteor_slice[1].start] * 1000000,
+                't_stop': self.times[meteor_slice[1].stop] * 1000000,
+                'f_min': self.frequencies[meteor_slice[0].start],
+                'f_max': self.frequencies[meteor_slice[0].stop]
+            })
+            self.plot_original_spectre(meteor_slice[1].start, meteor_slice[1].stop, fmin=900, fmax=1150)
+
+        return meteor_coords

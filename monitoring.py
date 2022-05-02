@@ -9,7 +9,7 @@ import modules.psd.psd as psd
 # import matplotlib.pyplot as plt
 
 from modules.brams_wav_2 import BramsWavFile
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from tqdm import tqdm
 
 
@@ -36,10 +36,8 @@ def main(args):
     noise_memory = {}
     print('Calculating psd for each file...')
     # calculating psd for each file
-    # for file in tqdm(asked_files):
-    for file in asked_files:
-        print('\n-----------------------------------------------------')
-        print(file['station_code'])
+    for file in tqdm(asked_files):
+        # for file in asked_files:
         # if it is the first (during program execution) time that psd will be
         # calculated for this station
         if file['system_id'] not in noise_memory.keys():
@@ -159,7 +157,9 @@ def main(args):
 def get_asked_files(start_date, end_date, stations, parent_directory):
     station_ids = sys.get_station_ids(stations, False)
 
-    directory = os.path.join(os.getcwd(), parent_directory, args.stations[0])
+    # ! need to take a look at the code below, it may be that it does only 
+    # ! iterate over the first specified station by the user
+    directory = os.path.join(os.getcwd(), parent_directory, stations[0])
     directory_content = os.listdir(directory)
     asked_files = []
 
@@ -335,7 +335,7 @@ def arguments():
         '-d', '--directory',
         help=f"""
             Location of the .wav file to find the noise power spectral density
-            of. this value defaults to {default_dir}.
+            of. This value defaults to {default_dir}.
         """,
         default=default_dir,
         type=str,
@@ -352,32 +352,32 @@ if __name__ == '__main__':
     #     stations=['BEHAAC'],
     #     directory=default_dir,
     # )
-    # args = argparse.Namespace(
-    #     start_date='2020-06-01',
-    #     end_date='2020-09-30',
-    #     stations=['BEOOSE'],
-    #     directory=default_dir,
-    # )
+    args = argparse.Namespace(
+        start_date='2020-06-01',
+        end_date='2020-09-30',
+        stations=['BEOOSE'],
+        directory=default_dir,
+    )
     # args = arguments()
-    # main(args)
+    main(args)
     # test_methods(args)
 
-    print(
-        f.get_file_by_interval(
-            [2, 53],
-            {
-                'start_time': datetime.timestamp(
-                    datetime.strptime(
-                        '2022-03-15 11:59:57',
-                        '%Y-%m-%d %H:%M:%S'
-                    ).replace(tzinfo=timezone.utc)
-                ) * 1000000,
-                'end_time': datetime.timestamp(
-                    datetime.strptime(
-                        '2022-03-15 12:00:03',
-                        '%Y-%m-%d %H:%M:%S'
-                    ).replace(tzinfo=timezone.utc)
-                ) * 1000000,
-            }
-        )
-    )
+    # print(
+    #     f.get_file_by_interval(
+    #         [2, 53],
+    #         {
+    #             'start_time': datetime.timestamp(
+    #                 datetime.strptime(
+    #                     '2022-03-15 11:59:57',
+    #                     '%Y-%m-%d %H:%M:%S'
+    #                 ).replace(tzinfo=timezone.utc)
+    #             ) * 1000000,
+    #             'end_time': datetime.timestamp(
+    #                 datetime.strptime(
+    #                     '2022-03-15 12:00:03',
+    #                     '%Y-%m-%d %H:%M:%S'
+    #                 ).replace(tzinfo=timezone.utc)
+    #             ) * 1000000,
+    #         }
+    #     )
+    # )
