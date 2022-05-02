@@ -59,7 +59,6 @@ def get_meteor_specs(wav_file, meteor_coords=[]):
 
         plt.figure(10)
         plt.plot(xf, np.abs(yf))
-        #plt.show()
 
 
 def get_meteor_coords(stations, interval):
@@ -149,7 +148,7 @@ def get_meteor_coords(stations, interval):
                 start=interval_start,
                 end=interval_end
             )
-            coords = structure_meteor_slices(
+            coords, slices = spectrogram.get_potential_meteors(
                 spectrogram.get_potential_meteors(
                     start=interval_start,
                     end=interval_end
@@ -197,9 +196,8 @@ def main(cmd_arguments):
 
     test_spectrogram.delete_area(15, delete_all=True)
     test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
-    coords = test_spectrogram.get_potential_meteors(get_all=True)
-    print(coords)
-    get_meteor_specs(wav_file, coords)
+    coords, slices = test_spectrogram.get_potential_meteors(get_all=True)
+    test_spectrogram.get_meteor_specs(slices)
 
     test_spectrogram.plot_original_spectrogram(250)
     test_spectrogram.plot_modified_spectrogram(250, show=True)

@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 from scipy import signal, ndimage
 
@@ -692,7 +693,7 @@ class Spectrogram:
         # for meteor in pot_meteors:
         #     self.Pxx_modified[meteor] = 100000000
 
-        return self.__get_structured_meteor_coords(pot_meteors)
+        return self.__get_structured_meteor_coords(pot_meteors), pot_meteors
 
     def __get_object_coords(
         self,
@@ -722,6 +723,34 @@ class Spectrogram:
                 'f_min': self.frequencies[meteor_slice[0].start],
                 'f_max': self.frequencies[meteor_slice[0].stop]
             })
-            self.plot_original_spectre(meteor_slice[1].start, meteor_slice[1].stop, fmin=900, fmax=1150)
 
         return meteor_coords
+
+    def get_meteor_specs(self, meteor_slices):
+        for meteor_slice in meteor_slices:
+            fft_slice = np.zeros(len(self.frequencies))
+            for i in range(meteor_slice[1].start, meteor_slice[1].stop):
+                fft_slice += self.Pxx_DB[:, i]
+                print(fft_slice.size)
+
+            # noise_value = fft_slice[
+            #     (self.frequencies > 1200) & (self.frequencies < 1350)
+            # ].mean()
+            noise_percentile = np.percentile(fft_slice, 85)
+            min_value = fft_slice.min()
+            fft_slice[fft_slice <= noise_percentile] = min_value
+            plt.figure(self.figure_n)    # create new figure
+            self.figure_n += 1
+            plt.plot(self.frequencies, fft_slice)
+            plt.show()
+
+            min_value_count = 0
+            slice_index = meteor_slice[0].start + math.floor(meteor_slice[0].stop - meteor_slice[0].start)
+            # searching start value
+            while min_value_count < 2:
+                if fft_slice[slice_index] == min_value:
+                    min_value_count += 1
+                elif min_value > 0:
+                    min_value_count -= 0
+
+                slice_index += 1

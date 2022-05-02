@@ -120,7 +120,7 @@ def main(args):
                 noise_memory
                 [file['system_id']]
                 ['y']
-                [noise_memory[file['system_id']]['i'] - 2],
+                [-1],
                 noise_psd,
                 noise_memory[file['system_id']]['i']
             )
