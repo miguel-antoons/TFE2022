@@ -16,6 +16,7 @@ from scipy.signal import windows
 
 default_dir = 'recordings/'
 # default_dir = /bira-iasb/data/GROUNDBASED/BRAMS/
+# 2022-04-23T000212 BEHUMA
 
 
 def get_interval(string_date='2022-04-29T000000'):
@@ -226,10 +227,12 @@ def main(args):
         for antenna in systems[lcode].keys():
             system_ids.append(systems[lcode][antenna])
 
+    print(system_ids)
     stations = fil.get_file_by_interval(system_ids, interval)
+    print(stations)
     stations = arch.get_archived_files(
         stations,
-        interval['occurence_time'],
+        datetime.fromtimestamp(interval['occurence_time'] / 1000000),
         default_dir
     )
 
@@ -261,7 +264,7 @@ def main_test(cmd_arguments):
 
     print("Loading wav file into memory...")
     wav_file = BramsWavFile(
-        './recordings/meteor_search/RAD_BEDOUR_20220211_1735_BEHUMA_SYS001.wav'
+        './recordings/2022/04/23/RAD_BEDOUR_20220423_0000_BEHUMA_SYS001.wav'
     )
 
     test_spectrogram = Spectrogram(
@@ -277,7 +280,7 @@ def main_test(cmd_arguments):
     test_spectrogram.delete_area(15, delete_all=True)
     test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
     coords = test_spectrogram.get_potential_meteors(get_all=True)
-    test_spectrogram.get_meteor_specs(coords)
+    # test_spectrogram.get_meteor_specs(coords)
 
     test_spectrogram.plot_original_spectrogram(250)
     test_spectrogram.plot_modified_spectrogram(250, show=True)
@@ -357,8 +360,8 @@ def arguments():
         default=None
     )
 
-    # args = parser.parse_args()
-    # return args
+    args = parser.parse_args()
+    return args
 
 
 if __name__ == '__main__':
