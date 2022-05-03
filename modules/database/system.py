@@ -42,7 +42,7 @@ def get_station_ids(stations=[], get_all=True):
 
     if not get_all:
         sql_query += (
-            "WHERE location.id = system.location_id AND location_code in (%s);"
+            "WHERE location_code in (%s);"
             % ', '.join(arguments)
         )
 

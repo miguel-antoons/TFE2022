@@ -689,11 +689,11 @@ class Spectrogram:
                 if total_width < 20:
                     pot_meteors.append(object)
 
-        # * below code is for debugging putposes only
+        # * below code is for debugging purposes only
         # for meteor in pot_meteors:
         #     self.Pxx_modified[meteor] = 100000000
 
-        return self.__get_structured_meteor_coords(pot_meteors), pot_meteors
+        return self.__get_structured_meteor_coords(pot_meteors)
 
     def __get_object_coords(
         self,
@@ -721,15 +721,17 @@ class Spectrogram:
                 't_start': self.times[meteor_slice[1].start] * 1000000,
                 't_stop': self.times[meteor_slice[1].stop] * 1000000,
                 'f_min': self.frequencies[meteor_slice[0].start],
-                'f_max': self.frequencies[meteor_slice[0].stop]
+                'f_max': self.frequencies[meteor_slice[0].stop],
+                't_slice': meteor_slice[1],
+                'f_slice': meteor_slice[0]
             })
 
         return meteor_coords
 
-    def get_meteor_specs(self, meteor_slices):
-        for meteor_slice in meteor_slices:
+    def get_meteor_specs(self, meteor_coords):
+        for meteor_info in meteor_coords:
             fft_slice = np.zeros(len(self.frequencies))
-            for i in range(meteor_slice[1].start, meteor_slice[1].stop):
+            for i in range(meteor_info[1].start, meteor_info[1].stop):
                 fft_slice += self.Pxx_DB[:, i]
                 print(fft_slice.size)
 
@@ -739,18 +741,58 @@ class Spectrogram:
             noise_percentile = np.percentile(fft_slice, 85)
             min_value = fft_slice.min()
             fft_slice[fft_slice <= noise_percentile] = min_value
-            plt.figure(self.figure_n)    # create new figure
-            self.figure_n += 1
-            plt.plot(self.frequencies, fft_slice)
-            plt.show()
 
             min_value_count = 0
-            slice_index = meteor_slice[0].start + math.floor(meteor_slice[0].stop - meteor_slice[0].start)
-            # searching start value
-            while min_value_count < 2:
-                if fft_slice[slice_index] == min_value:
+            slice_start_index = (
+                meteor_info['f_slice'].start
+                + math.floor(
+                    (
+                        meteor_info['f_slice'].stop
+                        - meteor_info['f_slice'].start
+                    ) / 2
+                )
+            )
+            slice_stop_index = (
+                meteor_info['f_slice'].start
+                + math.ceil(
+                    (
+                        meteor_info['f_slice'].stop
+                        - meteor_info['f_slice'].start
+                    ) / 2
+                )
+            )
+            # searching start (fmin) value
+            while min_value_count < 2 and slice_start_index > 0:
+                if fft_slice[slice_start_index] == min_value:
                     min_value_count += 1
                 elif min_value > 0:
-                    min_value_count -= 0
+                    min_value_count -= 1
 
-                slice_index += 1
+                slice_start_index -= 1
+
+            min_value_count = 0
+            # searching stop (fmax) value
+            while (
+                min_value_count < 2
+                and slice_stop_index < len(self.frequencies)
+            ):
+                if fft_slice[slice_stop_index] == min_value:
+                    min_value_count += 1
+                elif min_value > 0:
+                    min_value_count -= 1
+
+                slice_stop_index += 1
+
+            meteor_info['f_min'] = self.frequencies[slice_start_index - 1]
+            meteor_info['f_max'] = self.frequencies[slice_stop_index - 1]
+            meteor_info['t'] = self.times[(
+                meteor_info['f_slice'].start
+                + math.round(
+                    (
+                        meteor_info['f_slice'].stop
+                        - meteor_info['f_slice'].start
+                    ) / 2
+                )
+            )]
+
+        return meteor_coords

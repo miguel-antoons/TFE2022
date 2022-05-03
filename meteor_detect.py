@@ -2,6 +2,11 @@ import argparse
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import geopy.distance as geo
+import modules.database.system as sys
+import modules.database.file as fil
+import modules.meteor_detect.archive as arch
+import modules.meteor_detect.csv as csv
 
 from modules.brams_wav_2 import BramsWavFile
 from modules.meteor_detect.spectrogram import Spectrogram
@@ -62,6 +67,8 @@ def get_meteor_specs(wav_file, meteor_coords=[]):
 
 
 def get_meteor_coords(stations, interval):
+    # filter matrix
+    # its primary purpose is to amplify long vertical elements
     kernel = [
         [0.,   0.,   0.,  50.,   0.,   0.,   0.],
         [0.,   0.,   0.,  50.,   0.,   0.,   0.],
@@ -92,75 +99,148 @@ def get_meteor_coords(stations, interval):
         [0.,   0.,   0.,  50.,   0.,   0.,   0.]
     ]
 
+    # for each relevant wav file
     for location in stations.keys():
         for antenna in stations[location].keys():
-            wav = BramsWavFile(stations[location][antenna]['file_path'])
+            for date in stations[location][antenna].keys():
+                stations[location][antenna][date]['meteors'] = []
 
-            spectrogram = Spectrogram(
-                wav.Isamples,
-                sample_frequency=wav.fs
-            )
-
-            spectrogram_length = len(spectrogram.times)
-            time_length = (
-                stations[location][antenna]['end']
-                - stations[location][antenna]['start']
-            )
-            spectrogram_res = spectrogram_length / time_length
-            time_res = time_length / spectrogram_length
-
-            if interval['start_time'] > stations[location][antenna]['start']:
-                interval_start = math.floor(
-                    (
-                        interval['start_time']
-                        - stations[location][antenna]['start']
-                    ) * spectrogram_res
+                # read the wav file
+                wav = BramsWavFile(
+                    stations[location][antenna][date]['file_path']
                 )
-            else:
-                interval_start = 0
 
-            if interval['end_time'] < stations[location][antenna]['end']:
-                interval_end = math.ceil(
-                    (
-                        interval['end_time']
-                        - stations[location][antenna]['start']
-                    ) * spectrogram_res
+                # generate the spectrogram
+                spectrogram = Spectrogram(
+                    wav.Isamples,
+                    sample_frequency=wav.fs
                 )
-            else:
-                interval_end = spectrogram_length - 1
 
-            spectrogram.filter_with_kernel(
-                start=interval_start,
-                end=interval_end,
-                kernel=kernel
-            )
-            spectrogram.filter_by_percentile(
-                start=interval_start,
-                end=interval_end,
-                percentile=95
-            )
-            spectrogram.delete_area(
-                15,
-                start=interval_start,
-                end=interval_end
-            )
-            spectrogram.filter_with_kernel(
-                start=interval_start,
-                end=interval_end
-            )
-            coords, slices = spectrogram.get_potential_meteors(
-                spectrogram.get_potential_meteors(
+                # calculate the time resolution of the spectrogram
+                # by comparing the time length of the spectrogram and the time
+                # length in microseconds
+                spectrogram_length = len(spectrogram.times)
+                time_length = (
+                    stations[location][antenna][date]['end']
+                    - stations[location][antenna][date]['start']
+                )
+                spectrogram_res = spectrogram_length / time_length
+                time_res = time_length / spectrogram_length
+
+                # if the start time is greater than the spectrogram start time
+                if (
+                    interval['start_time']
+                    > stations[location][antenna][date]['start']
+                ):
+                    # get the start index of the interval on the spectrogram
+                    interval_start = math.floor(
+                        (
+                            interval['start_time']
+                            - stations[location][antenna][date]['start']
+                        ) * spectrogram_res
+                    )
+                else:
+                    # else, set the start_index to 0
+                    interval_start = 0
+
+                # if the end time is smaller than the spectrogram end time
+                if (
+                    interval['end_time']
+                    < stations[location][antenna][date]['end']
+                ):
+                    # get the end index of the interval on the spectrogram
+                    interval_end = math.ceil(
+                        (
+                            interval['end_time']
+                            - stations[location][antenna][date]['start']
+                        ) * spectrogram_res
+                    )
+                else:
+                    # else, set the end index to the last spectrogram index
+                    interval_end = spectrogram_length - 1
+
+                # filter the spectrogram in order to find meteors
+                spectrogram.filter_with_kernel(
+                    start=interval_start,
+                    end=interval_end,
+                    kernel=kernel
+                )
+                spectrogram.filter_by_percentile(
+                    start=interval_start,
+                    end=interval_end,
+                    percentile=95
+                )
+                spectrogram.delete_area(
+                    15,
                     start=interval_start,
                     end=interval_end
-                ),
-                time_res,
-                spectrogram.frequency_resolution
+                )
+                spectrogram.filter_with_kernel(
+                    start=interval_start,
+                    end=interval_end
+                )
+                # find the unprecise meteor coords
+                coords = spectrogram.get_potential_meteors(
+                    spectrogram.get_potential_meteors(
+                        start=interval_start,
+                        end=interval_end
+                    ),
+                    time_res,
+                    spectrogram.frequency_resolution
+                )
+                # find a more precise representation of the meteor coords
+                specs = spectrogram.get_meteor_specs(coords)
+
+                stations[location][antenna][date]['meteors'] = specs
+
+    return stations
+
+
+def get_close(stations, reference_station_code=None):
+    if reference_station_code is None:
+        for location in stations:
+            location['distance'] = None
+    else:
+        ref_station = stations[reference_station_code]
+        for location in stations:
+            location['distance'] = geo.distance(
+                (ref_station['latitude'], ref_station['longitude']),
+                (location['latitude'], location['longitude'])
             )
 
-            return coords
+    return stations
 
 
-def main(cmd_arguments):
+def main(args):
+    # get the interval in which to detect meteors
+    interval = get_interval(args.detection_time[0])
+    systems = []
+    system_ids = []
+    if len(args.stations) == 0:
+        systems = sys.get_station_ids()
+    else:
+        systems = sys.get_station_ids(args.station, False)
+
+    # restructure the system ids in a simple list instead of dictionnary
+    for lcode in systems.keys():
+        for antenna in systems[lcode].keys():
+            system_ids.append(systems[lcode][antenna])
+
+    stations = fil.get_file_by_interval(system_ids, interval)
+    stations = arch.get_archived_files(
+        stations,
+        interval['occurence_time'],
+        default_dir
+    )
+
+    # get distance between stations and reference stations
+    stations = get_close(stations, args.reference_station)
+    stations = get_meteor_coords(stations, interval)
+
+    csv.write_csv(stations)
+
+
+def main_test(cmd_arguments):
     print(cmd_arguments)
     kernel = np.zeros((27, 7))
     kernel[12:15, 0] = -1.5
@@ -196,22 +276,11 @@ def main(cmd_arguments):
 
     test_spectrogram.delete_area(15, delete_all=True)
     test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
-    coords, slices = test_spectrogram.get_potential_meteors(get_all=True)
-    test_spectrogram.get_meteor_specs(slices)
+    coords = test_spectrogram.get_potential_meteors(get_all=True)
+    test_spectrogram.get_meteor_specs(coords)
 
     test_spectrogram.plot_original_spectrogram(250)
     test_spectrogram.plot_modified_spectrogram(250, show=True)
-
-
-def get_close(reference_station_code, stations, max_distance=0.313159):
-    ref_station = stations[reference_station_code]
-    for location in stations:
-        location['is_close'] = math.sqrt(
-            (location['latitude'] - ref_station['latitude']) ** 2
-            + (location['longitude'] - ref_station['longitude']) ** 2
-        ) <= max_distance
-
-    return stations
 
 
 def arguments():
@@ -251,8 +320,8 @@ def arguments():
             look for meteors on all of the available wav files at the
             specified detection time.
         """,
-        nargs='*',
-        default=[]
+        nargs='?',
+        default=None
     )
     parser.add_argument(
         '-s', '--stations',
@@ -296,4 +365,3 @@ if __name__ == '__main__':
     args = arguments()
     main(args)
     print('Exiting...')
-    get_interval()
