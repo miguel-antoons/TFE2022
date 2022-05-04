@@ -229,7 +229,11 @@ def main(args):
 
     print(system_ids)
     stations = fil.get_file_by_interval(system_ids, interval)
-    print(stations)
+
+    if stations == {}:
+        print('No files were found for those stations at that time.')
+        return
+
     stations = arch.get_archived_files(
         stations,
         datetime.fromtimestamp(interval['occurence_time'] / 1000000),
@@ -252,13 +256,6 @@ def main_test(cmd_arguments):
     kernel[0:2, 3] = 50
     kernel[-1, 3] = 50
     kernel[-2, 3] = 50
-    # kernel = np.zeros((53, 7))
-    # kernel[25:28, 0] = -1.5
-    # kernel[25:28, -1] = -1.5
-
-    # kernel[0:2, 3] = 30
-    # kernel[26:28, 3] = 5
-    # kernel[2:25, 3] = 1/23
 
     print(kernel)
 
