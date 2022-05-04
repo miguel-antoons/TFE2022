@@ -36,19 +36,21 @@ def write_csv(
             delimiter=',',
             quotechar='"',
             quoting=csv.QUOTE_MINIMAL,
-            fieldnames=header
         )
 
+        csv_writer.writerow(header)
+
         for loc_code in data.keys():
-            for antenna in data[loc_code].keys():
-                for date in data[loc_code][antenna].keys():
-                    for meteor in data[loc_code][antenna]['meteors']:
+            for antenna in data[loc_code]['sys'].keys():
+                for date in data[loc_code]['sys'][antenna].keys():
+                    file = data[loc_code]['sys'][antenna][date]
+                    for meteor in file['meteors']:
                         csv_writer.writerow(
                             [
                                 loc_code,
                                 antenna,
                                 date,
-                                len(data[loc_code][antenna][date]),
+                                len(file['meteors']),
                                 meteor['t'],
                                 meteor['f_min'],
                                 meteor['f_max'],

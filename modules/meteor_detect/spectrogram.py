@@ -589,10 +589,13 @@ class Spectrogram:
             start = 0
             end = len(self.times)
 
-        spectrogram_copy = self.__get_slice(start, end, get_copy=True)
+        if start < 0:
+            start = 0
+
+        spectrogram_copy = self.__get_slice(start, end)
 
         for i in range(len(spectrogram_copy.T)):
-            self.delete_area(27, start=i)
+            self.delete_area(27, start=(i + start))
 
         object_coords = self.__get_object_coords(
             start=start,
@@ -616,7 +619,7 @@ class Spectrogram:
             # if the object is higher than 60 and smaller than 6
             if pot_meteor_width < 6 and pot_meteor_height > 60:
                 # consider the oibject as a meteor
-                pot_meteors.append(object)
+                pot_meteors.append((object[0], slice(object[1].start + start, object[1].stop + start, None)))
 
             # if the object is wider than 1
             elif pot_meteor_width > 1:
@@ -701,7 +704,8 @@ class Spectrogram:
                     column += 1
 
                 if total_width < 20:
-                    pot_meteors.append(object)
+                    pot_meteors.append((object[0], slice(object[1].start + start, object[1].stop + start, None)))
+        print(pot_meteors)
 
         # * below code is for debugging purposes only
         # for meteor in pot_meteors:
@@ -746,9 +750,11 @@ class Spectrogram:
     def get_meteor_specs(self, meteor_coords):
         for meteor_info in meteor_coords:
             fft_slice = np.zeros(len(self.frequencies))
-            for i in range(meteor_info[1].start, meteor_info[1].stop):
+            for i in range(
+                meteor_info['t_slice'].start,
+                meteor_info['t_slice'].stop
+            ):
                 fft_slice += self.Pxx_DB[:, i]
-                print(fft_slice.size)
 
             # noise_value = fft_slice[
             #     (self.frequencies > 1200) & (self.frequencies < 1350)
@@ -801,11 +807,11 @@ class Spectrogram:
             meteor_info['f_min'] = self.frequencies[slice_start_index - 1]
             meteor_info['f_max'] = self.frequencies[slice_stop_index - 1]
             meteor_info['t'] = self.times[(
-                meteor_info['f_slice'].start
-                + math.round(
+                meteor_info['t_slice'].start
+                + round(
                     (
-                        meteor_info['f_slice'].stop
-                        - meteor_info['f_slice'].start
+                        meteor_info['t_slice'].stop
+                        - meteor_info['t_slice'].start
                     ) / 2
                 )
             )]

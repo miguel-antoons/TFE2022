@@ -293,7 +293,8 @@ def get_file_by_interval(stations, interval):
         files[code]['sys'][str(antenna)][date.strftime('%Y%m%d%H%M')] = {
             'start': start,
             'end': end,
-            'date': date
+            'date': date,
+            'file_path': None
         }
 
     db.close_connection(cursor, connection)

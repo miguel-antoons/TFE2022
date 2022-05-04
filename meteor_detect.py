@@ -107,6 +107,9 @@ def get_meteor_coords(stations, interval):
                 system_file = stations[location]['sys'][antenna][date]
                 system_file['meteors'] = []
 
+                if system_file['file_path'] is None:
+                    continue
+
                 # read the wav file
                 wav = BramsWavFile(
                     system_file['file_path']
@@ -256,7 +259,7 @@ def main_test(cmd_arguments):
 
     test_spectrogram.delete_area(15, delete_all=True)
     test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
-    coords = test_spectrogram.get_potential_meteors(get_all=True)
+    test_spectrogram.get_potential_meteors(get_all=True)
     # test_spectrogram.get_meteor_specs(coords)
 
     test_spectrogram.plot_original_spectrogram(250)
