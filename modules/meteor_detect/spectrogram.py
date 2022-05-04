@@ -167,16 +167,24 @@ class Spectrogram:
     def __get_slice(self, start, end, original_spectrogram=0, get_copy=False):
         spectrogram = self.Pxx_modified
 
+        # if the start index is below the spectrogram start
+        if start < 0:
+            start = 0
+
+        # if end value is set
+        if end is None:
+            end = start + 1
+
+        # if the end value goes farther than the last spectrogram value
+        if end >= len(self.times):
+            # set the end value to the last possible spectrogram index
+            end = len(self.times) - 1
+
         if original_spectrogram == 1:
             spectrogram = self.Pxx_DB
 
-        # if end value is set
-        if end:
-            # take columns from 'start' to 'end'
-            spectrogram = spectrogram[:, start:end]
-        else:
-            # else, just take column 'start'
-            spectrogram = spectrogram[:, start:start + 1]
+        # take columns from 'start' to 'end'
+        spectrogram = spectrogram[:, start:end]
 
         if get_copy:
             return spectrogram.copy()
@@ -225,9 +233,6 @@ class Spectrogram:
         if show:
             self.__show_figures()
 
-    """
-        Plot the modified spectre
-    """
     def plot_modified_spectre(
         self,
         start,
@@ -283,18 +288,19 @@ class Spectrogram:
         value can be increased or decreased by altering the
         filter_coefficient.
     """
-    def filter_low(self, min=None, start=0, end=None, filter_all=False,):
-        if not min:
-            min = self.default_treshold
+    def filter_low(self, min_value=None, start=0, end=None, filter_all=False):
+        if min_value is None:
+            min_value = self.default_treshold
 
         if filter_all:
-            end = len(self.times - 1)
+            start = 0
+            end = len(self.times) - 1
 
         spectrogram_slice = self.__get_slice(start, end)
 
         # set all values below spectrogram_slice_mean * filter_coefficient to 0
         spectrogram_slice[
-            spectrogram_slice < min
+            spectrogram_slice < min_value
         ] = 1
 
     def filter_high(
@@ -303,15 +309,14 @@ class Spectrogram:
         start=0,
         end=None,
         filter_all=False,
-        custom_value=0
+        max_value=None
     ):
         if filter_all:
-            end = len(self.times - 1)
+            start = 0
+            end = len(self.times) - 1
 
-        if custom_value:
-            max = custom_value
-        else:
-            max = (
+        if max_value is None:
+            max_value = (
                 (coefficient / 10)
                 * np.mean(self.Pxx[self.max_transmitter_row])
             )
@@ -320,7 +325,7 @@ class Spectrogram:
 
         # set all values below spectrogram_slice_mean * filter_coefficient to 0
         spectrogram_slice[
-            spectrogram_slice > max
+            spectrogram_slice > max_value
         ] = 1
 
     def filter_with_kernel(
@@ -432,6 +437,7 @@ class Spectrogram:
         get_copy=False
     ):
         if delete_all:
+            start = 0
             end = len(self.times)
 
         spectrogram_slice = self.__get_slice(start, end)
@@ -580,6 +586,7 @@ class Spectrogram:
     def get_potential_meteors(self, start=0, end=None, get_all=False):
         pot_meteors = []
         if get_all:
+            start = 0
             end = len(self.times)
 
         spectrogram_copy = self.__get_slice(start, end, get_copy=True)
@@ -587,13 +594,20 @@ class Spectrogram:
         for i in range(len(spectrogram_copy.T)):
             self.delete_area(27, start=i)
 
-        object_coords = self.__get_object_coords(get_all=True)
+        object_coords = self.__get_object_coords(
+            start=start,
+            end=end,
+            get_all=get_all,
+            spectrogram=spectrogram_copy
+        )
+        # print(start, end)
+        # print(spectrogram_copy.shape)
 
         # iterate over all the spectrogram objects
         for object in object_coords:
             total_width = 0
-            start = object[1].start - 20
-            end = object[1].stop + 20
+            detection_start = (object[1].start - 22 + start)
+            detection_stop = (object[1].stop + 22 + start)
             fmax = object[0].stop + 4
             fmin = object[0].start - 4
             pot_meteor_height = object[0].stop - object[0].start
@@ -606,14 +620,14 @@ class Spectrogram:
 
             # if the object is wider than 1
             elif pot_meteor_width > 1:
-                column = object[1].start - 1
+                column = object[1].start - 1 + start
                 no_objects = 0
                 # iterate over the 20 columns coming before the start of the
                 # current object
-                while column > (object[1].start - 22) and no_objects < 2:
+                while column > detection_start and no_objects < 2:
                     # get all the objects from the current column
                     column_objects = self.__get_object_coords(
-                        spectrogram=spectrogram_copy[fmin:fmax, column]
+                        spectrogram=self.Pxx_modified[fmin:fmax, column]
                     )
 
                     # if there are any objects
@@ -648,7 +662,7 @@ class Spectrogram:
                         no_objects += 1
                     column -= 1
 
-                column = object[1].stop + 1
+                column = object[1].stop + 1 + start
                 no_objects = 0
 
                 fmax = object[0].stop + 4
@@ -656,9 +670,9 @@ class Spectrogram:
 
                 # iterate over the 20 columns coming after the stop of the
                 # current object
-                while column < (object[1].stop + 22) and no_objects < 2:
+                while column < detection_stop and no_objects < 2:
                     column_objects = self.__get_object_coords(
-                        spectrogram=spectrogram_copy[fmin:fmax, column]
+                        spectrogram=self.Pxx_modified[fmin:fmax, column]
                     )
                     if len(column_objects):
                         slice_object = column_objects[0][0]
@@ -704,6 +718,7 @@ class Spectrogram:
         spectrogram=None
     ):
         if get_all:
+            start = 0
             end = len(self.times)
 
         bin_spectrogram_slice = self.__binarize_slice(

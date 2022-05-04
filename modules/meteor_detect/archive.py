@@ -31,7 +31,8 @@ def verify_archive_date(search_date, parent_directory):
 
 
 def get_archived_files(requested_files, precise_time, parent_directory):
-    if not (directory := verify_archive_date(precise_time, parent_directory)):
+    directory = verify_archive_date(precise_time, parent_directory)
+    if not directory:
         return False
 
     for filename in directory['content']:
@@ -53,14 +54,11 @@ def get_archived_files(requested_files, precise_time, parent_directory):
                 .replace('SYS', '')
                 .replace('.wav', '')
             ))
-            if antenna in requested_files[split_filename[4]].keys():
+            if antenna in requested_files[split_filename[4]]['sys'].keys():
+                system = requested_files[split_filename[4]]['sys'][antenna]
                 date = file_date.strftime('%Y%m%d%H%M')
-                if date in requested_files[split_filename[4]][antenna].keys():
-                    print(requested_files[split_filename[4]][antenna][date])
-                    requested_files[
-                        split_filename[4]][antenna][date]["file_path"] = (
-                            file_path
-                        )
+                if date in system.keys():
+                    system[date]["file_path"] = file_path
 
     return requested_files
 

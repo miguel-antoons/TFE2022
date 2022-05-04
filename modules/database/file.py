@@ -283,13 +283,14 @@ def get_file_by_interval(stations, interval):
         if code not in files.keys():
             files[code] = {
                 'longitude': longitude,
-                'latitide': latitude
+                'latitude': latitude,
+                'sys': {}
             }
 
-        if str(antenna) not in files[code].keys():
-            files[code][str(antenna)] = {}
+        if str(antenna) not in files[code]['sys'].keys():
+            files[code]['sys'][str(antenna)] = {}
 
-        files[code][str(antenna)][date.strftime('%Y%m%d%H%M')] = {
+        files[code]['sys'][str(antenna)][date.strftime('%Y%m%d%H%M')] = {
             'start': start,
             'end': end,
             'date': date

@@ -206,19 +206,22 @@ def get_asked_files(start_date, end_date, stations, parent_directory):
 def verify_archive_date(start_date):
     dir_content = os.listdir(default_dir)
 
-    if (year := start_date.strftime('%Y')) not in dir_content:
+    year = start_date.strftime('%Y')
+    if year not in dir_content:
         return False
 
     directory = os.path.join(default_dir, year)
     dir_content = os.listdir(directory)
 
-    if (month := start_date.strftime('%m')) not in dir_content:
+    month = start_date.strftime('%m')
+    if month not in dir_content:
         return False
 
     directory = os.path.join(directory, month)
     dir_content = os.listdir(directory)
 
-    if (day := start_date.strftime('%d')) not in dir_content:
+    day = start_date.strftime('%d')
+    if day not in dir_content:
         return False
 
     return {
@@ -249,8 +252,9 @@ def get_archived_files():
     files_to_archive = []
     station_ids = sys.get_station_ids()
 
+    directory = verify_archive_date(start_date)
     # while a new directory with new files is found
-    while (directory := verify_archive_date(start_date)):
+    while directory:
         for filename in tqdm(directory['content']):
             split_filename = filename.split('_')
             # get date and time of the file
@@ -280,6 +284,7 @@ def get_archived_files():
 
         # increase the date by 1 day
         start_date += timedelta(1)
+        directory = verify_archive_date(start_date)
     else:
         print('All new archived files were retrieved.')
 
