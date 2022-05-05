@@ -1,12 +1,14 @@
 import csv
 import os
 
+from datetime import datetime, timezone, timedelta
+
 
 def write_csv(
-    data,
-    directory=None,
-    filename='meteor_detect',
-    header=[
+    data: list,
+    directory: str | None = None,
+    filename: str = 'meteor_detect',
+    header: list = [
         'location_code',
         'antenna_id',
         'file_start',
@@ -17,7 +19,7 @@ def write_csv(
         'distance_km'
     ]
 ):
-    if directory is None:
+    if directory is None or directory == '':
         directory = os.getcwd()
 
     addition = ''
@@ -30,7 +32,7 @@ def write_csv(
     filename += '.csv'
     file_path = os.path.join(directory, filename)
 
-    with open(file_path, mode='w') as csv_file:
+    with open(file_path, mode='w', newline='') as csv_file:
         csv_writer = csv.writer(
             csv_file,
             delimiter=',',
@@ -45,13 +47,24 @@ def write_csv(
                 for date in data[loc_code]['sys'][antenna].keys():
                     file = data[loc_code]['sys'][antenna][date]
                     for meteor in file['meteors']:
+                        seconds = (
+                            file['start']
+                            + float(meteor['t']) * 1000000
+                        ) / 1000000
+                        microseconds = (seconds % 1) * 1000000
+                        meteor_date = datetime.fromtimestamp(
+                            int(seconds),
+                            tz=timezone.utc
+                        )
+                        meteor_date += timedelta(
+                            microseconds=int(microseconds))
                         csv_writer.writerow(
                             [
                                 loc_code,
                                 antenna,
                                 date,
                                 len(file['meteors']),
-                                meteor['t'],
+                                meteor_date.strftime('%Y-%m-%dT%H:%M:%S:%f'),
                                 meteor['f_min'],
                                 meteor['f_max'],
                                 data[loc_code]['distance']

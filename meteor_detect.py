@@ -20,12 +20,27 @@ default_dir = 'recordings/'
 
 
 def get_interval(string_date='2022-04-29T000000'):
+    if '-' in string_date:
+        date_format = '%Y-%m-%d'
+    elif '/' in string_date:
+        date_format = '%Y/%m/%d'
+    else:
+        date_format = '%Y%m%d'
+
+    if ':' in string_date:
+        time_format = '%H:%M:%S'
+    else:
+        time_format = '%H%M%S'
+
     if 'T' in string_date:
-        utc0_date = datetime.strptime(string_date, '%Y-%m-%dT%H%M%S')
+        utc0_date = datetime.strptime(
+            string_date, f'{date_format}T{time_format}')
     elif 't' in string_date:
-        utc0_date = datetime.strptime(string_date, '%Y-%m-%dt%H%M%S')
+        utc0_date = datetime.strptime(
+            string_date, f'{date_format}t{time_format}')
     elif '_' in string_date:
-        utc0_date = datetime.strptime(string_date, '%Y-%m-%d_%H%M%S')
+        utc0_date = datetime.strptime(
+            string_date, f'{date_format}_{time_format}')
     else:
         return False
 
@@ -70,35 +85,13 @@ def get_meteor_specs(wav_file, meteor_coords=[]):
 def get_meteor_coords(stations, interval):
     # filter matrix
     # its primary purpose is to amplify long vertical elements
-    kernel = [
-        [0.,   0.,   0.,  50.,   0.,   0.,   0.],
-        [0.,   0.,   0.,  50.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [-1.5, 0.,   0.,   0.,   0.,   0.,  -1.5],
-        [-1.5, 0.,   0.,   0.,   0.,   0.,  -1.5],
-        [-1.5, 0.,   0.,   0.,   0.,   0.,  -1.5],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,   0.,   0.,   0.,   0.],
-        [0.,   0.,   0.,  50.,   0.,   0.,   0.],
-        [0.,   0.,   0.,  50.,   0.,   0.,   0.]
-    ]
+    kernel = np.zeros((27, 7))
+    kernel[12:15, 0] = -1.5
+    kernel[12:15, -1] = -1.5
+
+    kernel[0:2, 3] = 50
+    kernel[-1, 3] = 50
+    kernel[-2, 3] = 50
 
     # for each relevant wav file
     for location in stations.keys():
@@ -109,6 +102,8 @@ def get_meteor_coords(stations, interval):
 
                 if system_file['file_path'] is None:
                     continue
+
+                print(f"\nSearching in file {system_file['file_path']}.")
 
                 # read the wav file
                 wav = BramsWavFile(
@@ -142,7 +137,6 @@ def get_meteor_coords(stations, interval):
                     * spectrogram_res
                 )
                 broad_interval_end = interval_end + 23
-                print(interval_start, interval_end)
 
                 # filter the spectrogram in order to find meteors
                 spectrogram.filter_with_kernel(
@@ -167,11 +161,22 @@ def get_meteor_coords(stations, interval):
                 # find the unprecise meteor coords
                 coords = spectrogram.get_potential_meteors(
                     start=interval_start,
-                    end=interval_end
+                    end=interval_end,
+                    broad_start=broad_interval_start,
+                    broad_end=broad_interval_end,
                 )
-                print(coords)
+                # spectrogram.plot_modified_spectrogram(
+                #     interval=250,
+                #     show=True,
+                #     title=system_file['file_path']
+                # )
+
                 # find a more precise representation of the meteor coords
                 specs = spectrogram.get_meteor_specs(coords)
+                print(
+                    f"Found {len(specs)} meteors is file "
+                    f"{system_file['file_path']}."
+                )
 
                 system_file['meteors'] = specs
 
@@ -194,6 +199,24 @@ def get_close(stations, reference_station_code=None):
             )
 
     return stations
+
+
+def generate_filename(
+    basis: str = 'meteor_detect',
+    date: datetime | None = None,
+    station: str | None = None
+):
+    if date is None:
+        date = ''
+    else:
+        date = '_' + date.strftime('%Y%m%d_%H%M%S')
+
+    if station is None:
+        station = ''
+    else:
+        station = '_' + station
+
+    return f'{basis}{date}{station}'
 
 
 def main(args):
@@ -220,18 +243,27 @@ def main(args):
     stations = arch.get_archived_files(
         stations,
         datetime.fromtimestamp(interval['occurence_time'] / 1000000),
-        default_dir
+        args.file_directory
     )
 
     # get distance between stations and reference stations
     stations = get_close(stations, args.reference_station)
     stations = get_meteor_coords(stations, interval)
 
-    csv.write_csv(stations)
+    csv.write_csv(
+        stations,
+        filename=generate_filename(
+            date=datetime.fromtimestamp(
+                interval['occurence_time'] / 1000000,
+                tz=timezone.utc
+            ),
+            station=args.reference_station
+        ),
+        directory=args.csv_destination
+    )
 
 
-def main_test(cmd_arguments):
-    print(cmd_arguments)
+def main_test():
     kernel = np.zeros((27, 7))
     kernel[12:15, 0] = -1.5
     kernel[12:15, -1] = -1.5
@@ -244,7 +276,7 @@ def main_test(cmd_arguments):
 
     print("Loading wav file into memory...")
     wav_file = BramsWavFile(
-        './recordings/2022/04/23/RAD_BEDOUR_20220423_0000_BEHUMA_SYS001.wav'
+        './recordings/2022/04/23/RAD_BEDOUR_20220423_0000_BEHUMA_SYS002.wav'
     )
 
     test_spectrogram = Spectrogram(
@@ -272,19 +304,16 @@ def arguments():
             Program searches for meteor detection found on one system
             on other systems and returns the result in a csv file.
             To use this program, enter the program name followed by the
-            station id or the station location_code with the staion
-            antenna number attached to it (i.e. BEHAAC1, BEHUMA3, ...).
-            If this argument in not specified, the program will simply
-            look for meteors on all of the available wav files at the
-            specified detection time.
+            date and time you want to search the stations for meteors.
+            Additional options are listed below.
         """
     )
     parser.add_argument(
         'detection_time',
         metavar='DETECTION TIME',
         help="""
-            Time ot the meteor detection use either '%Y-%m-%dT%H%i' or
-            '%Y-%m-%d_%H%i' format to specify the date and the time.
+            Time ot the meteor detection use either 'YYYYMMDDThhmmss' or
+            'YYYYMMDD_hhmmss' format to specify the date and the time.
             All other formats are prone to fail.
         """,
         nargs=1
@@ -293,12 +322,11 @@ def arguments():
         'reference_station',
         metavar='REFERENCE STATION',
         help="""
-            Stations where the meteor signal was detected and from where
+            Station where the meteor signal was detected and from where
             the distance between other stations will be calculated. This
             means that, if a meteor detection was found on another
-            station that was not specified in this list, that station's
-            location will be compared to all the station's location
-            of this list.
+            station, the location between the reference station and that
+            station will be given.
             If this argument in not specified, the program will simply
             look for meteors on all of the available wav files at the
             specified detection time.
@@ -325,14 +353,14 @@ def arguments():
             {default_dir} directory and according to the specified date.
         """,
         nargs='?',
-        default=None
+        default=default_dir
     )
     parser.add_argument(
         '-c', '--csv-destination',
         help="""
             Destination file/directory of the results csv file. If the
             destination is a folder, the file's name will be
-            'meteor_detect_YYYYMMDD_HHmmss.csv'.
+            'meteor_detect_YYYYMMDD_hhmmss[_LOCATION].csv'.
             This argument can be ignored in which case the destination
             file will be stored in the current directory.
         """,
@@ -345,6 +373,7 @@ def arguments():
 
 
 if __name__ == '__main__':
+    # main_test()
     args = arguments()
     main(args)
     print('Exiting...')

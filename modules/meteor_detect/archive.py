@@ -8,21 +8,21 @@ def verify_archive_date(search_date, parent_directory):
 
     year = search_date.strftime('%Y')
     if year not in dir_content:
-        return False
+        return parent_directory
 
     directory = os.path.join(parent_directory, year)
     dir_content = os.listdir(directory)
 
     month = search_date.strftime('%m')
     if month not in dir_content:
-        return False
+        return directory
 
     directory = os.path.join(directory, month)
     dir_content = os.listdir(directory)
 
     day = search_date.strftime('%d')
     if day not in dir_content:
-        return False
+        return directory
 
     return {
         "path": os.path.join(directory, day),

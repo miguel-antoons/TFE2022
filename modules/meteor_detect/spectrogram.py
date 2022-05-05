@@ -22,35 +22,38 @@ class Spectrogram:
             noverlap=noverlap,
             window=window,
         )
-        print(f'Sample frequency : {sample_frequency}')
-        print(f'Signal length in frequency segments : {len(self.frequencies)}')
-        print(f'Signal length in time segments : {len(self.times)}')
-        print(f'Linear singal values go from 0 to {max_normalization}')
 
         self.frequency_resolution = (
             sample_frequency / 2 / len(self.frequencies)
         )
         # sample frequency of the wav audio signal
         self.sample_frequency = sample_frequency
-        self.Pxx = self.__normalize_spectrogram(max_normalization, Pxx)
+        Pxx = self.__normalize_spectrogram(max_normalization, Pxx)
         # signal strength in dB
-        self.Pxx_DB = 10. * np.log10(self.Pxx)
+        self.Pxx_DB = 10. * np.log10(Pxx)
         # TODO : comments
         (
             self.start_transmitter_row,
             self.end_transmitter_row,
             self.max_transmitter_row
-        ) = self.__retrieve_transmitter_signal()
+        ) = self.__retrieve_transmitter_signal(Pxx)
         # copy of the signal strencgth in dB to be modified
-        self.Pxx_modified = self.__subtract_transmitter_signal()
+        self.Pxx_modified = self.__subtract_transmitter_signal(Pxx)
         # initialize the figure number to 1
         self.figure_n = 1
 
-        self.default_treshold = self.__find_noise_value()
+        self._default_treshold = self.__find_noise_value()
 
         # DEVELOP
-        print(f'Max spectrogram value : {np.max(self.Pxx)}')
-        print(f'Min spectrogram value : {np.min(self.Pxx)}')
+        # print(f'Max spectrogram value : {np.max(self.Pxx)}')
+        # print(f'Min spectrogram value : {np.min(self.Pxx)}')
+
+    @property
+    def __default_treshold(self):
+        if self._default_treshold is None:
+            self._default_treshold = self.__find_noise_value()
+
+        return self._default_treshold
 
     def __normalize_spectrogram(self, max_normalization, Pxx):
         max_pxx = np.max(Pxx)
@@ -290,7 +293,7 @@ class Spectrogram:
     """
     def filter_low(self, min_value=None, start=0, end=None, filter_all=False):
         if min_value is None:
-            min_value = self.default_treshold
+            min_value = self.__default_treshold()
 
         if filter_all:
             start = 0
@@ -359,17 +362,15 @@ class Spectrogram:
         # print('Storing the convolution result...')
         spectrogram_slice[:] = spectrogram_slice_copy
 
-    def __retrieve_transmitter_signal(self, fmin=800, fmax=1200):
+    def __retrieve_transmitter_signal(self, Pxx, fmin=800, fmax=1200):
         same_index = 0
         previous_index = 0
         index = 0
         min_row = round(fmin / self.frequency_resolution)
         max_row = round(fmax / self.frequency_resolution)
 
-        print(f'Searching direct signal between {fmin} Hz and {fmax} Hz...')
-
         while not same_index == 50 and index < len(self.times):
-            max_column_index = self.Pxx[min_row:max_row, index].argmax()
+            max_column_index = Pxx[min_row:max_row, index].argmax()
 
             if max_column_index in [
                 previous_index - 1, previous_index, previous_index + 1
@@ -398,30 +399,28 @@ class Spectrogram:
             (previous_index + min_row)
         )
 
-    def __subtract_transmitter_signal(self):
-        Pxx_copy = np.copy(self.Pxx)
-
+    def __subtract_transmitter_signal(self, Pxx):
         if self.start_transmitter_row:
             for row in range(
                 self.start_transmitter_row, self.end_transmitter_row + 1
             ):
                 start_col = 0
-                for end_col in range(3, Pxx_copy.shape[0], 3):
+                for end_col in range(3, Pxx.shape[0], 3):
                     normal_mean_value = (
-                        np.mean(Pxx_copy[
+                        np.mean(Pxx[
                             self.start_transmitter_row - 1, start_col:end_col
                         ])
-                        + np.mean(Pxx_copy[
+                        + np.mean(Pxx[
                             self.end_transmitter_row + 1, start_col:end_col
                         ])
                     ) / 2
 
-                    Pxx_copy[row, start_col:end_col] = normal_mean_value
+                    Pxx[row, start_col:end_col] = normal_mean_value
                     start_col = end_col
 
-            Pxx_copy[Pxx_copy <= 0] = 0.001
+            Pxx[Pxx <= 0] = 0.001
 
-        return Pxx_copy
+        return Pxx
 
     def __binarize_slice(self, treshold, start=0, end=None, spectrogram=None):
         if spectrogram is None:
@@ -457,17 +456,11 @@ class Spectrogram:
             return spectrogram_slice
 
     def __create_blocks(self, height=3, width=10, fmin=600, fmax=1400):
-        print(f'\nDividing spectrogram into {height * width} blocks...')
         Pxx_copy = np.copy(self.Pxx_modified[
             (self.frequencies >= fmin) & (self.frequencies <= fmax)
         ])
         h, w = Pxx_copy.shape
 
-        print(
-            f'Resizing array with width of {w} columns and height of {h} rows'
-            f' into an array with a number of columns that can\nbe divided by'
-            f' {width} and a number of rows that can be divided by {height}...'
-        )
         height_surplus = h % height
         width_surplus = w % width
 
@@ -477,15 +470,9 @@ class Spectrogram:
             Pxx_copy = Pxx_copy[:, :-width_surplus]
 
         h, w = Pxx_copy.shape
-        print(f'New array has width of {w} columns and height of {h} rows.')
 
         row_per_block = h // height
         col_per_block = w // width
-        print(
-            f'Returned array will contain {height * width} blocks.\n'
-            f'Each block will have a width of {col_per_block} columns'
-            f' and a height of {row_per_block} rows.'
-        )
 
         return (
             Pxx_copy
@@ -496,11 +483,8 @@ class Spectrogram:
 
     def __find_noise_value(self):
         pxx_blocks = self.__create_blocks()
-        print(f'Block array shape : {pxx_blocks.shape}')
-        print('\nFinding best filter treshold...')
         block_info = []
 
-        print('Saving variance, mean and index of previous created blocks...')
         for index, block in enumerate(pxx_blocks):
             block_info.append({
                 'variance': np.var(block),
@@ -509,10 +493,7 @@ class Spectrogram:
             })
 
         all_var_median = np.median([block['variance'] for block in block_info])
-        print(
-            'Removing all blocks with a variance higher than '
-            f'{all_var_median}...'
-        )
+
         block_info = [
             block for block in block_info if block['variance'] < all_var_median
         ]
@@ -520,10 +501,7 @@ class Spectrogram:
         max_percentile = np.max(
             [block['percentile_95'] for block in block_info]
         )
-        print(
-            'Taking block with 95th percentile value equal to '
-            f'{max_percentile}...'
-        )
+
         block_info = [
             block for block in block_info
             if block['percentile_95'] == max_percentile
@@ -547,8 +525,7 @@ class Spectrogram:
         # flat_used_block = used_block.flatten()
         # return block_info[0]['percentile_95']
         percentile = np.percentile(used_block, 97)
-        print(f'Original percentile is {block_info[0]["percentile_95"]}.')
-        print(f'Percentile after convolution is {percentile}.')
+
         return percentile
         # return (
         #     stats.t.interval(
@@ -571,31 +548,41 @@ class Spectrogram:
         else:
             spectrogram_slice = self.__get_slice(start, end)
 
-        print('\nFiltering each column...')
-        print(
-            'During this procedure, the system will first calculate the '
-            f'{percentile}th percentile of the column.\n'
-            'All the values of the column below that percentile will be set '
-            'to 0.001.'
-        )
-
         for column in spectrogram_slice.T:
             column_percentile = np.percentile(column, percentile)
             column[column < column_percentile] = 0.001
 
-    def get_potential_meteors(self, start=0, end=None, get_all=False):
+    def get_potential_meteors(
+        self,
+        start=0,
+        end=None,
+        get_all=False,
+        broad_start=None,
+        broad_end=None
+    ):
         pot_meteors = []
+
+        # if the users wants the meteors on the whole spectrogram
         if get_all:
             start = 0
             end = len(self.times)
+            broad_start = 0
+            broad_end = end
 
         if start < 0:
             start = 0
 
-        spectrogram_copy = self.__get_slice(start, end)
+        if broad_start is None:
+            broad_start = start
 
-        for i in range(len(spectrogram_copy.T)):
-            self.delete_area(27, start=(i + start))
+        if broad_end is None:
+            broad_end = end
+
+        spectrogram_copy = self.__get_slice(start, end)
+        broad_spectrogram = self.__get_slice(broad_start, broad_end)
+
+        for i in range(len(broad_spectrogram.T)):
+            self.delete_area(27, start=(i + broad_start))
 
         object_coords = self.__get_object_coords(
             start=start,
@@ -618,8 +605,15 @@ class Spectrogram:
 
             # if the object is higher than 60 and smaller than 6
             if pot_meteor_width < 6 and pot_meteor_height > 60:
-                # consider the oibject as a meteor
-                pot_meteors.append((object[0], slice(object[1].start + start, object[1].stop + start, None)))
+                # consider the object as a meteor
+                pot_meteors.append((
+                    object[0],
+                    slice(
+                        object[1].start + start,
+                        object[1].stop + start,
+                        None
+                    )
+                ))
 
             # if the object is wider than 1
             elif pot_meteor_width > 1:
@@ -704,8 +698,15 @@ class Spectrogram:
                     column += 1
 
                 if total_width < 20:
-                    pot_meteors.append((object[0], slice(object[1].start + start, object[1].stop + start, None)))
-        print(pot_meteors)
+                    pot_meteors.append((
+                        object[0],
+                        slice(
+                            object[1].start + start,
+                            object[1].stop + start,
+                            None
+                        )
+                    ))
+            # self.Pxx_modified[pot_meteors[-1][0], pot_meteors[-1][1]] = 100
 
         # * below code is for debugging purposes only
         # for meteor in pot_meteors:
