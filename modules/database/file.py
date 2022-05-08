@@ -27,7 +27,7 @@ def insert_noise(psd_data):
     # sql query to update the database values
     sql_query = (
         "UPDATE file "
-        "SET psd = %(noise_psd)s "
+        "SET noise = %(noise_psd)s "
         "WHERE "
         "system_id = %(system_id)s "
         "AND start = %(time)s"
@@ -124,9 +124,9 @@ def get_previous_noise_psd(stations=[], get_all=True, limit=150):
 
     # get the last noise psd values and system_id from the database
     sql_query = (
-        "SELECT system_id, psd\n"
+        "SELECT system_id, noise\n"
         "FROM file\n"
-        "WHERE psd is not null\n"
+        "WHERE noise is not null\n"
     )
 
     # filter system_id if asked
