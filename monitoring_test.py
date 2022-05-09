@@ -16,8 +16,8 @@ from tqdm import tqdm
 # 3. create graph and png from that graph (with matplotlib)
 
 
-default_dir = 'recordings/'
-# default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/'
+# default_dir = 'recordings/'
+default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/'
 
 
 def main(args):
