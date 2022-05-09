@@ -16,15 +16,14 @@ from tqdm import tqdm
 # 3. create graph and png from that graph (with matplotlib)
 
 
-# default_dir = 'recordings/'
-default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/'
+default_dir = 'recordings/'
+# default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/'
 
 
 def main(args):
+    stations = args.stations
     # if a directory is given
     if args.directory is not None:
-        stations = args.stations
-
         # get all the files in the directory that are within a date interval
         asked_files = get_asked_files(
             args.start_date,
@@ -38,8 +37,9 @@ def main(args):
         # get files files from the archive that are within a date interval
         asked_files, last_date = get_archived_files(
             args.interval,
+            stations,
             args.start_date,
-            args.end_date
+            args.end_date,
         )
 
     noise_memory = {}
@@ -286,7 +286,7 @@ def verify_archive_date(start_date):
     }
 
 
-def get_archived_files(interval, start_date=None, end_date=None):
+def get_archived_files(interval, stations=[], start_date=None, end_date=None):
     if start_date is None:
         try:
             with open('program_data.json') as f:
@@ -299,7 +299,6 @@ def get_archived_files(interval, start_date=None, end_date=None):
         # if no json file was found
         if data is None:
             # set the start_date to yesterday
-            # * handle start and end date
             start_date = datetime.now() - timedelta(1)
         else:
             start_date = (
@@ -314,7 +313,11 @@ def get_archived_files(interval, start_date=None, end_date=None):
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
     files_to_archive = []
-    station_ids = sys.get_station_ids()
+
+    if stations is []:
+        station_ids = sys.get_station_ids()
+    else:
+        station_ids = sys.get_station_ids(stations, False)
 
     directory = verify_archive_date(start_date)
     # while a new directory with new files is found
@@ -323,40 +326,41 @@ def get_archived_files(interval, start_date=None, end_date=None):
 
         for filename in tqdm(directory['content']):
             split_filename = filename.split('_')
-            system_id = station_ids[
-                split_filename[4]
-            ][
-                str(int(
-                    split_filename[5]
-                    .replace('SYS', '')
-                    .replace('.wav', '')
-                ))
-            ]
-            # get date and time of the file
-            file_date = datetime.strptime(
-                f'{split_filename[2]} {split_filename[3]}',
-                '%Y%m%d %H%M'
-            )
+            if split_filename[4] in station_ids.keys():
+                system_id = station_ids[
+                    split_filename[4]
+                ][
+                    str(int(
+                        split_filename[5]
+                        .replace('SYS', '')
+                        .replace('.wav', '')
+                    ))
+                ]
+                # get date and time of the file
+                file_date = datetime.strptime(
+                    f'{split_filename[2]} {split_filename[3]}',
+                    '%Y%m%d %H%M'
+                )
 
-            if system_id not in reference_dates.keys():
-                reference_dates[system_id] = file_date
-            file_path = os.path.join(directory['path'], filename)
+                if system_id not in reference_dates.keys():
+                    reference_dates[system_id] = file_date
+                file_path = os.path.join(directory['path'], filename)
 
-            # check the path is a file and that the interval between the
-            # files is respected
-            if (
-                os.path.isfile(file_path)
-                and file_date == reference_dates[system_id]
-            ):
-                files_to_archive.append({
-                    "station_code": split_filename[4],
-                    "filename": file_path,
-                    "time": file_date.strftime('%Y-%m-%d %H:%M'),
-                    "datetime": file_date,
-                    "system_id": system_id,
-                })
+                # check the path is a file and that the interval between the
+                # files is respected
+                if (
+                    os.path.isfile(file_path)
+                    and file_date == reference_dates[system_id]
+                ):
+                    files_to_archive.append({
+                        "station_code": split_filename[4],
+                        "filename": file_path,
+                        "time": file_date.strftime('%Y-%m-%d %H:%M'),
+                        "datetime": file_date,
+                        "system_id": system_id,
+                    })
 
-                reference_dates[system_id] += timedelta(minutes=interval)
+                    reference_dates[system_id] += timedelta(minutes=interval)
 
         # increase the date by 1 day
         start_date += timedelta(1)
@@ -403,7 +407,7 @@ def arguments():
             list with the codes of the stations to detect noise variations on.
         """,
         nargs='*',
-        default=None
+        default=[]
     )
     parser.add_argument(
         '-i', '--interval',
