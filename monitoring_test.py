@@ -261,7 +261,10 @@ def get_asked_files(start_date, end_date, stations, parent_directory):
 
 
 # ! carefull for exceptions!!
-def verify_archive_date(start_date):
+def verify_archive_date(start_date, end_date=None):
+    if end_date is not None and start_date >= end_date:
+        return False
+
     dir_content = os.listdir(default_dir)
 
     year = start_date.strftime('%Y')
@@ -321,7 +324,7 @@ def get_archived_files(interval, stations=[], start_date=None, end_date=None):
     else:
         station_ids = sys.get_station_ids(stations, False)
 
-    directory = verify_archive_date(start_date)
+    directory = verify_archive_date(start_date, end_date)
     # while a new directory with new files is found
     while directory:
         reference_dates = {}
@@ -341,9 +344,9 @@ def get_archived_files(interval, stations=[], start_date=None, end_date=None):
                 file_path = os.path.join(directory['path'], filename)
 
                 # get content of the tar file
-                with tarfile.open(filename) as tar:
+                with tarfile.open(file_path) as tar:
                     for member in tar.getmembers():
-                        split_filename = member.split('_')
+                        split_filename = member.name.split('_')
                         # get date and time of the file
                         file_date = datetime.strptime(
                             f'{split_filename[2]} {split_filename[3]}',
@@ -371,7 +374,7 @@ def get_archived_files(interval, stations=[], start_date=None, end_date=None):
 
         # increase the date by 1 day
         start_date += timedelta(1)
-        directory = verify_archive_date(start_date)
+        directory = verify_archive_date(start_date, end_date)
     else:
         print('All new archived files were retrieved.')
 

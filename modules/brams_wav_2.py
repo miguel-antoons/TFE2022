@@ -72,7 +72,7 @@ class BramsWavFile:
         ('reserved', '<S256')])
 
     def getNextSubChunk(self, file, offset=0):
-        head = np.fromfile(
+        head = np.frombuffer(
             file,
             dtype=self.head_t,
             count=1,
@@ -86,7 +86,7 @@ class BramsWavFile:
     def getRiffChunk(self, file):
         # get first available chunk from the .wav file
         # (aka RIFF chunk descriptor)
-        riff = np.fromfile(
+        riff = np.frombuffer(
             file, dtype=self.riff_t, count=1)[0]
         if (riff['head']['ID'] != b"RIFF") or (riff['format'] != b"WAVE"):
             raise BramsError(file.name)
@@ -101,7 +101,7 @@ class BramsWavFile:
             file = filename
         else:
             with tarfile.open(filename) as tar:
-                file = tar.extractfile(tar_member)
+                file = tar.extractfile(tar_member).read()
 
         n_to_read = self.getRiffChunk(file)
 
@@ -123,7 +123,7 @@ class BramsWavFile:
             n_to_read -= hsize + self.head_t.itemsize
 
             if hid == b'fmt ':
-                fmt = np.fromfile(
+                fmt = np.frombuffer(
                     file,
                     dtype=self.fmt_t,
                     count=1,
@@ -131,7 +131,7 @@ class BramsWavFile:
                 )[0]
 
             elif hid == b'BRA1':
-                bra1 = np.fromfile(
+                bra1 = np.frombuffer(
                     file,
                     dtype=self.bra1_t,
                     count=1,
@@ -139,7 +139,7 @@ class BramsWavFile:
                 )[0]
                 self.fs = bra1['sample_rate']
             elif hid == b'data':
-                data = np.fromfile(
+                data = np.frombuffer(
                     file,
                     dtype='<i2',
                     count=int(hsize/2),
