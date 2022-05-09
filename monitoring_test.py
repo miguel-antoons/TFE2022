@@ -2,7 +2,6 @@
 import argparse
 import json
 import os
-import modules.database.file as f
 import modules.database.system as sys
 import modules.psd.variations as variations
 import modules.psd.psd as psd
@@ -14,11 +13,11 @@ from tqdm import tqdm
 
 # 1. assume that the files are structured by YEAR/MONTH/DATE by default
 # 2. don't forget to take into account the interval
-# ! 3. create graph and png from that graph (with matplotlib)
+# 3. create graph and png from that graph (with matplotlib)
 
 
-default_dir = 'recordings/'
-# default_dir = /bira-iasb/data/GROUNDBASED/BRAMS/
+# default_dir = 'recordings/'
+default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/'
 
 
 def main(args):
@@ -52,26 +51,12 @@ def main(args):
         # if it is the first (during program execution) time that psd will be
         # calculated for this station
         if sys_id not in noise_memory.keys():
-            # get the preious psd values from the database
-            previous_psd = f.get_previous_noise_psd(
-                [sys_id],
-                False
-            )
-            previous_calibrator = f.get_previous_calibrator_psd(
-                [sys_id],
-                False
-            )
+            # if there are no values, set an empty array as previous psd
+            # values
+            previous_psd = {sys_id: []}
 
-            # check if there are any psd values received from the database
-            if sys_id not in previous_psd.keys():
-                # if there are no values, set an empty array as previous psd
-                # values
-                previous_psd[sys_id] = []
-
-            # check if there were any calibrator psd values for this station
-            if sys_id not in previous_calibrator.keys():
-                # if non values were found, default to None
-                previous_calibrator[sys_id] = None
+            # if non values were found, default to None
+            previous_calibrator = {sys_id: None}
 
             # add a dict to the noise_memory variable representing psd values
             # for the current station
