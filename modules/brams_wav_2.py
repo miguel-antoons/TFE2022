@@ -14,6 +14,8 @@ written by Michel Anciaux 10-Mar-2015
 modified by Miguel Antoons april-2022
 '''
 import numpy as np
+import tarfile
+
 from scipy.signal import windows
 from scipy.fft import rfft, rfftfreq
 
@@ -27,7 +29,6 @@ class BramsError(Exception):
 
 
 class BramsWavFile:
-
     head_t = np.dtype([
         ('ID', '<S4'),
         ('size', '<u4')])
@@ -70,9 +71,9 @@ class BramsWavFile:
         ('description', '<S234'),
         ('reserved', '<S256')])
 
-    def getNextSubChunk(self, filename, offset=0):
+    def getNextSubChunk(self, file, offset=0):
         head = np.fromfile(
-            filename,
+            file,
             dtype=self.head_t,
             count=1,
             offset=offset
@@ -82,32 +83,38 @@ class BramsWavFile:
         subchunk_offset = offset + self.head_t.itemsize
         return head['ID'], head['size'], subchunk_offset
 
-    def getRiffChunk(self, filename):
+    def getRiffChunk(self, file):
         # get first available chunk from the .wav file
         # (aka RIFF chunk descriptor)
         riff = np.fromfile(
-            filename, dtype=self.riff_t, count=1)[0]
+            file, dtype=self.riff_t, count=1)[0]
         if (riff['head']['ID'] != b"RIFF") or (riff['format'] != b"WAVE"):
-            raise BramsError(filename.name)
+            raise BramsError(file.name)
 
         # return the total size following the RIFF chunk
         return (
             riff['head']['size'] - self.riff_t.itemsize + self.head_t.itemsize
         )
 
-    def __init__(self, filename):
-        n_to_read = self.getRiffChunk(filename)
+    def __init__(self, filename, tar_member=None):
+        if tar_member is None:
+            file = filename
+        else:
+            with tarfile.open(filename) as tar:
+                file = tar.extractfile(tar_member)
 
-        # ? new method
+        n_to_read = self.getRiffChunk(file)
+
         self.fs = None
         self.fft_freq = None
         self.fft_fbin = None
         self.fft = None
         data_offset = self.riff_t.itemsize
+
         while n_to_read >= self.head_t.itemsize:
             try:
                 hid, hsize, subchunk_offset = self.getNextSubChunk(
-                    filename,
+                    file,
                     data_offset
                 )
             except EOFError:
@@ -117,7 +124,7 @@ class BramsWavFile:
 
             if hid == b'fmt ':
                 fmt = np.fromfile(
-                    filename,
+                    file,
                     dtype=self.fmt_t,
                     count=1,
                     offset=subchunk_offset
@@ -125,7 +132,7 @@ class BramsWavFile:
 
             elif hid == b'BRA1':
                 bra1 = np.fromfile(
-                    filename,
+                    file,
                     dtype=self.bra1_t,
                     count=1,
                     offset=subchunk_offset
@@ -133,7 +140,7 @@ class BramsWavFile:
                 self.fs = bra1['sample_rate']
             elif hid == b'data':
                 data = np.fromfile(
-                    filename,
+                    file,
                     dtype='<i2',
                     count=int(hsize/2),
                     offset=subchunk_offset

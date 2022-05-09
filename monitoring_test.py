@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import tarfile
 import modules.database.system as sys
 import modules.psd.variations as variations
 import modules.psd.psd as psd
@@ -76,8 +77,9 @@ def main(args):
                 },
             }
 
+        # get the wav file from the tar
         # read the wav file and calculate the noise and callibrator psd value
-        wav = BramsWavFile(file['filename'])
+        wav = BramsWavFile(file['path'], file['filename'])
         noise_psd = psd.get_noise_psd(wav)
         calibrator_psd, calibrator_f = psd.get_calibrator_psd(wav)
 
@@ -333,34 +335,39 @@ def get_archived_files(interval, stations=[], start_date=None, end_date=None):
                     str(int(
                         split_filename[5]
                         .replace('SYS', '')
-                        .replace('.wav', '')
+                        .replace('.tar', '')
                     ))
                 ]
-                # get date and time of the file
-                file_date = datetime.strptime(
-                    f'{split_filename[2]} {split_filename[3]}',
-                    '%Y%m%d %H%M'
-                )
-
-                if system_id not in reference_dates.keys():
-                    reference_dates[system_id] = file_date
                 file_path = os.path.join(directory['path'], filename)
 
-                # check the path is a file and that the interval between the
-                # files is respected
-                if (
-                    os.path.isfile(file_path)
-                    and file_date == reference_dates[system_id]
-                ):
-                    files_to_archive.append({
-                        "station_code": split_filename[4],
-                        "filename": file_path,
-                        "time": file_date.strftime('%Y-%m-%d %H:%M'),
-                        "datetime": file_date,
-                        "system_id": system_id,
-                    })
+                # get content of the tar file
+                with tarfile.open(filename) as tar:
+                    for member in tar.getmembers():
+                        split_filename = member.split('_')
+                        # get date and time of the file
+                        file_date = datetime.strptime(
+                            f'{split_filename[2]} {split_filename[3]}',
+                            '%Y%m%d %H%M'
+                        )
 
-                    reference_dates[system_id] += timedelta(minutes=interval)
+                        if system_id not in reference_dates.keys():
+                            reference_dates[system_id] = file_date
+
+                        # check the path is a file and that the interval
+                        # between the files is respected
+                        if file_date == reference_dates[system_id]:
+                            files_to_archive.append({
+                                "station_code": split_filename[4],
+                                "path": file_path,
+                                "filename": member,
+                                "time": file_date.strftime('%Y-%m-%d %H:%M'),
+                                "datetime": file_date,
+                                "system_id": system_id,
+                            })
+
+                            reference_dates[system_id] += timedelta(
+                                minutes=interval
+                            )
 
         # increase the date by 1 day
         start_date += timedelta(1)
