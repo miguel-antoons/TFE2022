@@ -5,17 +5,17 @@ import matplotlib.pyplot as plt
 import geopy.distance as geo
 import modules.database.system as sys
 import modules.database.file as fil
-import modules.meteor_detect.archive as arch
 import modules.meteor_detect.csv as csv
 
-from modules.brams_wav_2 import BramsWavFile
+# from modules.brams_wav_2 import BramsWavFile
+from modules.brams_wav import BramsError, BramsWavFile
 from modules.meteor_detect.spectrogram import Spectrogram
 from datetime import datetime, timedelta, timezone
 from scipy.fft import rfft, rfftfreq
 from scipy.signal import windows
 
-default_dir = 'recordings/'
-# default_dir = /bira-iasb/data/GROUNDBASED/BRAMS/
+# default_dir = 'recordings/'
+default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
 # 2022-04-23T000212 BEHUMA
 
 
@@ -42,7 +42,8 @@ def get_interval(string_date='2022-04-29T000000'):
         utc0_date = datetime.strptime(
             string_date, f'{date_format}_{time_format}')
     else:
-        return False
+        utc0_date = datetime.strptime(
+            string_date, f'{date_format}{time_format}')
 
     utc0_date = utc0_date.replace(tzinfo=timezone.utc)
 
@@ -82,7 +83,13 @@ def get_meteor_specs(wav_file, meteor_coords=[]):
         plt.plot(xf, np.abs(yf))
 
 
-def get_meteor_coords(stations, interval):
+def get_meteor_coords(
+    stations: dict,
+    interval: dict,
+    is_wav: bool,
+    directory: str,
+    from_archive: bool
+):
     # filter matrix
     # its primary purpose is to amplify long vertical elements
     kernel = np.zeros((27, 7))
@@ -100,15 +107,21 @@ def get_meteor_coords(stations, interval):
                 system_file = stations[location]['sys'][antenna][date]
                 system_file['meteors'] = []
 
-                if system_file['file_path'] is None:
+                # print(f"\nSearching in file {system_file['file_path']}.")
+
+                try:
+                    # read the wav file
+                    wav = BramsWavFile(
+                        datetime.strptime(date, '%Y%m%d%H%M'),
+                        location,
+                        f"SYS{antenna.rjust(3, '0')}",
+                        respect_date=True,
+                        parent_directory=directory,
+                        is_wav=is_wav,
+                        from_archive=from_archive,
+                    )
+                except BramsError:
                     continue
-
-                print(f"\nSearching in file {system_file['file_path']}.")
-
-                # read the wav file
-                wav = BramsWavFile(
-                    system_file['file_path']
-                )
 
                 # generate the spectrogram
                 spectrogram = Spectrogram(
@@ -240,15 +253,20 @@ def main(args):
         print('No files were found for those stations at that time.')
         return
 
-    stations = arch.get_archived_files(
-        stations,
-        datetime.fromtimestamp(interval['occurence_time'] / 1000000),
-        args.file_directory
-    )
+    if args.file_directory == default_dir:
+        from_archive = True
+    else:
+        from_archive = False
 
     # get distance between stations and reference stations
     stations = get_close(stations, args.reference_station)
-    stations = get_meteor_coords(stations, interval)
+    stations = get_meteor_coords(
+        stations,
+        interval,
+        args.wav,
+        args.file_directory,
+        from_archive
+    )
 
     csv.write_csv(
         stations,
@@ -353,6 +371,7 @@ def arguments():
             {default_dir} directory and according to the specified date.
         """,
         nargs='?',
+        type=str,
         default=default_dir
     )
     parser.add_argument(
@@ -366,6 +385,14 @@ def arguments():
         """,
         nargs='?',
         default=None
+    )
+    parser.add_argument(
+        '-w', '--wav',
+        help="""
+            Indicates if the file in the specified directory are .wav files.
+            If this flag is not set, the program will search for .tar files.
+        """,
+        action='store_true'
     )
 
     args = parser.parse_args()

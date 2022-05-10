@@ -24,7 +24,7 @@ def detect_noise_decrease(x_data, y_data, index, interval=150):
 
     if popt[0] < -15:
         # print(popt)
-        print(f'A significative decrease at index {index}')
+        # print(f'A significative decrease at index {index}')
         return True
         # plt.plot(x, fit_func(x, *popt), 'r-')
         # plt.plot(x, y)
@@ -35,7 +35,7 @@ def detect_noise_decrease(x_data, y_data, index, interval=150):
 
 def detect_noise_increase(previous_value, current_value, current_index):
     if current_value > previous_value * 10:
-        print(f'A signigicative noise increase at index {current_index}')
+        # print(f'A signigicative noise increase at index {current_index}')
         return True
 
     return False
@@ -43,16 +43,16 @@ def detect_noise_increase(previous_value, current_value, current_index):
 
 def detect_calibrator_variations(previous_value, current_value):
     if current_value is None:
-        print('No calibrator signal was detected!!')
+        # print('No calibrator signal was detected!!')
         return 100
     elif previous_value is None:
-        print('No value to compare the current value to')
+        # print('No value to compare the current value to')
         return 0
 
     difference = (current_value / previous_value - 1) * 10
 
-    if abs(difference) > 50:
-        print('ATTENTION : hight calibrator change detected!!')
+    # if abs(difference) > 50:
+    #     print('ATTENTION : hight calibrator change detected!!')
 
     # print(f'Detected a difference of {difference} %')
     # print(f'{previous_value} --> {current_value}')
