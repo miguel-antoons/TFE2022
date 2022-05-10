@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # from modules.brams_wav_2 import BramsWavFile
 from modules.brams_wav import BramsError, BramsWavFile, DirectoryNotFoundError
 from datetime import datetime, timedelta, timezone
-from tqdm import tqdm, gui
+from tqdm import tqdm
 
 # 1. assume that the files are structured by YEAR/MONTH/DATE by default
 # 2. don't forget to take into account the interval
