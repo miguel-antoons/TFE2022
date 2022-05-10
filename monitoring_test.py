@@ -18,8 +18,8 @@ from tqdm import tqdm, gui
 # 3. create graph and png from that graph (with matplotlib)
 
 
-default_dir = 'recordings/wav/'
-# default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/'
+# default_dir = 'recordings/wav/'
+default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
 
 
 def get_dates(start_date: str = None, end_date: str = None):
