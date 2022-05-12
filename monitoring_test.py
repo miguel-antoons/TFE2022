@@ -121,6 +121,7 @@ def main(args):
                         # add a dict to the noise_memory variable representing
                         # psd values for the current station
                         psd_memory[sys_id] = {
+                            "title": f'{lcode} {antenna}',
                             "i": len(previous_psd[sys_id]) - 1,
                             "x": [i for i in range(len(previous_psd[sys_id]))],
                             "n_y": previous_psd[sys_id],
@@ -161,7 +162,7 @@ def main(args):
                     # increment the counter, append an x value and apprend the
                     # psd value to the y array
                     sys_psd['i'] += 1
-                    sys_psd['x'].append(sys_psd['i'])
+                    sys_psd['x'].append(wav.date.strftime('%Y-%m-%d %H:%M'))
                     sys_psd['n_y'].append(noise_psd)
                     sys_psd['c_y'].append(calibrator_psd)
 
@@ -198,7 +199,7 @@ def main(args):
 
                     # finally, detect if there is a noise decrease
                     if variations.detect_noise_decrease(
-                        sys_psd['x'],
+                        [i for i in range(len(sys_psd['n_y']))],
                         sys_psd['n_y'],
                         sys_psd['i']
                     ):
@@ -214,18 +215,28 @@ def main(args):
     with open('test_data.json', 'w') as json_file:
         json.dump(psd_memory, json_file)
 
+    with open('file_data.json', 'w') as json_file:
+        json.dump(files, json_file)
+
     for i, sys_id in enumerate(psd_memory.keys()):
         generate_plot(
             psd_memory[sys_id]['x'],
             psd_memory[sys_id]['n_y'],
-            f'{sys_id}_{args.start_date}_{args.end_date}_noise',
-            figure_n=i
+            f"{psd_memory[sys_id]['title']}_"
+            f"{args.start_date}_{args.end_date}_noise",
+            figure_n=i,
+            title=f"{psd_memory[sys_id]['title']} noise",
+            y_title='ADU',
+            x_title='date'
         )
         generate_plot(
             psd_memory[sys_id]['x'],
             psd_memory[sys_id]['c_y'],
             f'{sys_id}_{args.start_date}_{args.end_date}_calibrator',
-            figure_n=i + len(psd_memory.keys())
+            figure_n=i + len(psd_memory.keys()),
+            title=f"{psd_memory[sys_id]['title']} calibrator",
+            y_title='ADU',
+            x_title='date'
         )
 
 
@@ -233,13 +244,20 @@ def generate_plot(
     x,
     y,
     im_name,
-    width=19.2,
+    width=25.0,
     height=14.4,
     figure_n=0,
-    dpi=200.0
+    dpi=300.0,
+    title='',
+    y_title='',
+    x_title='',
 ):
     plt.figure(num=figure_n, figsize=(width, height), dpi=dpi)
     plt.plot(x, y)
+    plt.title(title)
+    plt.xlabel(x_title)
+    plt.ylabel(y_title)
+    plt.xticks([i for i in range(0, len(x), int(len(x) / 10))])
     plt.savefig(f'{im_name}.png')
 
 

@@ -53,6 +53,19 @@ def get_calibrator_f(
     fmin=1350,
     fmax=1650
 ):
+    freq, S, fbin = f.FFT(f.Isamples)
+    idx = (freq >= fmin) * (freq < fmax)
+
+    max_index = S[idx].argmax()
+
+    return freq[idx][max_index]
+
+
+def get_calibrator_f_old(
+    f,
+    fmin=1350,
+    fmax=1650
+):
     frequencies, times, Pxx = signal.spectrogram(
             f.Isamples,
             f.fs,
