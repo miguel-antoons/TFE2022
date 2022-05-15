@@ -22,6 +22,33 @@ from tqdm import tqdm
 default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
 
 
+def read_from_json(args):
+    with open('test_data.json') as json_file:
+        psd_memory = json.load(json_file)
+
+    for i, sys_id in enumerate(psd_memory.keys()):
+        generate_plot(
+            psd_memory[sys_id]['x'],
+            psd_memory[sys_id]['n_y'],
+            f"{psd_memory[sys_id]['title']}_"
+            f"{args.start_date}_{args.end_date}_noise",
+            figure_n=i,
+            title=f"{psd_memory[sys_id]['title']} noise",
+            y_title='ADU',
+            x_title='date'
+        )
+        generate_plot(
+            psd_memory[sys_id]['x'],
+            psd_memory[sys_id]['c_y'],
+            f"{psd_memory[sys_id]['title']}_"
+            f'{args.start_date}_{args.end_date}_calibrator',
+            figure_n=i + len(psd_memory.keys()),
+            title=f"{psd_memory[sys_id]['title']} calibrator",
+            y_title='ADU',
+            x_title='date'
+        )
+
+
 def get_dates(start_date: str = None, end_date: str = None):
     if start_date is None:
         try:
@@ -121,7 +148,7 @@ def main(args):
                         # add a dict to the noise_memory variable representing
                         # psd values for the current station
                         psd_memory[sys_id] = {
-                            "title": f'{lcode} {antenna}',
+                            "title": f'{lcode}{antenna}',
                             "i": len(previous_psd[sys_id]) - 1,
                             "x": [i for i in range(len(previous_psd[sys_id]))],
                             "n_y": previous_psd[sys_id],
@@ -232,7 +259,8 @@ def main(args):
         generate_plot(
             psd_memory[sys_id]['x'],
             psd_memory[sys_id]['c_y'],
-            f'{sys_id}_{args.start_date}_{args.end_date}_calibrator',
+            f"{psd_memory[sys_id]['title']}_"
+            f'{args.start_date}_{args.end_date}_calibrator',
             figure_n=i + len(psd_memory.keys()),
             title=f"{psd_memory[sys_id]['title']} calibrator",
             y_title='ADU',
@@ -257,8 +285,14 @@ def generate_plot(
     plt.title(title)
     plt.xlabel(x_title)
     plt.ylabel(y_title)
-    plt.xticks([i for i in range(0, len(x), int(len(x) / 10))])
+
+    if len(x) > 10:
+        step = int(len(x) / 10)
+    else:
+        step = 1
+    plt.xticks([i for i in range(0, len(x), step)])
     plt.savefig(f'{im_name}.png')
+    plt.close(figure_n)
 
 
 def get_asked_files(start_date, end_date, stations, parent_directory):
@@ -497,6 +531,13 @@ def arguments():
         type=str,
         nargs='?'
     )
+    parser.add_argument(
+        '-f', '--from-file',
+        help="""
+            DEV : create graph from json file.
+        """,
+        action='store_true'
+    )
 
     args = parser.parse_args()
     return args
@@ -510,7 +551,10 @@ if __name__ == '__main__':
     #     directory=default_dir,
     # )
     args = arguments()
-    main(args)
+    if args.from_file:
+        read_from_json(args)
+    else:
+        main(args)
     # test_methods(args)
 
     # print(
