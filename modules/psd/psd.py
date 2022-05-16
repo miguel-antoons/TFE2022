@@ -51,7 +51,7 @@ def get_calibrator_psd(f):
 def get_calibrator_f(
     f,
     fmin=1350,
-    fmax=1650
+    fmax=1750
 ):
     freq, S, fbin = f.FFT(f.Isamples)
     idx = (freq >= fmin) * (freq < fmax)
