@@ -2,6 +2,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lingmacros}
 \usepackage{tree-dvips}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage[bottom]{footmisc}
+\graphicspath{ {./images/} }
 
 \title{Monitoring des données BRAMS et détection automatique des échos de météore}
 \author{Miguel Antoons}
@@ -88,6 +92,162 @@ Ce stage, comme la plupart des stages, permettait également de voir comment un 
 Enfin, n'étant plus dans un milieu d'entrainement, j'étais curieux de la complexité d'écrire des programmes complets, de qualité dans les délais imposés.
 Ceci s'étend à partir d'un débogage et une maintenance facilités pour le développeur qui viendra après moi, jusqu'au développement d'une interface conviviale et facile à utiliser pour l'utilisateur.
 Cette attente était d'autant plus intéressante sachant que j'allais devoir apprendre un nouveau langage et un nouveau framework durant ces délais.
+
+\newpage
+
+\section{Institut Royale de l'Aéronomie Spatiale Belgique}
+L'institut Royale d'Aéronomie Spatiale Belgique ou IASB est un institut scientifique fédéral belge fondée le 25 novembre 1964.
+Il se situe à Uccle et partage sa location avec deux autres instituts, à savoir l'Institut Royal Météorologique ou IRM et l'Observatoire Royal de Belgique.\\
+\\
+Les tâches principales de l'IASB sont, comme son nom l'indique, la recherche et les services publics dans le domaine de l'aéronomie spatiale.
+L'aéronomie a pour objet l'étude des régions atmosphériques où les phénomènes de dissociations moléculaires et d'ionisation sont importants.
+Par extension, l'aéronomie couvre aussi l'étude des comètes et d'autres planètes.
+Leur objectif est d'élargir la connaissance des atmosphères des corps célestes.\\
+\\
+Parmi les activités de l'IASB, on retrouve le contrôle des expériences belges à bord de la station spatiale internationale et d'autres satellites, ou encore la conception d'instruments qui serviront à surveiller les atmosphères et l'environnement spatial.\\
+\\
+Quelques domaines de recherche de l'IASB :
+\begin{itemize}[noitemsep]
+    \item Le développement des missions spatiales,
+    \item La qualité de l'aire,
+    \item La physique spatiale.
+\end{itemize}
+\vspace{10pt}
+L'IASB est subdivisé en quatre départements, comme nous le montre la figure 1 :
+\begin{itemize}[noitemsep]
+    \item le département de physique spatiale,
+    \item le département de composition atmosphérique (sources et pertes),
+    \item le département de composition atmosphérique (gaz réactifs),
+    \item le département de radiations solaires dans les atmosphères.
+\end{itemize}
+\vspace{3pt}
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.5]{organization.png}
+        \caption{Organisation des départements de l'IASB}
+    \end{center}
+\end{figure}
+
+\subsection{Le projet BRAMS}
+Le projet BRAMS (Belgian RAdio Meteor Stations) collecte et stocke des données relatives à des objets entrant dans l'atmosphère belge (météores entre autres).
+Ces données sont ensuite analysées afin de pouvoir étudier plus précisément les trajectoires, la vitesse et éventuellement les masses des météores.\\
+\\
+Le projet a été démarré en 2010 par Hervé Lamy à l'IASB, dans le département de physique spatiale. Il dispose d'un réseau de stations radio nommé le réseau BRAMS. Ce réseau fonctionne de la façon suivante :
+\begin{enumerate}
+    \item Un émetteur, situé à Dourbes, transmet de façon continue un signal à une fréquence fixe.
+          Ce signal est émis en direction du ciel et peut être réfléchi sur des trainées ionisées dans le dans le sillage des météores.
+    \item Une fois réfléchi, le signal est, dans le cas idéal, détecté par une ou plusieurs récepteurs du réseau BRAMS.
+          Chaque station de réception enregistre continuellement les données dans des fichiers son de type WAV\footnote{Waveform Audio File}.
+          Toutes ces stations sont hébergées soit par des radio-amateurs qui veulent contribuer au projet, soit par des observatoires publics.
+    \item Les fichiers WAV sont envoyés à intervalles réguliers à l'institut via, dans la plus grande partie des cas, internet, ou parfois, via clé USB.
+    \item Ces données sont ensuite archivées et étudiées par les personnes travaillant sur le projet.
+          Afin de pouvoir mieux visualiser les données, on génère des spectrogrammes à partir des fichiers WAV.
+          Un exemple de spectrogramme peut-être visualisé sur la figure 2.
+\end{enumerate}
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.493]{spectrogramme.png}
+        \caption{Exemple de données venant des stations de réception}
+    \end{center}
+\end{figure}
+
+\vspace{10pt}
+Plus d'informations à propos du projet BRAMS est disponible en ligne, sur leur site.\footnote{Accessible à l’adresse suivante : http://brams.aeronomie.be}
+
+\newpage
+
+\section{Nature du Stage}
+Dans cette section, j'explique quelle était le domaine de l'informatique dans lequel j'ai principalement travaillé ainsi que mes réalisations pour l'entreprise.\\
+\\
+Mon stage a démarré le 14 février et a pris fin le 20 mai. Durant toute cette période, j'ai travaillé sur le projet BRAMS.\\
+\\
+Ma tâche principale était l'amélioration et la migration vers un nouveau framework de développement web du site web du projet BRAMS.
+Ceci impliquait l'écriture de langage que je n'avais pas encore utilisé au préalable ainsi que l'utilisation de nombreux outils open-source.
+La migration était nécessaire afin de permettre l'uniformité d'un seul et même framework au sein de tous les sites web de l'IASB.
+L'ancien framework du site était CakePHP, le nouveau framework est Joomla. Tous deux framework utilisent le php comme langage back-end.\\
+\\
+Plusieurs fois par semaine, je montrais mon avancement sur le site afin d'avoir un retour.
+Ceci m'a permis de vraiment bien améliorer le site aux besoins des membres du projet BRAMS.
+Durant les dernières semaines de stage, le site est passé dans une phase de test pour les utilisateurs.
+Lors de cette période, les utilisateurs me notifiaient des anomalies dans le site, ou encore de certains points qui restent à améliorer.
+Ceci a conduit à un site de qualité, facile à utiliser pour le projet BRAMS, mais également pour les visiteurs ne faisant pas partie du projet.
+
+\subsection{Réalisations}
+Dans cette section, je passe en revue mes réalisations durant le stage.
+
+\subsubsection{Pages statiques}
+Joomla étant un CMS\footnote{Content Management System : outil permettant de créer des pages web à l'aide d'une interface graphique}, la réécriture des pages statiques de l'ancien site web était s'est déroulé très rapidement.
+Grâce à l'interface graphique, il suffisait de copier le texte brut de l'ancien site web, le mettre en forme et finalement, ajouter les images.
+Le framework et les modèles du site s'occupaient du CSS\footnote{Cascading Style Sheets : permet de changer le style du site} et du HTML\footnote{HyperText Markup Language : permet de structurer les éléments sur le site}.
+
+\subsubsection{Visualisation de la disponibilité des données}
+Étant donné la grande quantité de données qui est enregistrée, lorsqu'on cherche une donnée spécifique, savoir si cette donnée existe économise du temps.
+En effet, il y a à présent 42 stations récepteurs actifs qui envoient chacun 288 fichiers (1 fichier tout les 5 min) par jour.
+Il y a à présent plus de 30 millions de fichiers pour le projet BRAMS.
+C'est pourquoi que sur le site, un outil permettant la visualisation facile de la disponibilité des données pour chaque station existe.\\
+\\
+Cet outil a été créé à l'aide de la librairie JavaScript open source Visavail.js\footnote{https://github.com/flrs/visavail} et affiche la disponibilité des fichiers sous forme de code couleur.
+Un exemple est affiché sur la figure 3.
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.493]{spectrogramme.png}
+        \caption{Outil de visualisation de la disponibilité des fichiers pour chaque station}
+    \end{center}
+\end{figure}
+
+\subsubsection{Data Viewer}
+Dans le but de permettre aux utilisateurs, autant internes qu'externe au projet BRAMS, de visualiser les données générés par les stations, un outil qui porte le nom de Data Viewer a été mis en place.
+Cet outil permet d'afficher les spectrogrammes de différentes stations, dans un intervalle défini par l'utilisateur.
+Ceci permet de comparer les données plus facilement entre les différentes stations.\\
+\\
+Le Data Viewer utilise la librairie open source Viewer.js\footnote{https://fengyuanchen.github.io/viewerjs/} qui permet d'afficher les images en grand ainsi que la navigation entre les images.
+Un exemple du programme se trouve sur la figure 4.
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.493]{spectrogramme.png}
+        \caption{BRAMS Data Viewer}
+    \end{center}
+\end{figure}
+
+\subsubsection{Carte dynamique des stations}
+Pour pouvoir visualiser l'évolution du réseau BRAMS, le site web dispose d'une carte dynamique de la Belgique.
+Cette carte affiche les stations actives pour un certain jour définit par l'utilisateur.
+Chaque station est représentée par un point vert s'il dispose de données pour ce jour-là, ou un point rouge dans le cas contraire.\\
+\\
+Afin de pouvoir afficher des points à des endroits précis sur une image, la librairie open source maphighlight\footnote{https://github.com/kemayo/maphilight} a été utilisé.
+Un exemple de l'outil peut être visualisé sur la figure 5.
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.493]{spectrogramme.png}
+        \caption{Carte dynamique des stations}
+    \end{center}
+\end{figure}
+
+\newpage
+
+\section{Expériences Vécues}
+
+Avec les mesures prise suite au covid, faire connaissance avec mes collègues s'avérait plus compliqué au début.
+Néanmoins, dès mon arrivée j'y ai été accueilli agréablement ce qui m'a permis de rapidement m'intégrer dans l'équipe.\\
+\\
+On m'a attribué un bureau à moi avec un espace suffisant et une vue extérieur très agréable.
+Ceci avait l'avantage qu'étant seul, je pouvais me concentrer à 100 \% sur mon travail sans être dérangé.
+D'un autre côté, avec les mesures du covid, je passais parfois des journées seul sans voir mes collègues.
+Heureusement, ça s'est amélioré avec les semaines qui passaient et l'assouplissement des mesures contre le covid.\\
+\\
+Lors de mon stage, j'ai également été en contact avec des employés d'autres départements au sein de l'IASB afin de m'aider dans me tâches.
+Lorsque j'avais une question, je savais m'adresser à mes collègues du projet BRAMS, ou encore, aller voir les membres du département informatique.
+C'était également l'occasion d'apprendre à se connaître en discutant de sujets divers.\\
+\\
+Plusieurs fois par semaine Mr Antoine Calegaro, mon maître de stage, venait voir mon avancement sur le site.
+Ceci m'a permis de m'améliorer dans mon travail et d'apprendre des nouvelles choses auxquelles je n'avais pas encore fait attention.\\
+\\
+Enfin, l'institut étant situé à un endroit très vert et calme, l'environnement de travail y était vraiment agréable.
 
 
 \end{document}
