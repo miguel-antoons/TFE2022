@@ -176,11 +176,11 @@ class BramsWavFile:
             return False
 
         if respect_date:
-            min_date = date_time - timedelta(minutes=20)
-            max_date = date_time + timedelta(minutes=20)
-        else:
             min_date = date_time - timedelta(minutes=3)
             max_date = date_time + timedelta(minutes=3)
+        else:
+            min_date = date_time - timedelta(minutes=20)
+            max_date = date_time + timedelta(minutes=20)
 
         with tarfile.open(os.path.join(directory, filename)) as tar_file:
             for member in tar_file.getmembers():
