@@ -7,6 +7,7 @@ import modules.database.system as sys
 import modules.psd.variations as variations
 import modules.psd.psd as psd
 import matplotlib.pyplot as plt
+import numpy as np
 
 # from modules.brams_wav_2 import BramsWavFile
 from modules.brams_wav import BramsError, BramsWavFile, DirectoryNotFoundError
@@ -269,21 +270,35 @@ def main(args):
         )
 
 
+def mad(array):
+    median = np.median(array)
+    return median, np.median(np.abs(array - median))
+
+
 def generate_plot(
     x,
     y,
     im_name,
-    width=25.0,
+    width=26.5,
     height=14.4,
     figure_n=0,
-    dpi=300.0,
+    dpi=350.0,
     title='',
     y_title='',
     x_title='',
 ):
-    print(im_name)
+    y = np.array(y)
+    y_median, y_mad = mad(y)
+    min_3mad = y_median - (3 * y_mad)
+    plus_3mad = y_median + (3 * y_mad)
+    lowest_value = np.min(np.abs(y[y > min_3mad]))
+    y_min = min_3mad - lowest_value
+    y_max = plus_3mad + lowest_value
+
     plt.figure(num=figure_n, figsize=(width, height), dpi=dpi)
     plt.plot(x, y)
+    axis = plt.gca()
+    axis.set_ylim([y_min, y_max])
     plt.title(title)
     plt.xlabel(x_title)
     plt.ylabel(y_title)
@@ -295,6 +310,7 @@ def generate_plot(
     plt.xticks([i for i in range(0, len(x), step)])
     plt.savefig(f'{im_name}.png')
     plt.close(figure_n)
+    print(im_name)
 
 
 def get_asked_files(start_date, end_date, stations, parent_directory):
