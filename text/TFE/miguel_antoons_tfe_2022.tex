@@ -2,6 +2,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lingmacros}
 \usepackage{tree-dvips}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage[bottom]{footmisc}
+\graphicspath{ {./images/} }
 
 \title{Monitoring des données BRAMS et détection automatique des échos de météore}
 \author{Miguel Antoons}
@@ -9,53 +13,55 @@
 \begin{document}
 
 \begin{titlepage}
-    \vspace*{\stretch{1.0}}
     \begin{center}
-       \Large\textbf{Monitoring des données BRAMS et détection automatique des échos de météore}\\
-       \large\textit{Miguel Antoons}
+        \includegraphics[]{logo_ephec.png}\\
+        \Large
+        \textbf{Technologie de l'Informatique}\\
+        \large
+        Avenue du Ciseau 15\\
+        1348 Ottignies
     \end{center}
+
+    \vspace*{\stretch{1.0}}
+
+    \begin{center}
+        \line(1,0){350}\\
+        \LARGE\textbf{Monitoring des données BRAMS et détection automatique des échos de météore}\\
+        \line(1,0){350}\\
+        \vspace{0.5cm}
+        \LARGE\textit{Miguel Antoons}\\
+        \vspace{0.5cm}
+        \Large\textbf{Rapporteur}\\
+        \Large\textit{Monsieur Arnaud Dewulf}
+    \end{center}
+
+    \vspace{0.14cm}
+
+    \begin{center}
+        \includegraphics[scale=0.225]{page_garde.png}\\
+        \vspace{0.14cm}
+        \textit{2021-2022}
+    \end{center}
+
+
+
     \vspace*{\stretch{2.0}}
- \end{titlepage}
+\end{titlepage}
 
+\tableofcontents
 
-\section*{Notes for My Paper}
+\newpage
 
-Don't forget to include examples of topicalization.
-They look like this:
+\section{Remerciements}
 
-{\small
-\enumsentence{Topicalization from sentential subject:\\ 
-\shortex{7}{a John$_i$ [a & kltukl & [el & 
-  {\bf l-}oltoir & er & ngii$_i$ & a Mary]]}
-{ & {\bf R-}clear & {\sc comp} & 
-  {\bf IR}.{\sc 3s}-love   & P & him & }
-{John, (it's) clear that Mary loves (him).}}
-}
-
-\subsection*{How to handle topicalization}
-
-I'll just assume a tree structure like (\ex{1}).
-
-{\small
-\enumsentence{Structure of A$'$ Projections:\\ [2ex]
-\begin{tabular}[t]{cccc}
-    & \node{i}{CP}\\ [2ex]
-    \node{ii}{Spec} &   &\node{iii}{C$'$}\\ [2ex]
-        &\node{iv}{C} & & \node{v}{SAgrP}
-\end{tabular}
-\nodeconnect{i}{ii}
-\nodeconnect{i}{iii}
-\nodeconnect{iii}{iv}
-\nodeconnect{iii}{v}
-}
-}
-
-\subsection*{Mood}
-
-Mood changes when there is a topic, as well as when
-there is WH-movement.  \emph{Irrealis} is the mood when
-there is a non-subject topic or WH-phrase in Comp.
-\emph{Realis} is the mood when there is a subject topic this is a test,
-or WH-phrase.
+Je tiens tout d'abord à remercier toutes les personnes qui m'ont aidé à réaliser ce projet de fin d'études.\\
+\\
+En commençant par mon professeur rapporteur, à qui j'ai pu poser mes questions en cas de besoin et qui s'est assuré que tout se passe bien tout au long du projet.\\
+\\
+Ensuite, je voudrai remercier Mr Hervé Lamy pour avoir proposé ce sujet de fin d'études, mais également pour m'avoir expliqué, de façon claire et précise, toutes les notions qui nécessitaient des explications.\\
+\\
+Je tiens également à remercier Mrs Antoine Calegaro et Michel Anciaux, qui m'ont guidé quand c'était nécessaire et qui m'ont conseillé durant le projet de fin d'études.\\
+\\
+Enfin, je voudrais exprimer ma reconnaissance envers toutes les personnes qui m'ont conseillé sur, et ont relu ce rapport de projet de fin d'études.
 
 \end{document}
