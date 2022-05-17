@@ -105,11 +105,6 @@ def main(args):
     # get the start and end date
     start_date, end_date = get_dates(args.start_date, args.end_date)
 
-    if args.interval < 60:
-        respect_date = True
-    else:
-        respect_date = False
-
     interval_delta = timedelta(minutes=args.interval)
     day_delta = timedelta(days=1)
     interval_sec = interval_delta.total_seconds()
@@ -176,7 +171,7 @@ def main(args):
                             requested_date,
                             lcode,
                             f"SYS{antenna.rjust(3, '0')}",
-                            respect_date=respect_date,
+                            respect_date=True,
                             parent_directory=args.directory,
                             from_archive=from_archive,
                         )
