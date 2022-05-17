@@ -12,6 +12,8 @@ written by Michel Anciaux, 25-Mar-2022
 updated by Miguel Antoons, Apr-2022
 
 '''
+import numpy as np
+
 from scipy import signal
 
 
@@ -40,8 +42,12 @@ def get_calibrator_psd(f):
     calibrator_frequency = get_calibrator_f(f)
 
     if calibrator_frequency:
+        psd = (
+            get_psd(f, calibrator_frequency - 5, calibrator_frequency + 5)
+            - get_psd(f, calibrator_frequency - 15, calibrator_frequency - 5)
+        )
         return (
-            get_psd(f, calibrator_frequency - 5, calibrator_frequency + 5),
+            psd,
             calibrator_frequency
         )
 
@@ -51,12 +57,12 @@ def get_calibrator_psd(f):
 def get_calibrator_f(
     f,
     fmin=1350,
-    fmax=1650
+    fmax=1750
 ):
     freq, S, fbin = f.FFT(f.Isamples)
     idx = (freq >= fmin) * (freq < fmax)
 
-    max_index = S[idx].argmax()
+    max_index = np.abs(S[idx]).argmax()
 
     return freq[idx][max_index]
 
