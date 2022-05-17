@@ -53,7 +53,7 @@ class BramsWavFile:
         # number of bytes per sample
         # (num_channels * bits_per_sample / 8 bits/byte)
         ('block_align', '<u2'),
-        ('bits_per_sample', '<u2')])
+        ('bits_per_sample', '<u4')])
 
     bra1_t = np.dtype([
         ('version', '<u2'),
