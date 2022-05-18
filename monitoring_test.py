@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 import argparse
 import json
-import os
-import tarfile
 import modules.database.system as sys
 import modules.psd.variations as variations
 import modules.psd.psd as psd
@@ -65,11 +63,7 @@ def get_dates(start_date: str = None, end_date: str = None):
             # set the start_date to yesterday
             start_date = datetime.now() - timedelta(1)
         else:
-            # ! review below line of code
-            start_date = (
-                datetime.strptime(data['previous_date'], '%Y-%m-%d')
-                + timedelta(1)
-            )
+            start_date = datetime.strptime(data['previous_date'], '%Y-%m-%d')
 
         end_date = datetime.now(tz=timezone.utc)
     else:
@@ -188,7 +182,7 @@ def main(args):
                     noise_psd = psd.get_noise_psd(wav)
                     calibrator_psd, calibrator_f = psd.get_calibrator_psd(wav)
 
-                    # increment the counter, append an x value and apprend the
+                    # increment the counter, append an x value and append the
                     # psd value to the y array
                     sys_psd['i'] += 1
                     sys_psd['x'].append(wav.date.strftime('%Y-%m-%d %H:%M'))
@@ -311,190 +305,6 @@ def generate_plot(
     plt.savefig(f'{im_name}.png')
     plt.close(figure_n)
     print(im_name)
-
-
-def get_asked_files(start_date, end_date, stations, parent_directory):
-    if start_date is None or end_date is None:
-        return []
-
-    asked_files = []    # array that will be returned at the end
-
-    # convert it to a date object and get the end-date
-    start_date = datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.strptime(end_date, '%Y-%m-%d')
-
-    station_ids = sys.get_station_ids(stations, False)
-
-    # if parent_directory[0] == '/':
-    #     directory = parent_directory
-    # else:
-    #     directory = os.path.join(os.getcwd(), parent_directory)
-    # * below line is for testing only use the lines above for production
-    directory = os.path.join(os.getcwd(), parent_directory, stations[0])
-    directory_content = os.listdir(directory)
-
-    print('Retrieving relevant files...')
-    # check which files are relevant and store them in an array
-    for filename in tqdm(directory_content):
-        split_filename = filename.split('_')
-        # get date and time of the file
-        file_date = datetime.strptime(
-            f'{split_filename[2]} {split_filename[3]}',
-            '%Y%m%d %H%M'
-        )
-
-        # if the file is a file requested by the user
-        if (
-            file_date >= start_date
-            and file_date <= end_date
-            and split_filename[4] in stations
-        ):
-            file_path = os.path.join(directory, filename)
-
-            # check the path is a file
-            if os.path.isfile(file_path):
-                asked_files.append({
-                    "station_code": split_filename[4],
-                    "filename": file_path,
-                    "time": file_date.strftime('%Y-%m-%d %H:%M'),
-                    "datetime": file_date,
-                    "system_id": (
-                        station_ids
-                        [split_filename[4]]
-                        [str(int(
-                            split_filename[5]
-                            .replace('SYS', '')
-                            .replace('.wav', '')
-                        ))]
-                    ),
-                })
-
-    # return the list of new files ordered by their date
-    return sorted(asked_files, key=lambda d: d['datetime'])
-
-
-# ! carefull for exceptions!!
-def verify_archive_date(start_date, end_date=None):
-    if end_date is not None and start_date >= end_date:
-        return False
-
-    dir_content = os.listdir(default_dir)
-
-    year = start_date.strftime('%Y')
-    if year not in dir_content:
-        return False
-
-    directory = os.path.join(default_dir, year)
-    dir_content = os.listdir(directory)
-
-    month = start_date.strftime('%m')
-    if month not in dir_content:
-        return False
-
-    directory = os.path.join(directory, month)
-    dir_content = os.listdir(directory)
-
-    day = start_date.strftime('%d')
-    if day not in dir_content:
-        return False
-
-    return {
-        "path": os.path.join(directory, day),
-        "content": sorted(os.listdir(os.path.join(directory, day)))
-    }
-
-
-def get_archived_files(interval, stations=[], start_date=None, end_date=None):
-    if start_date is None:
-        try:
-            with open('program_data.json') as f:
-                data = json.load(f)
-        except FileNotFoundError as e:
-            print(e)
-            # logging.warning(e)
-            data = None
-
-        # if no json file was found
-        if data is None:
-            # set the start_date to yesterday
-            start_date = datetime.now() - timedelta(1)
-        else:
-            start_date = (
-                datetime.strptime(data['previous_date'], '%Y-%m-%d')
-                + timedelta(1)
-            )
-
-        end_date = datetime.now() + timedelta(1)
-    else:
-        # convert it to a date object and get the end-date
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
-
-    files_to_archive = []
-
-    if stations is []:
-        station_ids = sys.get_station_ids()
-    else:
-        station_ids = sys.get_station_ids(stations, False)
-
-    directory = verify_archive_date(start_date, end_date)
-    # while a new directory with new files is found
-    while directory:
-        reference_dates = {}
-
-        for filename in tqdm(directory['content']):
-            split_filename = filename.split('_')
-            if split_filename[4] in station_ids.keys():
-                system_id = station_ids[
-                    split_filename[4]
-                ][
-                    str(int(
-                        split_filename[5]
-                        .replace('SYS', '')
-                        .replace('.tar', '')
-                    ))
-                ]
-                file_path = os.path.join(directory['path'], filename)
-
-                # get content of the tar file
-                with tarfile.open(file_path) as tar:
-                    for member in tar.getmembers():
-                        split_filename = member.name.split('_')
-                        # get date and time of the file
-                        file_date = datetime.strptime(
-                            f'{split_filename[2]} {split_filename[3]}',
-                            '%Y%m%d %H%M'
-                        )
-
-                        if system_id not in reference_dates.keys():
-                            reference_dates[system_id] = file_date
-
-                        # check the path is a file and that the interval
-                        # between the files is respected
-                        if file_date == reference_dates[system_id]:
-                            files_to_archive.append({
-                                "station_code": split_filename[4],
-                                "path": file_path,
-                                "filename": member,
-                                "time": file_date.strftime('%Y-%m-%d %H:%M'),
-                                "datetime": file_date,
-                                "system_id": system_id,
-                            })
-
-                            reference_dates[system_id] += timedelta(
-                                minutes=interval
-                            )
-
-        # increase the date by 1 day
-        start_date += timedelta(1)
-        directory = verify_archive_date(start_date, end_date)
-    else:
-        print('All new archived files were retrieved.')
-
-    return (
-        sorted(files_to_archive, key=lambda d: d['datetime']),
-        start_date.strftime('%Y-%m-%d')
-    )
 
 
 def arguments():

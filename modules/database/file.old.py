@@ -4,7 +4,6 @@ from . import database as db
 from datetime import timezone
 
 
-# TODO : insert or update
 def insert_noise(psd_data):
     """
     Function inserts and/or updates the noise psd value of a set of files.
@@ -27,10 +26,11 @@ def insert_noise(psd_data):
 
     # sql query to update the database values
     sql_query = (
-        "INSERT INTO psd (system_id, start, noise)\n"
-        "VALUES (%(system_id)s, %(time)s, %(noise)s)\n"
-        "ON DUPLICATE KEY UPDATE\n"
-        "noise = VALUES(noise)\n"
+        "UPDATE file "
+        "SET noise = %(noise_psd)s "
+        "WHERE "
+        "system_id = %(system_id)s "
+        "AND start = %(time)s"
     )
 
     # execute and commit the values
@@ -47,7 +47,6 @@ def insert_noise(psd_data):
     return return_value
 
 
-# TODO : insert or update
 def insert_calibrator(psd_data):
     """
     Function inserts and/or updates the calibrator psd value of a set of files.
@@ -70,10 +69,11 @@ def insert_calibrator(psd_data):
 
     # sql query to update the database values
     sql_query = (
-        "INSERT INTO psd (system_id, start, calibrator)\n"
-        "VALUES (%(system_id)s, %(time)s, %(calibrator)s)\n"
-        "ON DUPLICATE KEY UPDATE\n"
-        "noise = VALUES(calibrator)\n"
+        "UPDATE file "
+        "SET calibrator = %(calibrator_psd)s "
+        "WHERE "
+        "system_id = %(system_id)s "
+        "AND start = %(time)s"
     )
 
     # execute and commit the values
@@ -90,8 +90,7 @@ def insert_calibrator(psd_data):
     return return_value
 
 
-# TODO
-def get_previous_noise_psd(stations, start_date, end_date):
+def get_previous_noise_psd(stations=[], get_all=True, limit=150):
     """
     Function gets last inserted psd values from the database. Then
     number of psd values returned depends on the 'limit' arg.
@@ -119,50 +118,46 @@ def get_previous_noise_psd(stations, start_date, end_date):
         lists of psd values
     """
     arguments = ['%s' for i in range(len(stations))]
-    sql_args = [start_date, end_date] + stations
     psd = {}
     connection, cursor = db.get_cursor_connection()
+    limit_statement = ""
 
     # get the last noise psd values and system_id from the database
     sql_query = (
-        "SELECT\n"
-        "   system_id,\n"
-        "   DATEFORMAT(start, '%Y-%m-%%d %k:%%i') as start,\n"
-        "   noise\n"
-        "FROM psd\n"
+        "SELECT system_id, noise\n"
+        "FROM file\n"
         "WHERE noise is not null\n"
-        "AND start >= %s\n"
-        "AND start < %s\n"
     )
 
-    sql_query += (
-        "AND system_id in (%s)\n"
-        % ', '.join(arguments)
-    )
+    # filter system_id if asked
+    if not get_all:
+        sql_query += (
+            "AND system_id in (%s)\n"
+            % ', '.join(arguments)
+        )
+
+        # add limit to get only the 150 last values for each station
+        limit_statement = "LIMIT %s" % (limit * len(stations))
 
     # order by statement in order to get the last psd values
-    sql_query += "ORDER BY file.precise_start\n"
+    sql_query += f"ORDER BY file.precise_start\n{limit_statement}"
 
-    cursor.execute(sql_query, tuple(sql_args))
+    cursor.execute(sql_query, tuple(stations))
 
     # structure the data received from the database into a dictionary of
     # arrays
-    for (sys_id, start, psd_val) in cursor:
+    for (sys_id, psd_val) in cursor:
         if sys_id not in psd:
-            psd[sys_id] = {}
+            psd[sys_id] = []
 
-        if start not in psd[sys_id].keys():
-            psd[sys_id][start] = []
-
-        psd[sys_id][start].append(psd_val)
+        psd[sys_id].append(psd_val)
 
     db.close_connection(cursor, connection)
 
     return psd
 
 
-# TODO
-def get_previous_all_psd(stations, start_date, end_date):
+def get_previous_calibrator_psd(stations=[], get_all=True):
     """
     Function gets the last calibrator psd value from the database
     for each station.
@@ -187,44 +182,36 @@ def get_previous_all_psd(stations, start_date, end_date):
         the calibrator psd values
     """
     arguments = ['%s' for i in range(len(stations))]
-    sql_args = [start_date, end_date] + stations
     psd = {}
     connection, cursor = db.get_cursor_connection()
 
     # get the last calibrator psd value for the requested systems (stations)
     sql_query = (
-        "SELECT\n"
-        "   system_id,\n"
-        "   DATEFORMAT(start, '%Y-%m-%%d %k:%%i') as start,\n"
-        "   calibrator,\n"
-        "   noise\n"
-        "FROM psd\n"
-        "WHERE (\n"
-        "   calibrator is not null\n"
-        "   OR noise is not null\n"
-        ")\n"
-        "AND start >= %s\n"
-        "AND start < %s\n"
+        "SELECT file.system_id, calibrator\n"
+        "FROM file\n"
+        "INNER JOIN\n"
+        "   (SELECT system_id, max(precise_start) as top_date\n"
+        "   FROM file\n"
+        "   WHERE calibrator is not null\n"
+        "   GROUP BY system_id)\n"
+        "   AS latest\n"
+        "   ON latest.top_date = file.precise_start\n"
+        "   AND latest.system_id = file.system_id\n"
     )
 
     # filter system ids if asked
-    sql_query += (
-        "AND system_id in (%s)\n"
-        % ', '.join(arguments)
-    )
+    if not get_all:
+        sql_query += (
+            "WHERE file.system_id in (%s)\n"
+            % ', '.join(arguments)
+        )
 
-    cursor.execute(sql_query, tuple(sql_args))
+    cursor.execute(sql_query, tuple(stations))
 
     # structure the data received from the database into a dictionary of
     # arrays
-    for (sys_id, start, psd_cal, psd_noise) in cursor:
-        if sys_id not in psd:
-            psd[sys_id] = {}
-
-        psd[sys_id][start] = {
-            "noise": psd_noise,
-            "calibrator": psd_cal
-        }
+    for (sys_id, psd_val) in cursor:
+        psd[sys_id] = psd_val
 
     db.close_connection(cursor, connection)
 
