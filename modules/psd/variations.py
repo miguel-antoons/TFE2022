@@ -35,7 +35,7 @@ def detect_noise_decrease(x_data, y_data, index, interval=150):
 
 def detect_noise_increase(previous_value, current_value, current_index):
     if current_value > previous_value * 10:
-        # print(f'A signigicative noise increase at index {current_index}')
+        # print(f'A significative noise increase at index {current_index}')
         return True
 
     return False
