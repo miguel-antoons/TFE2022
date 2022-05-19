@@ -5,7 +5,7 @@ from datetime import timezone
 
 
 # TODO : insert or update
-def insert_noise(psd_data):
+def insert_psd(psd_data):
     """
     Function inserts and/or updates the noise psd value of a set of files.
     The files it modifies depends on the values received in the
@@ -27,10 +27,11 @@ def insert_noise(psd_data):
 
     # sql query to update the database values
     sql_query = (
-        "INSERT INTO psd (system_id, start, noise)\n"
-        "VALUES (%(system_id)s, %(time)s, %(noise)s)\n"
+        "INSERT INTO psd (system_id, start, noise, calibrator)\n"
+        "VALUES (%(system_id)s, %(time)s, %(noise_psd)s, %(calibrator_psd)s)\n"
         "ON DUPLICATE KEY UPDATE\n"
-        "noise = VALUES(noise)\n"
+        "noise = VALUES(noise),\n"
+        "calibrator = VALUES(calibrator)\n"
     )
 
     # execute and commit the values
@@ -119,7 +120,7 @@ def get_previous_noise_psd(stations, start_date, end_date):
         lists of psd values
     """
     arguments = ['%s' for i in range(len(stations))]
-    sql_args = [start_date, end_date] + stations
+    sql_args = [start_date, end_date] + stations.items()
     psd = {}
     connection, cursor = db.get_cursor_connection()
 
@@ -127,7 +128,7 @@ def get_previous_noise_psd(stations, start_date, end_date):
     sql_query = (
         "SELECT\n"
         "   system_id,\n"
-        "   DATEFORMAT(start, '%Y-%m-%%d %k:%%i') as start,\n"
+        "   DATE_FORMAT(start, '%Y-%m-%%d %H:%%i') as start,\n"
         "   noise\n"
         "FROM psd\n"
         "WHERE noise is not null\n"
@@ -187,7 +188,11 @@ def get_previous_all_psd(stations, start_date, end_date):
         the calibrator psd values
     """
     arguments = ['%s' for i in range(len(stations))]
-    sql_args = [start_date, end_date] + stations
+    sql_args = [
+        '%Y-%m-%d %H:%i',
+        start_date.strftime('%Y-%m-%d %H:%M'),
+        end_date.strftime('%Y-%m-%d %H:%M')
+    ] + stations
     psd = {}
     connection, cursor = db.get_cursor_connection()
 
@@ -195,7 +200,7 @@ def get_previous_all_psd(stations, start_date, end_date):
     sql_query = (
         "SELECT\n"
         "   system_id,\n"
-        "   DATEFORMAT(start, '%Y-%m-%%d %k:%%i') as start,\n"
+        "   DATE_FORMAT(start, %s) as start,\n"
         "   calibrator,\n"
         "   noise\n"
         "FROM psd\n"

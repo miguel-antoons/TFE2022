@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 import argparse
-import json
+import simplejson as json
 import modules.database.system as sys
 import modules.database.file as f
 import modules.psd.variations as variations
@@ -12,10 +12,11 @@ import numpy as np
 from modules.brams_wav import BramsError, BramsWavFile, DirectoryNotFoundError
 from datetime import datetime, timedelta, timezone
 from tqdm import tqdm
+from decimal import Decimal
 
 
-# default_dir = 'recordings/'
-default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
+default_dir = 'recordings/wav/'
+# default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
 
 
 def get_dates(start_date: str = None, end_date: str = None):
@@ -62,6 +63,12 @@ def main(args):
     else:
         systems = sys.get_station_ids(stations, False)
 
+    system_ids = [
+        systems[lcode][antenna]
+        for lcode in systems.keys()
+        for antenna in systems[lcode].keys()
+    ]
+
     if args.directory == default_dir:
         from_archive = True
     else:
@@ -82,7 +89,11 @@ def main(args):
     )
 
     # get previous psd values
-    pre_psd = f.get_previous_all_psd(systems, start_date - interval_delta, end_date)
+    pre_psd = f.get_previous_all_psd(
+        system_ids,
+        pre_start,
+        end_date
+    )
 
     for lcode in tqdm(
         systems.keys(),
@@ -99,8 +110,9 @@ def main(args):
             previous_noise = []
             previous_dates = []
             previous_calibrator = None
+            sys_in_pre_psd = sys_id in pre_psd.keys()
 
-            if sys_id in pre_psd.keys():
+            if sys_in_pre_psd:
                 # first loop trough the previous psd values in order to get the
                 # requested dates
                 while requested_date < start_date:
@@ -123,6 +135,7 @@ def main(args):
             ) as pbar:
                 # perform the monitoring on the whole time interval
                 while requested_date < end_date:
+                    calculate = True
                     str_date = requested_date.strftime('%Y-%m-%d %H:%M')
                     # if it is the first (during program execution) time that
                     # psd will be calculated for this station
@@ -148,50 +161,53 @@ def main(args):
 
                     sys_psd = psd_memory[sys_id]
 
-                    # ! before doing this, regroup calibrator and noise
-                    # ! retrieval
-                    if str_date in pre_psd[sys_id].keys():
-                        ...
+                    if sys_in_pre_psd:
+                        if (
+                            str_date in pre_psd[sys_id].keys()
+                            and not args.overwrite
+                        ):
+                            noise_psd = pre_psd[sys_id][str_date]['noise']
+                            calibrator_psd = (
+                                pre_psd[sys_id][str_date]['calibrator'])
+                            calculate = False
 
-                    try:
-                        wav = BramsWavFile(
-                            requested_date,
-                            lcode,
-                            f"SYS{antenna.rjust(3, '0')}",
-                            respect_date=True,
-                            parent_directory=args.directory,
-                            from_archive=from_archive,
-                        )
-                    except BramsError:
-                        requested_date += interval_delta
-                        pbar.update(1)
-                        continue
-                    except DirectoryNotFoundError:
-                        requested_date += day_delta
-                        pbar.update(tqdm_day_value)
-                        continue
+                    if calculate:
+                        try:
+                            wav = BramsWavFile(
+                                requested_date,
+                                lcode,
+                                f"SYS{antenna.rjust(3, '0')}",
+                                respect_date=True,
+                                parent_directory=args.directory,
+                                from_archive=from_archive,
+                            )
+                        except BramsError:
+                            requested_date += interval_delta
+                            pbar.update(1)
+                            continue
+                        except DirectoryNotFoundError:
+                            requested_date += day_delta
+                            pbar.update(tqdm_day_value)
+                            continue
 
-                    noise_psd = psd.get_noise_psd(wav)
-                    calibrator_psd, calibrator_f = psd.get_calibrator_psd(wav)
+                        noise_psd = Decimal(psd.get_noise_psd(wav))
+                        calibrator_psd, calibrator_f = psd.get_calibrator_psd(
+                            wav)
+                        calibrator_psd = Decimal(calibrator_psd)
+
+                        files.append({
+                            "system_id": sys_id,
+                            "time": str_date,
+                            "noise_psd": noise_psd,
+                            "calibrator_psd": calibrator_psd
+                        })
 
                     # increment the counter, append an x value and append the
                     # psd value to the y array
                     sys_psd['i'] += 1
-                    sys_psd['x'].append(wav.date.strftime('%Y-%m-%d %H:%M'))
+                    sys_psd['x'].append(str_date)
                     sys_psd['n_y'].append(noise_psd)
                     sys_psd['c_y'].append(calibrator_psd)
-
-                    if calibrator_psd is None:
-                        db_cal_psd = calibrator_psd
-                    else:
-                        db_cal_psd = float(calibrator_psd)
-
-                    files.append({
-                        "system_id": sys_id,
-                        "time": wav.date.strftime('%Y-%m-%d %H:%M'),
-                        "noise_psd": float(noise_psd),
-                        "calibrator_psd": db_cal_psd
-                    })
 
                     if variations.detect_calibrator_variations(
                         sys_psd['previous_calibrator'],
@@ -222,38 +238,46 @@ def main(args):
                             sys_psd['i'])
 
                     sys_psd['previous_calibrator'] = calibrator_psd
-                    sys_psd['previous_f'] = calibrator_f
+                    # sys_psd['previous_f'] = calibrator_f
 
-                    requested_date = wav.date + interval_delta
+                    requested_date += interval_delta
                     pbar.update(1)
 
-    with open('test_data.json', 'w') as json_file:
-        json.dump(psd_memory, json_file)
+    f.insert_psd(files)
 
-    with open('file_data.json', 'w') as json_file:
-        json.dump(files, json_file)
+    if args.json:
+        with open('test_data.json', 'w') as json_file:
+            json.dump(psd_memory, json_file)
 
-    for i, sys_id in enumerate(psd_memory.keys()):
-        generate_plot(
-            psd_memory[sys_id]['x'],
-            psd_memory[sys_id]['n_y'],
-            f"{psd_memory[sys_id]['title']}_"
-            f"{args.start_date}_{args.end_date}_noise",
-            figure_n=i,
-            title=f"{psd_memory[sys_id]['title']} noise",
-            y_title='ADU',
-            x_title='date'
-        )
-        generate_plot(
-            psd_memory[sys_id]['x'],
-            psd_memory[sys_id]['c_y'],
-            f"{psd_memory[sys_id]['title']}_"
-            f'{args.start_date}_{args.end_date}_calibrator',
-            figure_n=i + len(psd_memory.keys()),
-            title=f"{psd_memory[sys_id]['title']} calibrator",
-            y_title='ADU',
-            x_title='date'
-        )
+        with open('file_data.json', 'w') as json_file:
+            json.dump(files, json_file)
+
+    if args.plot or args.ymin is not None or args.ymax is not None:
+        for i, sys_id in enumerate(psd_memory.keys()):
+            generate_plot(
+                psd_memory[sys_id]['x'],
+                psd_memory[sys_id]['n_y'],
+                f"{psd_memory[sys_id]['title']}_"
+                f"{args.start_date}_{args.end_date}_noise",
+                figure_n=i,
+                title=f"{psd_memory[sys_id]['title']} noise",
+                y_title='ADU',
+                x_title='date',
+                y_min=args.ymin,
+                y_max=args.ymax,
+            )
+            generate_plot(
+                psd_memory[sys_id]['x'],
+                psd_memory[sys_id]['c_y'],
+                f"{psd_memory[sys_id]['title']}_"
+                f'{args.start_date}_{args.end_date}_calibrator',
+                figure_n=i + len(psd_memory.keys()),
+                title=f"{psd_memory[sys_id]['title']} calibrator",
+                y_title='ADU',
+                x_title='date',
+                y_min=args.ymin,
+                y_max=args.ymax,
+            )
 
 
 def mad(array):
@@ -272,17 +296,15 @@ def generate_plot(
     title='',
     y_title='',
     x_title='',
+    y_min=None,
+    y_max=None,
 ):
-    y = np.array(y)
-    y_median, y_mad = mad(y)
-    min_3mad = y_median - (3 * y_mad)
-    plus_3mad = y_median + (3 * y_mad)
-    lowest_value = np.min(np.abs(y[y > min_3mad]))
-    y_min = min_3mad - lowest_value
-    y_max = plus_3mad + lowest_value
+    if not len(x) or not len(y) or not len(x) == len(y):
+        return
 
     plt.figure(num=figure_n, figsize=(width, height), dpi=dpi)
     plt.plot(x, y)
+
     axis = plt.gca()
     axis.set_ylim([y_min, y_max])
     plt.title(title)
@@ -293,6 +315,7 @@ def generate_plot(
         step = int(len(x) / 10)
     else:
         step = 1
+
     plt.xticks([i for i in range(0, len(x), step)])
     plt.savefig(f'{im_name}.png')
     plt.close(figure_n)
@@ -353,12 +376,52 @@ def arguments():
     )
     parser.add_argument(
         '-o', '--overwrite',
-        help=f"""
+        help="""
             If this flag is set, any psd values that are already present in
             the database will be overwritten. Note that this may take more
             time, since the psd has to be calculated for each file.
         """,
-        action='store_false'
+        action='store_true'
+    )
+    parser.add_argument(
+        '-p', '--plot',
+        help="""
+            If this flag is set, the program will generate plots of the
+            calculated data. The plots are stored as png files and their name
+            is written an followed :
+            [location_code][antenna]_[start]_[end]_[calibrator/noise].
+            By default, the plots won't be limited in frequency. If however
+            you'd like them to be limited in frequency, specify the -f
+            (--fmin) and the -F (--fmax) arguments.
+        """,
+        action='store_true'
+    )
+    parser.add_argument(
+        '-y', '--ymin',
+        help="""
+            Specifies the minimum value the plot will show on its y axis.
+        """,
+        default=None,
+        type=int,
+        nargs='?'
+    )
+    parser.add_argument(
+        '-Y', '--ymax',
+        help="""
+            Specifies the maximum value the plot will show on its y axis.
+        """,
+        default=None,
+        type=int,
+        nargs='?'
+    )
+    parser.add_argument(
+        '-j', '--json',
+        help="""
+            If this flag is set, a file named file_data.json will be generated
+            by the program. This file contains the calibrator and noise psd
+            for each file asked by the user.
+        """,
+        action='store_true',
     )
 
     args = parser.parse_args()
