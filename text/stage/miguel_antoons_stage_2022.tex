@@ -4,6 +4,7 @@
 \usepackage{tree-dvips}
 \usepackage{enumitem}
 \usepackage{graphicx}
+\usepackage{titlesec}
 \usepackage[bottom]{footmisc}
 \graphicspath{ {./images/} }
 
@@ -64,6 +65,7 @@
 \newpage
 
 \section{Remerciements}
+
 Je tiens à remercier toutes les personnes qui m'ont aidé tout au long du stage et lors de la rédaction de ce rapport.\\
 \\
 En premier lieu, je remercie Mrs. Hervé Lamy et Antoine Calegaro. En tant que maîtres de stage, ils m'ont beaucoup appris et ont partagé leurs connaissances dans le domaine de l'informatique.\\
@@ -77,12 +79,13 @@ Enfin, je voudrais exprimer ma reconnaissance envers toutes les personnes qui m'
 \section{Introduction}
 
 \subsection{Objectifs du Stage}
+
 Le stage d'insertion professionnelle proposé par l'Ephec a pour objectif de familiariser les étudiants avec le milieu dans lequel ils valoriseront leur diplôme.
 Il permet de mettre en pratique la matière théorique vue tout au long du cursus en technologie de l'informatique grâce à la confrontation à des situations concrètes, mais également à l'aide de l'approche d'un professionnel.
 
 \subsection{Attentes Personnelles}
 
-Cette offre de stage a été proposée lors d'une présentation organisée par les membres du projet BRAMS en question durant le cours de traitement de signal donné par Mr Dewulf.
+Cette offre de stage a été proposée lors d'une présentation organisée par les membres du projet BRAMS, projet qui se déroule au sein de l'Institut Royal d'Aéronomie Spatiale de Belgique, durant le cours de traitement de signal donné par Mr Dewulf.
 Ayant déjà contacté des sociétés, mais n'ayant pas encore pris de décision, j'ai décidé de prendre rendez-vous avec l'institut.\\
 \\
 Le travail principal proposé par l'institut était la migration d'un site web vers un autre framework.
@@ -96,6 +99,7 @@ Cette attente était d'autant plus intéressante sachant que j'allais devoir app
 \newpage
 
 \section{Institut Royal d'Aéronomie Spatiale de Belgique}
+
 L'institut Royal d'Aéronomie Spatiale de Belgique ou IASB est un institut scientifique fédéral belge fondé le 25 novembre 1964.
 Il est situé sur le plateau d'Uccle, où se situent également d'autres instituts scientifiques, à savoir l'Institut Royal Météorologique ou IRM et l'Observatoire Royal de Belgique.\\
 \\
@@ -132,6 +136,7 @@ L'IASB est subdivisé en quatre départements, comme nous le montre la figure 1 
 \newpage
 
 \subsection{Le projet BRAMS}
+
 Le projet BRAMS (Belgian RAdio Meteor Stations) collecte et stocke des données relatives à des objets entrants dans l'atmosphère belge (météores entre autres).
 Ces données sont ensuite analysées afin de pouvoir étudier plus précisément les trajectoires, la vitesse et éventuellement les masses des météores.\\
 \\
@@ -163,6 +168,7 @@ Plus d'informations à propos du projet BRAMS sont disponibles en ligne, sur le 
 \newpage
 
 \section{Nature du Stage}
+
 Dans cette section, j'explique dans quel domaine de l'informatique j'ai principalement travaillé pendant le stage, ainsi que mes réalisations pour l'entreprise.\\
 \\
 Mon stage a démarré le 14 février et a pris fin le 20 mai. Durant toute cette période, j'ai travaillé sur le projet BRAMS.\\
@@ -180,6 +186,7 @@ Lors de cette période, les utilisateurs me faisaient part de leurs remarques su
 Ceci a conduit à un site de qualité, facile à utiliser à la fois pour les membres du projet BRAMS ainsi que pour des personnes visitant le site à l'occasion.
 
 \subsection{Réalisations}
+
 Dans cette section, je passe en revue mes réalisations durant le stage.
 
 \subsubsection{Pages statiques}
@@ -188,10 +195,11 @@ Grâce à l'interface graphique, il suffisait de copier le texte brut de l'ancie
 Joomla étant un framework qui propose des modèles avec une structure et un style déjà tout fait (HTML \& CSS), peu de travail me restait à faire sur ces 2 aspects.
 
 \subsubsection{Visualisation de la disponibilité des données}
+
 Étant donné la grande quantité de données qui est enregistrée quotidiennement, lorsqu'on désire accéder une donnée spécifique, un outil permettant de visualiser la disponibilité des données peut représenter un gain de temps non négligeable.
-En effet, il y a à présent 42 stations réceptrices actives qui envoient chacun 288 fichiers (1 fichier tout les 5 min) par jour.
+En effet, il y a à présent 42 récepteurs actives qui envoient chacun 288 fichiers (1 fichier tout les 5 min) par jour.
 Il y a à présent plus de 30 millions de fichiers pour le projet BRAMS.
-C'est pourquoi que sur le site, un outil permettant la visualisation facile de la disponibilité des données pour chaque station existe.\\
+C'est pourquoi sur le site, un outil permettant la visualisation facile de la disponibilité des données pour chaque station existe.\\
 \\
 Cet outil a été créé à l'aide de la librairie JavaScript open source Visavail.js\footnote{https://github.com/flrs/visavail} et affiche la disponibilité des fichiers sous forme de code couleur.
 Une des améliorations apportées à cet outil par rapport à l'ancien est la minimisation des données qui circulent sur le réseau.
@@ -216,8 +224,9 @@ Un exemple de l'outil de visualisation de la disponibilité des données BRAMS e
 \end{figure}
 
 \subsubsection{Data Viewer}
+
 Dans le but de permettre aux utilisateurs, autant internes qu'externes au projet BRAMS, de visualiser les données générées par les stations, un outil qui porte le nom de Data Viewer a été mis en place.
-Cet outil permet d'afficher les spectrogrammes de différentes stations, dans un intervalle défini par l'utilisateur.
+Cet outil permet d'afficher les spectrogrammes de différentes stations dans un intervalle défini par l'utilisateur ainsi que le téléchargement du spectrogramme et du fichier WAV auquel le spectrogramme est associé.
 Ceci permet de comparer les données plus facilement entre les différentes stations.\\
 \\
 Le Data Viewer utilise la librairie open source Viewer.js\footnote{https://fengyuanchen.github.io/viewerjs/} qui permet d'afficher les images en grand ainsi que la navigation entre les images.
@@ -236,6 +245,7 @@ Un exemple du BRAMS Data Viewer se trouve sur la figure 4.
 \end{figure}
 
 \subsubsection{Carte dynamique des stations}
+
 Afin de pouvoir visualiser l'évolution et l'état du réseau BRAMS, le site web dispose d'une carte dynamique de la Belgique.
 Une des améliorations apportées à cette page est la possibilité de voir le réseau BRAMS à une date précise.
 La nouvelle version permet également de représenter un type de station précis et représente aussi le pourcentage de données disponible pour le jour sélectionné.
@@ -250,6 +260,37 @@ Une capture d'écran de l'outil peut être visualisé sur la figure 5.
         \caption{Carte dynamique du réseau BRAMS}
     \end{center}
 \end{figure}
+
+\subsubsection{Campagnes BRAMS}
+
+Dans le but de mettre en évidence les météores sur les spectrogrammes, un outil nommé BRAMS Campaigns avait été développé sur l'ancien site web du projet BRAMS.
+Cet outil donnait la possibilité aux membres du projet BRAMS de tracer des carrés autour des météores et de télécharger les spectrogrammes ensemble avec les carrés.
+Cependant, cet outil ne fonctionnait plus depuis quelque temps.\\
+\\
+C'est alors lors du développement de la nouvelle version du programme que je me suis aperçu du même problème or le code était complètement différent.
+Après une recherche pour trouver la cause du problème, je me suis aperçu qu'une des tables impliquée dans l'outil disposait d'un moteur de base de données différent des autres.
+Les autres tables utilisant tout le moteur InnoDB de MySQL, cette table particulière utilisait le moteur plus ancien MyISAM, également de MySQL.\\
+\\
+Ce changement avait été fait il y a quelque temps avant mon stage afin de développer un nouvel outil pour le projet BRAMS.
+Le problème était que MyISAM ne supportait pas les clés étrangères, or lors du changement du moteur vers MyISAM, les clés étrangères existantes sur la table n'ont pas été suprimmés.
+Ceci empêchait la création d'une nouvelle campagne et rendait le programme inutilisable.\\
+\\
+J'ai développé le côté front-end du site en me basant sur le code déjà existant.
+Cependant, j'ai apporté des améliorations aux enregistrements des carrés tracés, qui se fait maintenant de façon continue au lieu de devoir appuyer sur un bouton pour enregistrer tous les carrés tracés sur un spectrogramme.
+
+\subsubsection{Outils d'Administration}
+
+Le développement de plusieurs pages permettant l'ajout, la modification et la suppression de données dans la base de données fut également nécessaire.
+Pour chaque table nécessitant des modifications des données par le site, deux pages étaient développées.
+Une page contenant un tableau avec toutes les données dans cette table et un bouton pour ajouter une rangée qui redirige l'utilisateur vers un formulaire d'ajout.
+Chaque rangé dans la table sur la page représente une rangée dans la base de données et contient un bouton 'modifier' et un bouton 'supprimer'.\\
+\\
+Quand l'utilisateur clique sur le bouton 'modifier' il est redirigé vers le même formulaire que celui pour ajouter une rangée, mais cette fois le formulaire est préremplis avec les données de la rangée dans la base de données que l'on souhaite modifier.
+Les améliorations apportées à ces pages portent surtout sur un nouveau design plus simple et moderne ainsi que l'automatisation ou encore l'ajout des valeurs par défaut pour les champs des formulaires.\\
+\\
+Les changements d'une page d'administration à un autre étant minimales, ceci a causé beaucoup de tâches répétées.
+En effet, il y avait huit tables pouvant être manipulés depuis le site chacun nécessite deux pages.
+Ceci rendait le développement de ces pages beaucoup moins intéressant.
 
 \newpage
 
@@ -277,9 +318,14 @@ Enfin, l'institut étant situé à un endroit très vert et calme, l'environneme
 \newpage
 
 \section{Conclusion}
-Durant la période de stage, j'ai eu l'occasion d'apprendre de nombreuses choses, mais avant tout j'ai pu me former une idée plus précise de quel type de travail me conviendrait.
-Je suis satisfait de mon travail durant cette période et également du fait que le travail réalisé sera utile à grand nombre de personnes.\\
+
+Durant la période de stage, j'ai eu l'occasion d'apprendre de nombreuses choses, mais avant tout j'ai pu me former une idée plus précise de quel type de travail me conviendrait.\\
 \\
+J'ai pu finaliser le travail demandé, mais j'ai mis plus de temps que prévu causant le site à être en phase de test lorsque je dépars de mon stage.
+Ceci est en partie causé par les problèmes avec l'infrastructure de l'institut m'empêchant de développer de façon efficace le site durant les premières semaines, mais également par mon manque d'organisation durant les premières semaines.
+Ces deux problèmes ont heureusement évolués de façon positive afin d'arriver à un bon résultat.\\
+\\
+Je suis satisfait de mon travail et de mon évolution durant cette période et également du fait que le travail réalisé sera utile à grand nombre de personnes.
 Je sors du stage avec des nouvelles compétences techniques acquises, des nouvelles personnes rencontrées, une meilleure connaissance de moi-même et une meilleure aptitude à m'organiser pour finir un travail dans des délais imposés.\\
 \\
 Ce stage clôture donc parfaitement mes études à l'EPHEC et permettra de mieux m'orienter dans les années à venir.
