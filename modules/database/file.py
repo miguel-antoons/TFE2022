@@ -27,11 +27,13 @@ def insert_psd(psd_data):
 
     # sql query to update the database values
     sql_query = (
-        "INSERT INTO psd (system_id, start, noise, calibrator)\n"
-        "VALUES (%(system_id)s, %(time)s, %(noise_psd)s, %(calibrator_psd)s)\n"
-        "ON DUPLICATE KEY UPDATE\n"
-        "noise = VALUES(noise),\n"
-        "calibrator = VALUES(calibrator)\n"
+        "UPDATE file\n"
+        "SET\n"
+        "   noise = %(noise_psd)s,\n"
+        "   calibrator = %(calibrator_psd)s\n"
+        "WHERE\n"
+        "   system_id = %(system_id)s\n"
+        "   AND start = %(time)s\n"
     )
 
     # execute and commit the values
@@ -203,7 +205,7 @@ def get_previous_all_psd(stations, start_date, end_date):
         "   DATE_FORMAT(start, %s) as start,\n"
         "   calibrator,\n"
         "   noise\n"
-        "FROM psd\n"
+        "FROM file\n"
         "WHERE (\n"
         "   calibrator is not null\n"
         "   OR noise is not null\n"
