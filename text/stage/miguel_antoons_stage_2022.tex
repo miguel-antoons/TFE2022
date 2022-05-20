@@ -194,7 +194,19 @@ Il y a à présent plus de 30 millions de fichiers pour le projet BRAMS.
 C'est pourquoi que sur le site, un outil permettant la visualisation facile de la disponibilité des données pour chaque station existe.\\
 \\
 Cet outil a été créé à l'aide de la librairie JavaScript open source Visavail.js\footnote{https://github.com/flrs/visavail} et affiche la disponibilité des fichiers sous forme de code couleur.
-Un exemple est affiché sur la figure 3.
+Une des améliorations apportées à cet outil par rapport à l'ancien est la minimisation des données qui circulent sur le réseau.
+En effet, la quantité des données demandée peut devenir très grande quand on veut visualiser la disponibilité sur une très longue période, ce qui cause un temps de chargement de plusieurs minutes.
+Grâce à cette optimisation, ce temps de chargement ce réduit de plusieurs minutes à quelques secondes.\\
+\\
+Une autre amélioration apportée, et ceci pour tous les outils, et la diminution des rechargements de la page.
+Tandis que l'ancien site rechargeait la page à chaque fois qu'un utilisateur voulait accéder à des données back-end, le nouveau site fonctionne avec des API\footnote{Application Program Interface : connexion entre différents programmes informatiques} et cherche uniquement les données nécessaires au lieu de recharger toute la page.
+C'est non-seulement une expérience plus agréable pour l'utilisateur, mais permet aussi d'économiser de la bande passante réseau.\\
+\\
+L'outil de visualisation de la disponibilité des données était le premier outil dynamique que j'ai dû développer pour le site web.
+Ceci s'est ressenti dans le temps que j'ai mis afin d'arriver à une version définitive de la nouvelle version.
+En effet, durant le développement de cet outil, j'ai non-seulement dû me familiariser avec PHP et l'organisation MVC\footnote{Model-View Controller : Façon d'organiser le code en séparant la partie donnée, la partie interface et la partie logique.} de Joomla mais également avec les systèmes informatiques de l'institut.\\
+\\
+Un exemple de l'outil de visualisation de la disponibilité des données BRAMS est affiché sur la figure 3.
 
 \begin{figure}[t]
     \begin{center}
@@ -209,7 +221,12 @@ Cet outil permet d'afficher les spectrogrammes de différentes stations, dans un
 Ceci permet de comparer les données plus facilement entre les différentes stations.\\
 \\
 Le Data Viewer utilise la librairie open source Viewer.js\footnote{https://fengyuanchen.github.io/viewerjs/} qui permet d'afficher les images en grand ainsi que la navigation entre les images.
-Un exemple du programme se trouve sur la figure 4.
+La plus grande amélioration apportée à ce programme est au niveau de l'interface.
+Pour des utilisateurs n'ayant pas la connaissance de comment utiliser le programme, la sélection de période ainsi que des différentes stations pouvait être difficile.
+Moi-même, la première fois que j'ai voulu utiliser le programme j'ai dû demander de l'aide puisque je pensais qu'il ne fonctionnait pas.
+Ce problème est résolu et le programme est maintenant plus facile à utiliser par rapport à la version précédente.\\
+\\
+Un exemple du BRAMS Data Viewer se trouve sur la figure 4.
 
 \begin{figure}[t]
     \begin{center}
@@ -248,6 +265,8 @@ Heureusement, ça s'est amélioré avec les semaines qui passaient et l'assoupli
 \\
 Lors de mon stage, j'ai également été en contact avec des employés d'autres départements au sein de l'IASB afin de m'aider dans mes tâches.
 Lorsque j'avais une question, je savais m'adresser à mes collègues du projet BRAMS, ou encore, aller voir les membres du département informatique.
+Ceci m'a aidé notamment au début de mon stage, quand j'ai rencontré un problème empêchant Joomla de fonctionner correctement.
+Joomla n'avait aucun droit d'écriture, ce qui bloquait toute installation de pages dynamique ou encore de modèles graphiques.
 C'était également l'occasion d'apprendre à se connaître en discutant de sujets divers.\\
 \\
 Plusieurs fois par semaine Mr Antoine Calegaro, mon maître de stage, venait voir mon avancement sur le site.
