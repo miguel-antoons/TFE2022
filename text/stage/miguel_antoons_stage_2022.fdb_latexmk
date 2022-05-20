@@ -1,6 +1,6 @@
 # Fdb version 3
-["pdflatex"] 1653040468 "c:/Users/Miguel/Documents/TFE2022/text/stage/miguel_antoons_stage_2022.tex" "miguel_antoons_stage_2022.pdf" "miguel_antoons_stage_2022" 1653040474
-  "c:/Users/Miguel/Documents/TFE2022/text/stage/miguel_antoons_stage_2022.tex" 1653040467 22130 5c05a6d22042b228103003dfb63a2b31 ""
+["pdflatex"] 1653052729 "c:/Users/Miguel/Documents/TFE2022/text/stage/miguel_antoons_stage_2022.tex" "miguel_antoons_stage_2022.pdf" "miguel_antoons_stage_2022" 1653052735
+  "c:/Users/Miguel/Documents/TFE2022/text/stage/miguel_antoons_stage_2022.tex" 1653052720 22324 74694102bca71ef88224efd5df7d2719 ""
   "c:/texlive/2022/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1652024590 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "c:/texlive/2022/texmf-dist/fonts/map/fontname/texfonts.map" 1652025438 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1652025067 1536 02c06700a42be0f5a28664c7273f82e7 ""
@@ -64,13 +64,14 @@
   "c:/texlive/2022/texmf-var/web2c/pdftex/pdflatex.fmt" 1652029229 2828217 0a0da6c2b6da4af0d7579098b9ec6b70 ""
   "c:/texlive/2022/texmf.cnf" 1652028987 713 e69b156964470283e0530f5060668171 ""
   "images//availability.png" 1652693767 211723 a98580497b6325c1fdb94ad35f9bcfc5 ""
+  "images//campaigns.png" 1653052519 435206 7b05e0ca028ba0a094e3e1889a3236bc ""
   "images//map.png" 1652694091 480630 ca5da0058e37c9062535f63b87dcb2db ""
   "images//organization.png" 1652691449 166817 2592f40e44779fc707e64b9e3dabeb77 ""
   "images//spectrogramme.png" 1652691449 322873 42e5cd9461c55b76a7914d19fff64909 ""
   "images//viewer.png" 1652694032 5477524 cb0f78dfee658d57107fce7f7002fc32 ""
-  "miguel_antoons_stage_2022.aux" 1653040474 2592 c561786fad710bc43a6516b1c7df41d2 "pdflatex"
-  "miguel_antoons_stage_2022.tex" 1653040467 22130 5c05a6d22042b228103003dfb63a2b31 ""
-  "miguel_antoons_stage_2022.toc" 1653040474 1161 dd010aace5f659ea887aa0b19d7e3424 "pdflatex"
+  "miguel_antoons_stage_2022.aux" 1653052735 2744 2bf8ad0177a52f3c1693a792bf7d4ade "pdflatex"
+  "miguel_antoons_stage_2022.tex" 1653052720 22324 74694102bca71ef88224efd5df7d2719 ""
+  "miguel_antoons_stage_2022.toc" 1653052735 1161 53e23139081f50a59acc43b0a4a02204 "pdflatex"
   (generated)
   "miguel_antoons_stage_2022.aux"
   "miguel_antoons_stage_2022.log"
