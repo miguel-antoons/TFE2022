@@ -94,14 +94,18 @@ Cette trainée à la propriété de réfléchir les ondes radio.
 Dans la plus grande partie des cas cette réflexion se fait en un seul point le long de la trajectoire, phénomène qui s'appelle la réflexion spéculaire (illustré à la figure 1).
 La position point, nommé le point de réflexion spéculaire, dépend notamment du positionnement de l'émetteur, du positionnement du récepteur et de la trajectoire du météore.\\
 \\
+% ! explain station types
 Pour exploiter le phénomène de la réflexion spéculaire et réussir à détecter les météores à l'aide d'ondes radios, le réseau BRAMS fonctionne de la façon suivante :
 \begin{enumerate}
     \item Un émetteur, situé à Dourbes, transmet de façon continue un signal à une fréquence de 49.97 MHz.
           Ce signal est émis en direction du ciel et peut être réfléchi sur des trainées ionisées dans le sillage des météores.
     \item Lorsque le signal est réfléchi, il peut être détecté par une ou plusieurs stations réceptrices faisant partie du réseau BRAMS.
+          Un signal calibreur est alors additionné au signal venant du ciel.
+          Ce signal est injecté à 49.9705 MHz, c'est-à-dire 500 Hz plus haut que le signal direct.
+          Il dispose d'une amplitude fixe et sert de référence d'amplitude pour le reste du signal.
           La station réceptrice décale ensuite le signal direct de 49.97 MHz vers une fréquence de 1 kHz.
-          Un signal calibreur est alors injecté dans le signal venant du ciel. Ce signal est injecté à 49.9705 MHz, c'est-à-dire 500 Hz plus haut que le signal direct.
-          Ce signal dispose d'une amplitude fixe et sert donc de référence d'amplitude pour le reste du signal.
+    \item Ensuite, la station réceptrice enregistre l'ensemble du signal dans un fichier son de type WAV\footnote{Waveform Audio File}.
+          Le signal est échantillonné à une fréquence de 5512 ou 6048 Hz dépendant du type de station.
 \end{enumerate}
 
 
