@@ -85,14 +85,14 @@ Il permet de mettre en pratique la matière théorique vue tout au long du cursu
 
 \subsection{Attentes Personnelles}
 
-Cette offre de stage a été proposée lors d'une présentation organisée par les membres du projet BRAMS, projet qui se déroule au sein de l'Institut Royal d'Aéronomie Spatiale de Belgique, durant le cours de traitement de signal donné par Mr Dewulf.
+Cette offre de stage a été proposée lors d'une présentation organisée par les membres du projet BRAMS, sein de l'Institut Royal d'Aéronomie Spatiale de Belgique, durant le cours de traitement de signal.
 Ayant déjà contacté des sociétés, mais n'ayant pas encore pris de décision, j'ai décidé de prendre rendez-vous avec l'institut.\\
 \\
 Le travail principal proposé par l'institut était la migration d'un site web vers un autre framework.
 L'ancien framework ainsi que le nouveau m'étant inconnus, ceci m'a attiré pour les nombreuses compétences à apprendre.\\
 Ce stage, comme la plupart des stages, permettait également de voir comment un environnement professionnel s'organise et fonctionne.\\
 \\
-Enfin, n'étant plus dans un milieu scolaire, j'étais curieux quant à la complexité d'écrire des programmes complets, de qualité dans les délais imposés.
+Enfin, étant dans un milieu professionnel, j'étais curieux quant à la complexité d'écrire des programmes complets, de qualité dans les délais imposés.
 Ceci s'étend d'un débogage et une maintenance facilités pour le développeur qui viendra après moi, jusqu'au développement d'une interface conviviale et facile à utiliser pour l'utilisateur.
 Cette attente était d'autant plus intéressante sachant que j'allais devoir apprendre un nouveau langage et un nouveau framework durant ces délais.
 
@@ -137,19 +137,20 @@ L'IASB est subdivisé en quatre départements, comme nous le montre la figure 1 
 
 \subsection{Le projet BRAMS}
 
-Le projet BRAMS (Belgian RAdio Meteor Stations) collecte et stocke des données relatives à des objets entrants dans l'atmosphère belge (météores entre autres).
-Ces données sont ensuite analysées afin de pouvoir étudier plus précisément les trajectoires, la vitesse et éventuellement les masses des météores.\\
+Le but du projet BRAMS est de détecter et de caractériser les météores entrant dans l'atmosphère.
+Ces données sont ensuite collectées et archivées à l'IASB pour pouvoir les analyser.
+Cette analyse permet d'étudier plus précisément les trajectoires, la vitesse et éventuellement les masses des météores.\\
 \\
-Le projet a débuté en 2010 par Hervé Lamy à l'IASB, dans le département de physique spatiale.
-Il dispose d'un réseau de stations émettrices et réceptrices radio nommé le réseau BRAMS.
+Le projet a débuté en 2010 sous l'impulsion d'Hervé Lamy à l'IASB, dans le département de physique spatiale.
+Le projet BRAMS dispose d'un réseau de quarante-deux stations réceptrices, situées en Belgique ou dans les pays avoisinants, et d'un émetteur dédié.
 Ce réseau fonctionne de la façon suivante :
 \begin{enumerate}
-    \item Un émetteur, situé à Dourbes, transmet de façon continue un signal à une fréquence fixe.
-          Ce signal est émis en direction du ciel et peut être réfléchi sur des trainées ionisées dans le sillage des météores.
-    \item Une fois réfléchi, le signal est, dans le cas idéal, détecté par une ou plusieurs récepteurs du réseau BRAMS.
+    \item L'émetteur, situé à Dourbes dans le sud de la Belgique, transmet de façon continue une onde radio à une fréquence fixe de 49.97 MHz et avec une puissance de 130 Watts.
+          Ce signal est émis en direction du ciel et peut être réfléchi sur des trainées ionisées créées dans le sillage des météores entrant dans l'atmosphère terrestre.
+    \item Une fois réfléchi, le signal est, dans le cas idéal, détecté par un ou plusieurs stations de réception du réseau BRAMS.
           Chaque station de réception enregistre continuellement les données dans des fichiers son de type WAV\footnote{Waveform Audio File}.
           Toutes ces stations sont hébergées soit par des radio-amateurs qui veulent contribuer au projet, soit par des observatoires publics ou encore par l'IASB même.
-    \item Les fichiers WAV sont envoyés à intervalles réguliers à l'institut via, dans la plus grande partie des cas, internet, ou parfois, via clé USB.
+    \item Les fichiers WAV sont envoyés à intervalles réguliers à l'institut via internet.
     \item Ces données sont ensuite archivées et étudiées par les personnes travaillant sur le projet.
           Afin de pouvoir mieux visualiser les données, on génère des spectrogrammes à partir des fichiers WAV.
           Un exemple de spectrogramme peut être visualisé sur la figure 2.
@@ -158,23 +159,24 @@ Ce réseau fonctionne de la façon suivante :
 \begin{figure}[t]
     \begin{center}
         \includegraphics[scale=0.493]{spectrogramme.png}
-        \caption{Exemple d'un spectrogramme venant des stations de réception}
+        \caption{Exemple d'un spectrogramme du projet BRAMS}
     \end{center}
 \end{figure}
 
 \vspace{10pt}
-Plus d'informations à propos du projet BRAMS sont disponibles en ligne, sur le site web du projet.\footnote{Accessible à l’adresse suivante : http://brams.aeronomie.be}
+Plus d'informations à propos du projet BRAMS sont disponibles en ligne, sur le site web du projet.\footnote{Accessible à l’adresse suivante : https://brams.aeronomie.be}
 
 \newpage
 
 \section{Nature du Stage}
 
-Dans cette section, j'explique dans quel domaine de l'informatique j'ai principalement travaillé pendant le stage, ainsi que mes réalisations pour l'entreprise.\\
+Dans cette section, j'explique dans quel domaine de l'informatique j'ai principalement travaillé pendant mon stage, ainsi que mes réalisations pour l'institut.\\
 \\
 Mon stage a démarré le 14 février et a pris fin le 20 mai. Durant toute cette période, j'ai travaillé sur le projet BRAMS.\\
 \\
 Ma tâche principale était l'amélioration et la migration vers un nouveau framework du site web du projet BRAMS.
-L'ancien framework du site était CakePHP, le nouveau framework est Joomla. Tous deux framework utilisent le PHP comme langage back-end combiné avec du JavaScript, du HTML\footnote{HyperText Markup Language : permet de structurer les éléments sur le site} et du CSS\footnote{Cascading Style Sheets : permet de changer le style du site} pour fournir des fonctionnalités du côté front-end.\\
+Le framework de l'ancien site était CakePHP, qui est maintenant remplacé par Joomla.
+Tous deux framework utilisent le PHP comme langage back-end combiné avec du JavaScript, du HTML\footnote{HyperText Markup Language : permet de structurer les éléments sur le site} et du CSS\footnote{Cascading Style Sheets : permet de changer le style du site} pour fournir des fonctionnalités du côté front-end.\\
 Le PHP étant un langage que je n'avais encore jamais utilisé, ceci impliquait l'apprentissage de ce langage avant de pouvoir m'attaquer au développement du site web.
 La migration était nécessaire afin de permettre l'uniformité d'un seul et même framework au sein de tous les sites web de l'IASB.
 Afin de compléter certaines fonctionnalités spécifiques du côté du front-end, il a également fallu utiliser de librairies open-source JavaScript.\\
@@ -192,27 +194,28 @@ Dans cette section, je passe en revue mes réalisations durant le stage.
 \subsubsection{Pages statiques}
 Joomla étant un CMS\footnote{Content Management System : outil permettant de créer des pages web à l'aide d'une interface graphique}, la réécriture des pages statiques de l'ancien site web s'est déroulée très rapidement.
 Grâce à l'interface graphique, il suffisait de copier le texte brut de l'ancien site web, le mettre en forme et finalement, ajouter les images.
-Joomla étant un framework qui propose des modèles avec une structure et un style déjà tout fait (HTML \& CSS), peu de travail me restait à faire sur ces 2 aspects.
+Joomla étant un framework qui propose des modèles avec une structure et un style déjà tout fait (HTML \& CSS), cette tâche s'est revélée aisée.
 
 \subsubsection{Visualisation de la disponibilité des données}
 
-Étant donné la grande quantité de données qui est enregistrée quotidiennement, lorsqu'on désire accéder une donnée spécifique, un outil permettant de visualiser la disponibilité des données peut représenter un gain de temps non négligeable.
-En effet, il y a à présent 42 récepteurs actives qui envoient chacun 288 fichiers (1 fichier tout les 5 min) par jour.
-Il y a à présent plus de 30 millions de fichiers pour le projet BRAMS.
-C'est pourquoi sur le site, un outil permettant la visualisation facile de la disponibilité des données pour chaque station existe.\\
+Durant les douze ans d'existence du projet, beaucoup de fichiers sont maintenant archivés.
+En effet, il y a à présent 42 récepteurs actifs qui envoient chacun 288 fichiers (1 fichier tout les 5 min) par jour.
+Il y a donc à présent plus de 30 millions de fichiers pour le projet BRAMS.
+Rechercher su un ensemble de fichiers existe ou non prend un temps qui est non négligeable pour les scientifiques du projet.
+C'est pourquoi sur le site, un outil permettant de visualiser facilement quelles données sont disponibles pour toutes les stations.\\
 \\
 Cet outil a été créé à l'aide de la librairie JavaScript open source Visavail.js\footnote{https://github.com/flrs/visavail} et affiche la disponibilité des fichiers sous forme de code couleur.
-Une des améliorations apportées à cet outil par rapport à l'ancien est la minimisation des données qui circulent sur le réseau.
+La première amélioration que j'ai apportée à cet outil concerne le volume de données entre le client et le serveur.
 En effet, la quantité des données demandée peut devenir très grande quand on veut visualiser la disponibilité sur une très longue période, ce qui cause un temps de chargement de plusieurs minutes.
-Grâce à cette optimisation, ce temps de chargement ce réduit de plusieurs minutes à quelques secondes.\\
+Grâce à cette optimisation, le temps de chargement se trouve réduit à quelques secondes.\\
 \\
 Une autre amélioration apportée, et ceci pour tous les outils, et la diminution des rechargements de la page.
-Tandis que l'ancien site rechargeait la page à chaque fois qu'un utilisateur voulait accéder à des données back-end, le nouveau site fonctionne avec des API\footnote{Application Program Interface : connexion entre différents programmes informatiques} et cherche uniquement les données nécessaires au lieu de recharger toute la page.
+Tandis que l'ancien site rechargeait la page à chaque fois qu'un utilisateur voulait accéder à des données back-end, le nouveau site fonctionne avec des requêtes asynchrones, évitant de devoir recharger la page à chaque requête.
 C'est non-seulement une expérience plus agréable pour l'utilisateur, mais permet aussi d'économiser de la bande passante réseau.\\
 \\
 L'outil de visualisation de la disponibilité des données était le premier outil dynamique que j'ai dû développer pour le site web.
 Ceci s'est ressenti dans le temps que j'ai mis afin d'arriver à une version définitive de la nouvelle version.
-En effet, durant le développement de cet outil, j'ai non-seulement dû me familiariser avec PHP et l'organisation MVC\footnote{Model-View Controller : Façon d'organiser le code en séparant la partie donnée, la partie interface et la partie logique.} de Joomla mais également avec les systèmes informatiques de l'institut.\\
+En effet, durant le développement de cet outil, j'ai non seulement dû me familiariser avec PHP et l'organisation MVC\footnote{Model-View Controller : Façon d'organiser le code en séparant la partie donnée, la partie interface et la partie logique.} de Joomla mais également avec les systèmes informatiques de l'institut.\\
 \\
 Un exemple de l'outil de visualisation de la disponibilité des données BRAMS est affiché sur la figure 3.
 
@@ -233,7 +236,7 @@ Le Data Viewer utilise la librairie open source Viewer.js\footnote{https://fengy
 La plus grande amélioration apportée à ce programme est au niveau de l'interface.
 Pour des utilisateurs n'ayant pas la connaissance de comment utiliser le programme, la sélection de période ainsi que des différentes stations pouvait être difficile.
 Moi-même, la première fois que j'ai voulu utiliser le programme j'ai dû demander de l'aide puisque je pensais qu'il ne fonctionnait pas.
-Ce problème est résolu et le programme est maintenant plus facile à utiliser par rapport à la version précédente.\\
+Le programme est maintenant plus facile à utiliser par rapport à la version précédente.\\
 \\
 Un exemple du BRAMS Data Viewer se trouve sur la figure 4.
 
@@ -248,7 +251,7 @@ Un exemple du BRAMS Data Viewer se trouve sur la figure 4.
 
 Afin de pouvoir visualiser l'évolution et l'état du réseau BRAMS, le site web dispose d'une carte dynamique de la Belgique.
 Une des améliorations apportées à cette page est la possibilité de voir le réseau BRAMS à une date précise.
-La nouvelle version permet également de représenter un type de station précis et représente aussi le pourcentage de données disponible pour le jour sélectionné.
+La nouvelle version affiche également le pourcentage de données disponible pour le jour sélectionné.
 Chaque station est représentée par un point vert s'il dispose de données pour ce jour-là ou un point rouge dans le cas contraire.\\
 \\
 Afin de pouvoir afficher des points à des endroits précis sur une image, la librairie open source maphighlight\footnote{https://github.com/kemayo/maphilight} a été utilisé.
@@ -264,19 +267,16 @@ Une capture d'écran de l'outil peut être visualisé sur la figure 5.
 \subsubsection{Campagnes BRAMS}
 
 Dans le but de mettre en évidence les météores sur les spectrogrammes, un outil nommé BRAMS Campaigns avait été développé sur l'ancien site web du projet BRAMS.
-Cet outil donnait la possibilité aux membres du projet BRAMS de tracer des carrés autour des météores et de télécharger les spectrogrammes ensemble avec les carrés.
+Cet outil donnait la possibilité aux membres du projet BRAMS de tracer des rectangles autour des météores et de télécharger les spectrogrammes ensemble avec les rectangles.
 Cependant, cet outil ne fonctionnait plus depuis quelque temps.\\
 \\
-C'est alors lors du développement de la nouvelle version du programme que je me suis aperçu du même problème or le code était complètement différent.
+Malgré un code entièrement réécrit sur la nouvelle version, le problème présent sur l'ancienne version du programme n'était pas parti.
 Après une recherche pour trouver la cause du problème, je me suis aperçu qu'une des tables impliquée dans l'outil disposait d'un moteur de base de données différent des autres.
-Les autres tables utilisant tout le moteur InnoDB de MySQL, cette table particulière utilisait le moteur plus ancien MyISAM, également de MySQL.\\
-\\
-Ce changement avait été fait il y a quelque temps avant mon stage afin de développer un nouvel outil pour le projet BRAMS.
-Le problème était que MyISAM ne supportait pas les clés étrangères, or lors du changement du moteur vers MyISAM, les clés étrangères existantes sur la table n'ont pas été suprimmés.
+Cette différence de moteur causait un conflit à chaque insertion de donnée dans cette table.
 Ceci empêchait la création d'une nouvelle campagne et rendait le programme inutilisable.\\
 \\
 J'ai développé le côté front-end du site en me basant sur le code déjà existant.
-Cependant, j'ai apporté des améliorations aux enregistrements des carrés tracés, qui se fait maintenant de façon continue au lieu de devoir appuyer sur un bouton pour enregistrer tous les carrés tracés sur un spectrogramme.
+Cependant, j'ai apporté des améliorations aux enregistrements des rectangles tracés, qui se fait maintenant de façon continue au lieu de devoir appuyer sur un bouton pour enregistrer tous les rectangles tracés sur un spectrogramme.
 Un exemple de l'utilisation de cet outil se trouve à la figure 6.
 
 \begin{figure}[t]
@@ -288,12 +288,7 @@ Un exemple de l'utilisation de cet outil se trouve à la figure 6.
 
 \subsubsection{Outils d'Administration}
 
-Le développement de plusieurs pages permettant l'ajout, la modification et la suppression de données dans la base de données fut également nécessaire.
-Pour chaque table nécessitant des modifications des données par le site, deux pages étaient développées.
-Une page contenant un tableau avec toutes les données dans cette table et un bouton pour ajouter une rangée qui redirige l'utilisateur vers un formulaire d'ajout.
-Chaque rangé dans la table sur la page représente une rangée dans la base de données et contient un bouton 'modifier' et un bouton 'supprimer'.\\
-\\
-Quand l'utilisateur clique sur le bouton 'modifier' il est redirigé vers le même formulaire que celui pour ajouter une rangée, mais cette fois le formulaire est préremplis avec les données de la rangée dans la base de données que l'on souhaite modifier.
+Le développement de plusieurs pages permettant la visualisation, l'ajout, la modification et la suppression de données dans la base de données fut également nécessaire.
 Les améliorations apportées à ces pages portent surtout sur un nouveau design plus simple et moderne ainsi que l'automatisation ou encore l'ajout des valeurs par défaut pour les champs des formulaires.\\
 \\
 Les changements d'une page d'administration à un autre étant minimales, ceci a causé beaucoup de tâches répétées.
@@ -307,7 +302,7 @@ Ceci rendait le développement de ces pages beaucoup moins intéressant.
 Avec les mesures prises suite au COVID, faire connaissance avec mes collègues s'est avéré plus compliqué au début.
 Néanmoins, dès mon arrivée j'y ai été accueilli agréablement ce qui m'a permis de rapidement m'intégrer dans l'équipe.\\
 \\
-On m'a attribué un bureau à moi avec un espace suffisant et une vue vers l'extérieur très agréable.
+On m'a attribué un bureau personel avec un espace suffisant et une vue vers l'extérieur très agréable.
 Ceci avait l'avantage qu'étant seul, je pouvais me concentrer à 100 \% sur mon travail sans être dérangé.
 D'un autre côté, avec les mesures du COVID, je passais parfois des journées seul sans voir mes collègues.
 Heureusement, ça s'est amélioré avec les semaines qui passaient et l'assouplissement des mesures contre le COVID.\\
@@ -329,8 +324,8 @@ Enfin, l'institut étant situé à un endroit très vert et calme, l'environneme
 
 Durant la période de stage, j'ai eu l'occasion d'apprendre de nombreuses choses, mais avant tout j'ai pu me former une idée plus précise de quel type de travail me conviendrait.\\
 \\
-J'ai pu finaliser le travail demandé, mais j'ai mis plus de temps que prévu causant le site à être en phase de test lorsque je dépars de mon stage.
-Ceci est en partie causé par les problèmes avec l'infrastructure de l'institut m'empêchant de développer de façon efficace le site durant les premières semaines, mais également par mon manque d'organisation durant les premières semaines.
+J'ai pu finaliser la migration du site web, mais ayant pris plus de temps que prévu, je termine mon stage avec le site toujours en phase de test.
+Ceci est en partie causé par quelques problèmes avec l'infrastructure de l'institut m'empêchant de développer de façon efficace le site durant les premières semaines, mais également par mon manque d'organisation durant les premières semaines.
 Ces deux problèmes ont heureusement évolués de façon positive afin d'arriver à un bon résultat.\\
 \\
 Je suis satisfait de mon travail et de mon évolution durant cette période et également du fait que le travail réalisé sera utile à grand nombre de personnes.
