@@ -333,6 +333,21 @@ INPUT /usr/share/texmf/tex/latex/lm/omxlmex.fd
 INPUT /usr/share/texmf/fonts/tfm/public/lm/lmex10.tfm
 OUTPUT miguel_antoons_tfe_2022.toc
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmbx12.tfm
+INPUT /usr/share/texmf/tex/latex/lm/ts1lmr.fd
+INPUT /usr/share/texmf/tex/latex/lm/ts1lmr.fd
+INPUT /usr/share/texmf/tex/latex/lm/ts1lmr.fd
+INPUT /usr/share/texmf/tex/latex/lm/ts1lmr.fd
+INPUT /usr/share/texmf/fonts/tfm/public/lm/ts1-lmr10.tfm
+INPUT ./images//RPS2.png
+INPUT ./images//RPS2.png
+INPUT ./images//RPS2.png
+INPUT ./images//RPS2.png
+INPUT ./images//RPS2.png
+INPUT ./images//Screenshot from 2022-05-22 22-49-39.png
+INPUT ./images//Screenshot from 2022-05-22 22-49-39.png
+INPUT ./images//Screenshot from 2022-05-22 22-49-39.png
+INPUT ./images//Screenshot from 2022-05-22 22-49-39.png
+INPUT ./images//Screenshot from 2022-05-22 22-49-39.png
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmr8.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmr9.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/rm-lmr9.tfm
@@ -344,6 +359,7 @@ INPUT /usr/share/texmf/fonts/tfm/public/lm/lmsy5.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmr6.tfm
 INPUT miguel_antoons_tfe_2022.aux
 INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc
+INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc
 INPUT /usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb
 INPUT /usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb
 INPUT /usr/share/texmf/fonts/type1/public/lm/lmr10.pfb

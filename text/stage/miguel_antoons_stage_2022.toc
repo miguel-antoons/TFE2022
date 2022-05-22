@@ -14,3 +14,6 @@
 \contentsline {subsubsection}{\numberline {4.1.6}Outils d'Administration}{12}{}%
 \contentsline {section}{\numberline {5}Expériences Vécues}{14}{}%
 \contentsline {section}{\numberline {6}Conclusion}{15}{}%
+\contentsline {section}{\numberline {7}Annexes}{16}{}%
+\contentsline {subsection}{\numberline {7.1}Évaluation Finale}{16}{}%
+\contentsline {subsection}{\numberline {7.2}Évaluation OnStage}{18}{}%
