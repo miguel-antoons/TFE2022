@@ -7,3 +7,5 @@
 \contentsline {subsection}{\numberline {1.2}Problématique liée à l'étude des données BRAMS}{9}{}%
 \contentsline {section}{\numberline {2}Méthodologie}{11}{}%
 \contentsline {section}{\numberline {3}Technologies utilisées}{12}{}%
+\contentsline {subsection}{\numberline {3.1}Python}{12}{}%
+\contentsline {subsection}{\numberline {3.2}MariaDB}{12}{}%
