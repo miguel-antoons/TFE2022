@@ -105,7 +105,7 @@ Il existe 2 types de station de réception :
 
 \begin{figure}[t]
     \begin{center}
-        \includegraphics[scale=0.58]{RPS2.png}
+        \includegraphics[scale=0.5]{RPS2.png}
         \caption{Station RSP 2 du réseau BRAMS}
     \end{center}
 \end{figure}
@@ -124,7 +124,7 @@ Pour un fichier WAV, on retrouve typiquement 3 blocs de données.
 On retrouve premièrement le bloc "RIFF" qui contient la taille de l'entièreté du fichier moins 8 octets (4 octets du champ "ID" et 4 octets du champ "ChunkSize") suivi du champ indiquant le format du fichier.
 Dans le cas du fichier WAV, ce dernier contient les quatre lettres "WAVE".\\
 \\
-Le deuxième bloc contenu dans un fichier WAV ordinaire contient toutes les données techniques des données.
+Le deuxième bloc, nommé le bloc FMT\footnote{FMT pour format}, contenu dans un fichier WAV ordinaire contient toutes les données techniques des données.
 On y trouve notamment la fréquence d'échantillonnage, le nombre de pistes audio ou encore le nombre d'octets par secondes.\\
 \\
 Vient enfin le bloc principal du fichier : le bloc de données.
@@ -138,7 +138,7 @@ La figure 2 montre la structure d'un fichier WAV ordinaire.
 
 \begin{figure}[t]
     \begin{center}
-        \includegraphics[scale=0.2]{Screenshot from 2022-05-22 22-49-39.png}
+        \includegraphics[scale=0.3]{wav_structure.png}
         \caption{Structure d'un fichier WAV ordinaire}
     \end{center}
 \end{figure}
@@ -175,7 +175,103 @@ Il est composé d'une seule piste audio, échantillonnée à une fréquence de 5
 Cette fréquence permet d'enregistrer des données dans une bande de fréquences allant jusqu'à 2756.25 Hz ou 3024 Hz (ou la moitié de la fréquence d'échantillonnage), selon le théorème de Nyquist.
 Sachant que les échos de météores apparaissent typiquement dans une bande de fréquence de 100 Hz autour du signal de l'émetteur à 1000 Hz, cette bande de fréquence couvre l'ensemble des signaux utiles à l'étude des météores.\\
 \\
-À chaque fichier WAV est rajouté un bloc de données (data chunk) dans lequel sont insérés quelques informations relatives à la station de réception, la station émettrice, le signal GPS\footnote{Global Positioning System} ou encore, la fréquence d'échantillonnage.
+À chaque fichier WAV est rajouté un bloc de données (data chunk) conçu pour faciliter l'étude des données.
+Dans ce bloc, on retrouve quelques informations relatives à la station de réception, la station émettrice, le signal GPS\footnote{Global Positioning System} ou encore, la fréquence d'échantillonnage.
+Ce bloc de données se trouve entre le bloc FMT et le bloc de données.\\
+\\
+Ces fichiers audio, comme montrée à la figure 3, sont très difficiles à interpréter.
+Ils sont composés de bruits et de parasites sur l'entièreté de leur bande de fréquence.
+Par contre, lorsque l'on calcule le spectrogramme du fichier WAV, les données deviennent beaucoup plus simples à lire.
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.5]{wav_brut.png}
+        \caption{Données brutes venant d'un fichier audio d'une station réceptrice.}
+    \end{center}
+\end{figure}
+\\
+\\
+Un spectrogramme est une représentation différente des données contenues dans un fichier audio.
+Au lieu de représenter la puissance sur l'ordonnée et le temps sur l'abscisse, un spectrogramme représente la répartition des fréquences au cours du temps.
+Il contient donc trois axes :
+\begin{itemize}
+    \item Sur l'abscisse on retrouve toujours le temps.
+    \item Sur l'ordonnée on retrouve la fréquence.
+    \item Sur la cote, on retrouve la puissance. Cet axe est souvent représenté par un code couleur.
+\end{itemize}
+
+Pour générer un spectrogramme, il faut calculer un ensemble de Transformées de Fourrier.
+La Transformée de Fourrier permet de représenter la répartition de puissance entre les fréquences contenues dans un signal ou une partie d'un signal temporel.
+Elle produit donc se qu'on appelle le spectre du signal.
+Elle se calcule sur un nombre quelconque d'échantillons qui se suivent dans un signal temporel.
+Dans l'informatique, elle est souvent calculée à l'aide de la FFT\footnote{Faste Fourier transform}.
+C'est un algorithme qui permet de calculer une Transformée de Fourrier plus rapidement, mais qui exige un nombre d'échantillons $2^{n}$.\\
+\\
+Sur la figure 4, on peut voir en rouge un signal temporel et le spectre de ce même signal en bleu.
+Les signaux en mauve claire sont les signaux à une fréquence, dont le signal rouge est composé.
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.7]{spectre.png}
+        \caption{Représentation visuelle de la Transformée de Fourier.}
+    \end{center}
+\end{figure}
+\\
+\\
+Dans le cas des spectrogrammes pour le projet BRAMS, les FFT contenus dans un spectrogramme sont calculés sur 16384 échantillons.
+Si on suppose qu'un fichier WAV venant d'une station réceptrice dure en moyenne trois-cents secondes (ou cinq minutes), un spectrogramme est composé d'environ 101 spectres pour les stations ICOM et 111 pour les staions RSP2.
+Ce nombre est obtenu avec la formule ci-dessous, où Fs est la fréquence d'échantillonnage, T la durée en secondes du signal et nfft le nombre d'échantillons utilisés pour générer un spectre.
+\[\frac{Fs * T}{nfft}\]
+Le spectrogramme généré aura une résolution fréquentielle, donnée par la formule \(Fs / nfft\), de 0.34 Hz pour les stations ICOM et 0.37 Hz pour les stations RSP2.
+Sa résolution temporelle, donnée par la formule \(nfft / Fs\), est de 2.97 secondes pour les stations ICOM et de 2.7 secondes pour les stations RSP2.
+Un exemple de spectrogramme venant d'une station de réception est affiché à la figure 5.
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.29]{spectrogramme_legend.png}
+        \caption{Exemple d'un spectrogramme du projet BRAMS.}
+    \end{center}
+\end{figure}
+
+\subsection{Problématique liée à l'étude des données BRAMS}
+
+Afin de pouvoir trouver la trajectoire d'un météore dans l'atmosphère, il est nécessaire de rechercher par quelles stations réceptrices le météore est détecté.
+Ceci est une procédure qui prend un temps non négligeable pour les scientifiques du projet.
+En effet, toutes les stations de réception ne détectent pas tous les météores.
+De plus, certaines données peuvent être corrompues ou encore, non-existantes.\\
+\\
+De plus, savoir, ou au moins avoir une idée, si un météore détecté par une station réceptrice est le même qu'un météore détecté sur une autre station réceptrice serait une grosse économie de temps.\\
+\\
+C'est pour cette raison que les membres du projet BRAMS souhaitent disposer d'un programme qui remplit deux fonctions.
+D'une part, elle doit être capable de vérifier si un fichier contient des données non-corrompues et utilisables.
+D'autre part, elle devra, sur base d'un écho de météore d'une station de réception, retrouver les échos de ce même météore sur des fichiers d'autres stations de réception.
+
+\newpage
+
+\section{Méthodologie}
+
+Afin d'arriver à un résultat final de qualité et qui est conforme aux requis des membres du projet BRAMS, il est important d'utiliser une bonne méthodologie.\\
+\\
+La première chose que j'ai fait est : comprendre quoi exactement le programme devrait faire.
+Pour ce faire, plusieurs réunions ont eu place avant la réalisation du travail.
+Durant ces réunions, j'ai pu poser mes questions et demander des explications sur les concepts à connaître pour pouvoir réaliser le travail.
+Ayant reçu des documents qui expliquent de façon claire et précise le fonctionnement du réseau BRAMS, j'ai pu me préparer avant de m'attaquer à l'analyse et la réalisation du travail.\\
+\\
+Durant la période d'analyse et de réalisation du TFE, j'ai pu régulièrement demander validation quant à la direction que je prenais pour mon travail.
+Je présentais régulièrement mes réalisations aux scientifiques du projet BRAMS afin d'avoir un feedback régulier et de pouvoir perfectionner mon programme un maximum.\\
+\\
+Dans le but d'être plus efficace lors de l'écriture des fonctionnalités pour le programme, je décrivais avant ce que cette fonctionnalité devait faire.
+Ensuite, je la divisais en tâches techniques afin de pouvoir m'organiser plus facilement.
+Chaque tâche technique contenait et expliquait les étapes que le programme devrait exécuter pour accomplir cette tâche technique.
+Les étapes étaient décrites textuellement, par pseudo-code, par schéma ou encore, par le mélange de deux ou trois des moyens cités.\\
+\\
+Durant l'entièreté du projet de fin d'études, j'ai tenté de garder un rythme de travail régulier.
+Je me suis organisé de telle façon de pouvoir travailler une moyenne de 23 heures par semaine.
+Une grande partie de ces heures se sont déroulés lorsque je rentrais de mon stage ou pendant le week-end.\\
+
+\newpage
+
+\section{Technologies utilisées}
+
+
 
 
 

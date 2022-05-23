@@ -282,6 +282,7 @@ def main(args):
 
 
 def main_test():
+    directory = './recordings/'
     kernel = np.zeros((27, 7))
     kernel[12:15, 0] = -1.5
     kernel[12:15, -1] = -1.5
@@ -294,7 +295,13 @@ def main_test():
 
     print("Loading wav file into memory...")
     wav_file = BramsWavFile(
-        './recordings/2022/04/23/RAD_BEDOUR_20220423_0000_BEHUMA_SYS002.wav'
+        datetime.strptime('202204230000', '%Y%m%d%H%M'),
+        'BEHUMA',
+        "SYS003",
+        respect_date=True,
+        parent_directory=directory,
+        is_wav=True,
+        from_archive=True,
     )
 
     test_spectrogram = Spectrogram(
