@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1653336146 "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" "miguel_antoons_tfe_2022.pdf" "miguel_antoons_tfe_2022" 1653336148
+["pdflatex"] 1653508488 "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" "miguel_antoons_tfe_2022.pdf" "miguel_antoons_tfe_2022" 1653508490
   "/etc/texmf/web2c/texmf.cnf" 1651002338 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" 1653336143 19019 85e9bcac0784e696e82371383f2d6ee5 ""
+  "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" 1653508488 20718 408272797172a331f8f41c44b1834f4a ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmr10.tfm" 1136768653 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
   "/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1461363279 71627 94eb9990bed73c364d7f53f960cc8c5b ""
@@ -86,15 +86,16 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1652023869 4379155 98693266ff65f58d9f98aff394de12d2 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1652023888 2798221 0b983d5bb5dead17c3fddfc73317fa86 ""
   "images//RPS2.png" 1653233430 1282207 087e09e21e95135c1e12a7f947835fa7 ""
+  "images//SpecularReflection.png" 1653494370 45384 3bdf1aa9602c82d584c00e04d415401c ""
   "images//logo_ephec.png" 1652815768 46075 369b948ee028050a2d5dca0b401ce766 ""
   "images//page_garde.png" 1652817153 870658 ff37af4d31e7fcfcf93edec63661bda8 ""
   "images//spectre.png" 1653309004 22579 7da7312ab7ca30e8e0d170478db63a05 ""
   "images//spectrogramme_legend.png" 1653311080 538000 55efe22b7cdd87aeb3be13a471cb1006 ""
   "images//wav_brut.png" 1653309040 96701 4bb4639119472dea20b877c879e2297d ""
   "images//wav_structure.png" 1653309064 453529 e8dea470265da69a86615948236d1553 ""
-  "miguel_antoons_tfe_2022.aux" 1653336148 2366 019af8d9146873ee5bf54273820e2e3a "pdflatex"
-  "miguel_antoons_tfe_2022.tex" 1653336143 19019 85e9bcac0784e696e82371383f2d6ee5 ""
-  "miguel_antoons_tfe_2022.toc" 1653336148 1011 cec078c2406bed03fdfed8a3138ff0c5 "pdflatex"
+  "miguel_antoons_tfe_2022.aux" 1653508490 3950 1a9f1d1f433fd99538c9e8df442da7e5 "pdflatex"
+  "miguel_antoons_tfe_2022.tex" 1653508488 20718 408272797172a331f8f41c44b1834f4a ""
+  "miguel_antoons_tfe_2022.toc" 1653508490 1914 73c7bdd2129358e0da40daac1a8b176b "pdflatex"
   (generated)
   "miguel_antoons_tfe_2022.aux"
   "miguel_antoons_tfe_2022.log"

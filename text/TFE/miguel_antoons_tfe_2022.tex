@@ -149,7 +149,7 @@ La figure 2 montre la structure d'un fichier WAV ordinaire.
 
 Pour comprendre le fonctionnement du réseau BRAMS, la première chose à savoir est : lorsqu'un météore passe dans l'atmosphère, il laisse derrière lui une trainée ionisée.
 Cette trainée à la propriété de réfléchir les ondes radio.
-Dans la plus grande partie des cas cette réflexion se fait en un seul point le long de la trajectoire, phénomène qui s'appelle la réflexion spéculaire (illustré à la figure 1).
+Dans la plus grande partie des cas cette réflexion se fait en un seul point le long de la trajectoire, phénomène qui s'appelle la réflexion spéculaire (illustré à la figure 3).
 La position de ce point, nommé le point de réflexion spéculaire, dépend notamment du positionnement de l'émetteur, du positionnement du récepteur et de la trajectoire du météore.\\
 \\
 Pour exploiter le phénomène de la réflexion spéculaire et réussir à détecter les météores à l'aide d'ondes radios, le réseau BRAMS fonctionne de la façon suivante :
@@ -168,6 +168,13 @@ Pour exploiter le phénomène de la réflexion spéculaire et réussir à détec
     \item Une fois sur le serveur, les fichiers WAV sont archivés, manipulés et étudiés par les scientifiques du projet BRAMS afin d'en extraire les informations utiles.
 \end{enumerate}
 
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.6]{SpecularReflection.png}
+        \caption{Représentation de la réflexion spéculaire.}
+    \end{center}
+\end{figure}
+
 \subsubsection{Les Données BRAMS}
 
 Un fichier WAV venant d'une station réceptrice contient donc le signal capté par l'antenne ensemble avec un signal calibreur.
@@ -179,7 +186,7 @@ Sachant que les échos de météores apparaissent typiquement dans une bande de 
 Dans ce bloc, on retrouve quelques informations relatives à la station de réception, la station émettrice, le signal GPS\footnote{Global Positioning System} ou encore, la fréquence d'échantillonnage.
 Ce bloc de données se trouve entre le bloc FMT et le bloc de données.\\
 \\
-Ces fichiers audio, comme montrée à la figure 3, sont très difficiles à interpréter.
+Ces fichiers audio, comme montrée à la figure 4, sont très difficiles à interpréter.
 Ils sont composés de bruits et de parasites sur l'entièreté de leur bande de fréquence.
 Par contre, lorsque l'on calcule le spectrogramme du fichier WAV, les données deviennent beaucoup plus simples à lire.
 \begin{figure}[t]
@@ -206,7 +213,7 @@ Elle se calcule sur un nombre quelconque d'échantillons qui se suivent dans un 
 Dans l'informatique, elle est souvent calculée à l'aide de la FFT\footnote{Faste Fourier transform}.
 C'est un algorithme qui permet de calculer une Transformée de Fourrier plus rapidement, mais qui exige un nombre d'échantillons $2^{n}$.\\
 \\
-Sur la figure 4, on peut voir en rouge un signal temporel et le spectre de ce même signal en bleu.
+Sur la figure 5, on peut voir en rouge un signal temporel et le spectre de ce même signal en bleu.
 Les signaux en mauve claire sont les signaux à une fréquence, dont le signal rouge est composé.
 \begin{figure}[t]
     \begin{center}
@@ -222,7 +229,7 @@ Ce nombre est obtenu avec la formule ci-dessous, où Fs est la fréquence d'éch
 \[\frac{Fs * T}{nfft}\]
 Le spectrogramme généré aura une résolution fréquentielle, donnée par la formule \(Fs / nfft\), de 0.34 Hz pour les stations ICOM et 0.37 Hz pour les stations RSP2.
 Sa résolution temporelle, donnée par la formule \(nfft / Fs\), est de 2.97 secondes pour les stations ICOM et de 2.7 secondes pour les stations RSP2.
-Un exemple de spectrogramme venant d'une station de réception est affiché à la figure 5.
+Un exemple de spectrogramme venant d'une station de réception est affiché à la figure 6.
 
 \begin{figure}[t]
     \begin{center}
@@ -304,10 +311,56 @@ MariaDB est donc le choix logique.
 
 \newpage
 
+\section{Lecture des Fichiers BRAMS}
+
+Avant de commencer à développer des outils pour la détection des météores ou pour l'analyse des fichiers BRAMS, il a fallu développer un logiciel permettant de lire ces fichiers.
+Ce logiciel sera implémenté dans un module Python.
+Ceci veut dire qu'il pourra facilement être utilisé par d'autres fichiers Python et qu'il est donc très flexible.
+Dans cette section, le fonctionnement de ce module est expliqué en détail.
+
+\subsection{Librairies Utilisées}
+
+\subsubsection{Os}
+
+\subsubsection{Numpy}
+
+\subsubsection{Tarfile}
+
+\subsubsection{Scipy}
+
+\subsubsection{Datetime}
+
+\subsection{Fonctionnement du Programme}
+
+\newpage
+
 \section{Monitoring des Données BRAMS}
+
+Comme indiqué précédemment, les fichiers ne contiennent pas toujours des données utilisables.
+Pour des diverses raisons, il peut parfois arriver que le bruit est trop fort pour pouvoir détecter des météores.
+Ou encore, lorsque les stations ICOM arrivent en fin de vie, la puissance des données détectées décroît de telle sorte qu'on détecte du bruit seulement.
+Bref, de nombreux problèmes peuvent survenir avec les données.
+Pour optimiser la détection de météores, les données corrompus doivent être détectés avant celle-ci.
+C'est pourquoi, un outil permettant l'analyse des données a été développé.
 
 \subsection{Librairies Utilisées}
 
 \subsection{Fonctionnement du Programme}
+
+\newpage
+
+\section{Détection des Météores}
+
+\subsection{Librairies Utilisées}
+
+\subsection{Fonctionnement du Programme}
+
+\newpage
+
+\section{Améliorations Possibles}
+
+\newpage
+
+\section{Conclusion}
 
 \end{document}
