@@ -314,23 +314,79 @@ MariaDB est donc le choix logique.
 \section{Lecture des Fichiers BRAMS}
 
 Avant de commencer à développer des outils pour la détection des météores ou pour l'analyse des fichiers BRAMS, il a fallu développer un logiciel permettant de lire ces fichiers.
-Ce logiciel sera implémenté dans un module Python.
-Ceci veut dire qu'il pourra facilement être utilisé par d'autres fichiers Python et qu'il est donc très flexible.
+Ce logiciel sera implémenté dans un module Python contenant une classe nommée BramsWavFile.
+Ceci veut dire qu'il pourra facilement être utilisé par d'autres fichiers Python et qu'il doit donc être flexible.
 Dans cette section, le fonctionnement de ce module est expliqué en détail.
 
 \subsection{Librairies Utilisées}
 
 \subsubsection{Os}
 
+La librairie os de Python contient une suite de fonctions permettant d'interagir avec le système d'exploitation.
+Cette librairie vient par défaut avec une installation de Python, ce qui évite de devoir l'installer lorsque nécessaire.
+Pour la classe BramsWavFile, la librairie os sera utilisée afin de récupérer des chemins de dossiers et fichiers, et pour récupérer le contenu d'un dossier.
+
 \subsubsection{Numpy}
 
-\subsubsection{Tarfile}
+Numpy est une librairie Python utilisée lorsqu'on travaille avec des listes très larges.
+Il contient de nombreuses fonctions pour l'algèbre linéaire, les Transformées de Fourier et les matrices.
+Par rapport aux listes classiques de Python, les listes Numpy (aussi appelés des ndarray) sont beaucoup plus rapides.\\
+\\
+Ceci est dû à trois raisons principales.
+La première est que les listes Numpy sont stockés à un endroit continu dans la mémoire RAM\footnote{Random Access Memory}, ce qui permet un accès et une manipulation plus efficace des données.
+Ensuite, comme Numpy est une librairie open-source, il est continuellement adapté à des nouvelles architectures de processeurs.
+Finalement, une grande partie de la librairie Numpy est écrit dans des langages de bas niveau tels que le C, le C++ ou encore le Fortran.
+Ceci résulte à un code beaucoup plus proche du langage machine et qui est donc plus optimisé.
 
 \subsubsection{Scipy}
 
+Scipy est une librairie qui est basé sur la librairie Numpy.
+Elle partage donc de nombreuses fonctions et méthodes avec cette dernière et fonctionne également avec des ndarray.
+Cependant, cette librairie ajoute des fonctions pour la science des données.
+De plus, Scipy optimise des fonctions déjà présentes dans la librairie Numpy.
+Ceci permet de construire un programme qui demande moins de ressources machine et qui est donc plus rapide.
+
+\subsubsection{Tarfile}
+
+Le module Python Tarfile permet de lire et écrire des fichiers du format tar.
+Cette librairie est incluse par défaut avec Python et ne doit donc pas être installé séparément.
+
 \subsubsection{Datetime}
 
-\subsection{Fonctionnement du Programme}
+La librairie Datetime offre une suite de fonctions et de classes permettant la manipulation et la conversion de temps et de dates.
+Cette librairie fait partie des modules standards de Python et ne doit donc pas être installé.
+
+\subsection{Contenu du Module}
+
+%? explain file name structure ?
+%? explain BRAMS archive directory structure ?
+%? explain that it is based on a previous code ?
+Le contenu principal du module est donc la classe BramsWavFile.
+Cette classe permet de lire et de récupérer des informations sur les fichiers WAV du réseau BRAMS de manière efficace.
+La classe prend sept paramètres en entrée :
+
+\begin{itemize}
+    \item Le paramètre \textbf{date\_time} indique le temps et la date du fichier recherché.
+          Ce paramètre est obligatoire et doit être de type datetime, type qui est défini dans le module datetime.
+    \item Le paramètre \textbf{station} indique le code de location de la station recherchée (e.g. BEHUMA, BEHAAC, BEUCCL).
+          Les deux premières lettres de ce code représentent le code pays (e.g. BE, FR).
+          Typiquement, Les quatre lettres suivantes sont les quatre premières lettres de la ville ou se trouve la station.
+          Ce paramètre est obligatoire et doit être de type str (chaine de caractères).
+    \item Le paramètre \textbf{alias} indique l'antenne, se trouvant à la location spécifiée, dont on veut récupérer un fichier.
+          En effet, certaines stations disposent de plusieurs antennes.
+          Les antennes sont spécifiées à l'aide de six caractères : les trois premiers contiennent les lettres 'SYS' et les trois suivants contiennent le numéro de l'antenne (e.g. 001, 002, ...).
+          La valeur par défaut de ce paramètre est 'SYS001', c'est donc un paramètre optionnel.
+          Le type du paramètre est str (chaine de caractères).
+    \item Le paramètre \textbf{respect\_date} est un booléen et permet d'optimiser la recherche d'un fichier.
+          Une explication détaillée de l'utilité du paramètre est expliqué dans le paragraphe suivant.
+          Ce paramètre impose la valeur par défaut 'faux' si l'utilisateur n'indique rien.
+    \item Le paramètre \textbf{is\_wav} est un booléen indiquant à la classe si le fichier recherché se trouve dans un fichier de format tar (dans quel cas la valeur devrait être 'faux') ou pas (dans quel cas la valeur devrait être 'vrai').
+          Ce paramètre est optionnel et prend la valeur 'faux' par défaut.
+    \item Le paramètre \textbf{parent\_directory} indique le répertoire parent ou il faudra commencer la recherche du fichier demandé.
+          C'est un paramètre optionnel de type str (chaine de caractère) qui prend le répertoire de l'archive BRAMS comme valeur par défaut.
+    \item Le paramètre \textbf{from\_archive} est un booléen indiquant si le fichier recherché se trouve dans un répertoire respectant la structure de l'archive BRAMS (dans quel cas la valeur est 'vrai') ou non (dans quel cas la valeur est 'faux').
+          Elle prend la valeur 'vrai' par défaut et est donc optionnel.
+\end{itemize}
 
 \newpage
 
