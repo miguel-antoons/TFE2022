@@ -112,6 +112,8 @@ Il existe 2 types de station de réception :
 
 \subsubsection{Le Format WAV}
 
+% ! corrections for chunkSize and subChunkSize
+
 Le format de fichier WAV (Waveform Audio File) est un format destiné au stockage de signal audio développé par Microsoft et IBM.
 Il est construit conformément au RIFF (Ressource Interchange File Format) ce qui veut dire que le fichier est organisé en blocs de données, aussi nommés des "chunks" ou "data chunks".\\
 \\
@@ -238,6 +240,51 @@ Un exemple de spectrogramme venant d'une station de réception est affiché à l
     \end{center}
 \end{figure}
 
+\subsubsection{L'Archive BRAMS}
+
+Quand les fichiers venant des stations de réception sont archivés, ils sont placés dans une structure de répertoires spécifique.
+Cette structure dépend de la date de début d'enregistrement des données contenues dans le fichier.\\
+\\
+Dans la première couche de l'archive, on retrouve un répertoire par station BRAMS.
+Chaque nom de répertoire est le code de location de la station dont elle contient les données.
+Ensuite, on retrouve un nombre de répertoires, chacun contenant les fichiers d'une année spécifique.
+Le nom de ces répertoires est donc l'année des données qu'elles contiennent.
+Si on rentre dans le répertoire d'une année, on se retrouve dans la troisième couche de l'archive BRAMS.
+Ici, les données sont encore une fois séparées selon le mois d'enregistrement du fichier.
+Finalement, dans la quatrième couche de l'archive, on retrouve un répertoire par jour d'enregistrement d'un fichier.\\
+\\
+Dans chaque répertoire représentant un jour spécifique, on retrouve les données BRAMS organisés par heure dans des fichiers de format tar.
+Ce format permet de regrouper plusieurs fichiers dans un même fichier, qui prend alors le format tar.
+Le nom des fichiers tar et les fichiers wav qui se trouvent à l'intérieur des fichiers tar suivent également une structure fixe.
+Il est composé de six informations ordonnées de la manière suivante :
+\begin{enumerate}
+    \item Les trois lettres \textbf{RAD}.
+    \item Le code de la station émettrice.
+          Comme il n'y a qu'une station réceptrice à présent, la valeur sera toujours \textbf{BEDOUR}.
+    \item La date du début de l'enregistrement du fichier.
+          Elle respecte le format YYYYMMDD.
+    \item Le temps du début de l'enregistrement du fichier, précis à la minute.
+          Elle respecte le format HHMM.
+    \item Le code de location de la station émettrice.
+          Un code de location est composé de deux informations.
+          Les deux premiers caractères représentent le code du pays ou se trouve la station (e.g. BE, FR, ...) et les quatre lettres restantes représentent typiquement les quatre premières lettres de la ville où est situé la station (e.g. HUMA pour Humain, UCCL pour Uccle, ...).
+    \item L'alias de la station.
+          Elle est composée des trois caractères 'SYS', suivie du numéro de l'antenne qu'a capté les données.
+          Le numéro de l'antenne est toujours écrit sur trois chiffres (e.g. 001, 002, ...).
+\end{enumerate}
+
+Toutes ses valeurs sont séparées par un tiret bas.
+Un exemple de nom de fichier est affichée à la figure 7.
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.15]{file_name.png}
+        \caption{Exemple de nom de fichier BRAMS.}
+    \end{center}
+\end{figure}
+
+\newpage
+
 \subsection{Problématique liée à l'étude des données BRAMS}
 
 Afin de pouvoir trouver la trajectoire d'un météore dans l'atmosphère, il est nécessaire de rechercher par quelles stations réceptrices le météore est détecté.
@@ -356,30 +403,26 @@ Cette librairie est incluse par défaut avec Python et ne doit donc pas être in
 La librairie Datetime offre une suite de fonctions et de classes permettant la manipulation et la conversion de temps et de dates.
 Cette librairie fait partie des modules standards de Python et ne doit donc pas être installé.
 
-\subsection{Contenu du Module}
+\subsection{Fonctionnement du Module}
 
-%? explain file name structure ?
-%? explain BRAMS archive directory structure ?
-%? explain that it is based on a previous code ?
 Le contenu principal du module est donc la classe BramsWavFile.
 Cette classe permet de lire et de récupérer des informations sur les fichiers WAV du réseau BRAMS de manière efficace.
-La classe prend sept paramètres en entrée :
+Elle est basée sur un code écrit par Michel Anciaux, membre du projet BRAMS.
+Cependant, elle a fortement été retravaillé afin de l'adapter aux besoins du programme et de l'optimiser.
+La classe prend six paramètres en entrée :
 
 \begin{itemize}
     \item Le paramètre \textbf{date\_time} indique le temps et la date du fichier recherché.
           Ce paramètre est obligatoire et doit être de type datetime, type qui est défini dans le module datetime.
     \item Le paramètre \textbf{station} indique le code de location de la station recherchée (e.g. BEHUMA, BEHAAC, BEUCCL).
           Les deux premières lettres de ce code représentent le code pays (e.g. BE, FR).
-          Typiquement, Les quatre lettres suivantes sont les quatre premières lettres de la ville ou se trouve la station.
+          Typiquement, les quatre lettres suivantes sont les quatre premières lettres de la ville ou se trouve la station.
           Ce paramètre est obligatoire et doit être de type str (chaine de caractères).
     \item Le paramètre \textbf{alias} indique l'antenne, se trouvant à la location spécifiée, dont on veut récupérer un fichier.
           En effet, certaines stations disposent de plusieurs antennes.
           Les antennes sont spécifiées à l'aide de six caractères : les trois premiers contiennent les lettres 'SYS' et les trois suivants contiennent le numéro de l'antenne (e.g. 001, 002, ...).
           La valeur par défaut de ce paramètre est 'SYS001', c'est donc un paramètre optionnel.
           Le type du paramètre est str (chaine de caractères).
-    \item Le paramètre \textbf{respect\_date} est un booléen et permet d'optimiser la recherche d'un fichier.
-          Une explication détaillée de l'utilité du paramètre est expliqué dans le paragraphe suivant.
-          Ce paramètre impose la valeur par défaut 'faux' si l'utilisateur n'indique rien.
     \item Le paramètre \textbf{is\_wav} est un booléen indiquant à la classe si le fichier recherché se trouve dans un fichier de format tar (dans quel cas la valeur devrait être 'faux') ou pas (dans quel cas la valeur devrait être 'vrai').
           Ce paramètre est optionnel et prend la valeur 'faux' par défaut.
     \item Le paramètre \textbf{parent\_directory} indique le répertoire parent ou il faudra commencer la recherche du fichier demandé.
@@ -387,6 +430,36 @@ La classe prend sept paramètres en entrée :
     \item Le paramètre \textbf{from\_archive} est un booléen indiquant si le fichier recherché se trouve dans un répertoire respectant la structure de l'archive BRAMS (dans quel cas la valeur est 'vrai') ou non (dans quel cas la valeur est 'faux').
           Elle prend la valeur 'vrai' par défaut et est donc optionnel.
 \end{itemize}
+
+Lorsque la classe est initialisée, elle vérifie d'abord si le fichier recherché existe.
+Si le paramètre 'from\_archive' contient la valeur 'vrai', la classe rajoute, au chemin spécifié par le paramètre 'parent\_directory', les dossiers nécessaires pour que le chemin respecte la structure de l'archive BRAMS.
+Ensuite, le programme essaye de lister les contenus du dossier.
+Dans le cas ou le dossier n'est pas trouvé, l'initialisation de la classe est interrompue et l'exception 'DirectoryNotFoundError' est levée.\\
+\\
+La classe recherche ensuite pour le bon fichier dans le contenu du répertoire en comparant la date et le temps dans le nom du fichier avec la date et le temps reçu comme paramètre.
+Quand les fichiers wav sont contenus dans une archive tar, l'étape précédente est répétée pour trouver le bon fichier dans l'archive.
+Si aucun fichier correspondant à la date et la station reçue en paramètres est trouvé, l'initialisation de la classe est interrompue et l'exception 'BramsError' est levée.
+Une fois le bon fichier trouvé, toutes les données brutes sont lues et enregistrées dans un buffer (variable).\\
+\\
+La prochaine étape est la séparation des différents blocs de données (ou chunk) contenus dans le fichier wav.
+Pour ça, la classe parcourt le buffer contenant les données du fichier wav.
+Il utilise un pointeur de lecture indiquant la position en octets du prochain bloc de données dans le buffer.
+Ce pointeur est calculé à partir du champ 'subChunkSize' indiquant la longueur du bloc de données courant.\\
+\\
+Lorsque le programme retrouve un bloc de données avec un champ ID correspondant à 'fmt ', 'BRA1' ou 'data', il extrait toutes ces données et les place dans un ndarray.
+Ceci est fait à l'aide de la fonction 'frombuffer' venant de la librairie Numpy.
+Cette fonction offre la possibilité de convertir, de façon très rapide, des données vers un ndarray.
+Une des contraintes pour utiliser cette fonction est l'indication du type de données qu'on veut placer dans un ndarray.\\
+\\
+Les données contenues dans la classe seront la fréquence d'échantillonnage, extrait du bloc de données 'BRA1', et la piste audio du fichier wav, extrait du bloc de données 'data'.
+
+\subsubsection{La méthode FFT}
+
+La classe BramsWavFile dispose d'une méthode publique.
+Cette méthode se nomme 'FFT' et permet, comme son nom l'indique, de récupérer la Transformée de Fourier de l'entièreté de la piste audio du fichier wav.
+Ceci est fait à l'aide de la fonction 'rfft' de la librairie Scipy, multipliée par une fenêtre de Hann.
+La fonction 'rfft' existe également dans la librairie Numpy, cependant dans ce cas de figure la librairie Scipy permettait de calculer la Transformée de Fourrier plus rapidement.
+Enfin, la fonction FFT retourne la Transformée de Fourier normalisée, son abscisse et sa résolution fréquentielle.
 
 \newpage
 
@@ -397,9 +470,33 @@ Pour des diverses raisons, il peut parfois arriver que le bruit est trop fort po
 Ou encore, lorsque les stations ICOM arrivent en fin de vie, la puissance des données détectées décroît de telle sorte qu'on détecte du bruit seulement.
 Bref, de nombreux problèmes peuvent survenir avec les données.
 Pour optimiser la détection de météores, les données corrompus doivent être détectés avant celle-ci.
-C'est pourquoi, un outil permettant l'analyse des données a été développé.
+C'est pourquoi, un outil permettant le monitoring des données a été développé.\\
+\\
+Cet outil se base sur deux éléments dans les données BRAMS indiquant si un fichier est utile ou non.
+Le premier est le bruit.
+En effet, lorsque le bruit augmente ou diminue beaucoup d'un coup ou graduellement sans revenir à un niveau normal, il est fort probable qu'il y ait un problème avec la station réceptrice ou son environnement.\\
+\\
+Le deuxième élément permettant de détecter un problème est le signal du calibreur.
+Le signal calibreur devrait toujours être présent dans un fichier produit par une station réceptrice.
+Typiquement elle devrait se trouver autour de la fréquence 1500 Hz.
+Cependant, avec les anciennes stations elle peut varier jusqu'à 250 Hz dépendant de la chaleur.
+
 
 \subsection{Librairies Utilisées}
+
+\subsubsection{Argparse}
+
+\subsubsection{Simplejson}
+
+\subsubsection{Matplotlib}
+
+\subsubsection{Tqdm}
+
+\subsubsection{Decimal}
+
+\subsubsection{Numpy}
+
+\subsubsection{Datetime}
 
 \subsection{Fonctionnement du Programme}
 
