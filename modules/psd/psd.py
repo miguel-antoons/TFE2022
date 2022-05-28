@@ -22,6 +22,7 @@ def get_psd(f, flow=800, fhigh=900):
     idx = (freq >= flow) * (freq < fhigh)
     p = (S[idx] * S[idx].conj()).real / 2
 
+    # la moyenne du tout, divisé par la résolution du spectre
     psd = p.mean() / fbin
 
     return psd

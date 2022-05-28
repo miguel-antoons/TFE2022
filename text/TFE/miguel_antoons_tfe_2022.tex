@@ -373,7 +373,7 @@ La librairie os de Python contient une suite de fonctions permettant d'interagir
 Cette librairie vient par défaut avec une installation de Python, ce qui évite de devoir l'installer lorsque nécessaire.
 Pour la classe BramsWavFile, la librairie os sera utilisée afin de récupérer des chemins de dossiers et fichiers, et pour récupérer le contenu d'un dossier.
 
-\subsubsection{Numpy}
+\subsubsection{Numpy} \label{NUMPY1}
 
 Numpy est une librairie Python utilisée lorsqu'on travaille avec des listes très larges.
 Il contient de nombreuses fonctions pour l'algèbre linéaire, les Transformées de Fourier et les matrices.
@@ -398,7 +398,7 @@ Ceci permet de construire un programme qui demande moins de ressources machine e
 Le module Python Tarfile permet de lire et écrire des fichiers du format tar.
 Cette librairie est incluse par défaut avec Python et ne doit donc pas être installé séparément.
 
-\subsubsection{Datetime}
+\subsubsection{Datetime} \label{DATETIME1}
 
 La librairie Datetime offre une suite de fonctions et de classes permettant la manipulation et la conversion de temps et de dates.
 Cette librairie fait partie des modules standards de Python et ne doit donc pas être installé.
@@ -442,23 +442,23 @@ Si aucun fichier correspondant à la date et la station reçue en paramètres es
 Une fois le bon fichier trouvé, toutes les données brutes sont lues et enregistrées dans un buffer (variable).\\
 \\
 La prochaine étape est la séparation des différents blocs de données (ou chunk) contenus dans le fichier wav.
-Pour ça, la classe parcourt le buffer contenant les données du fichier wav.
+Pour ça, la classe parcourt le buffer contenant les données du fichier WAV.
 Il utilise un pointeur de lecture indiquant la position en octets du prochain bloc de données dans le buffer.
 Ce pointeur est calculé à partir du champ 'subChunkSize' indiquant la longueur du bloc de données courant.\\
 \\
 Lorsque le programme retrouve un bloc de données avec un champ ID correspondant à 'fmt ', 'BRA1' ou 'data', il extrait toutes ces données et les place dans un ndarray.
-Ceci est fait à l'aide de la fonction 'frombuffer' venant de la librairie Numpy.
+Ceci est fait à l'aide de la fonction 'frombuffer' venant de la librairie NumPy.
 Cette fonction offre la possibilité de convertir, de façon très rapide, des données vers un ndarray.
 Une des contraintes pour utiliser cette fonction est l'indication du type de données qu'on veut placer dans un ndarray.\\
 \\
-Les données contenues dans la classe seront la fréquence d'échantillonnage, extrait du bloc de données 'BRA1', et la piste audio du fichier wav, extrait du bloc de données 'data'.
+Les données contenues dans la classe seront la fréquence d'échantillonnage, extrait du bloc de données 'BRA1', et la piste audio du fichier WAV, extrait du bloc de données 'data'.
 
 \subsubsection{La méthode FFT}
 
 La classe BramsWavFile dispose d'une méthode publique.
 Cette méthode se nomme 'FFT' et permet, comme son nom l'indique, de récupérer la Transformée de Fourier de l'entièreté de la piste audio du fichier wav.
 Ceci est fait à l'aide de la fonction 'rfft' de la librairie Scipy, multipliée par une fenêtre de Hann.
-La fonction 'rfft' existe également dans la librairie Numpy, cependant dans ce cas de figure la librairie Scipy permettait de calculer la Transformée de Fourrier plus rapidement.
+La fonction 'rfft' existe également dans la librairie NumPy, cependant dans ce cas de figure la librairie SciPy permettait de calculer la Transformée de Fourrier plus rapidement.
 Enfin, la fonction FFT retourne la Transformée de Fourier normalisée, son abscisse et sa résolution fréquentielle.
 
 \newpage
@@ -479,32 +479,73 @@ En effet, lorsque le bruit augmente ou diminue beaucoup d'un coup ou graduelleme
 Le deuxième élément permettant de détecter un problème est le signal du calibreur.
 Le signal calibreur devrait toujours être présent dans un fichier produit par une station réceptrice.
 Typiquement elle devrait se trouver autour de la fréquence 1500 Hz.
-Cependant, avec les anciennes stations elle peut varier jusqu'à 250 Hz dépendant de la chaleur.
-
+Cependant, avec les anciennes stations, elle peut varier jusqu'à 250 Hz dépendant de la chaleur.
+Dans le cas où elle n'est pas aux alentours de 1500 Hz, la probabilité qu'il y ait une erreur avec la station est grande.
 
 \subsection{Librairies Utilisées}
 
 \subsubsection{Argparse}
 
+Argparse est une librairie Python qui permet de facilement créer une interface ergonomique en ligne de commande.
+On spécifie les paramètres nécessaires et optionnels pour le programme qu'on crée, et lorsqu'on lance le programme, Argparse pourra retrouver les paramètres entrés par l'utilisateur.
+Il indiquera également une erreur si un paramètre obligatoire manque, ou qu'un type de paramètre n'est pas respecté.
+Argparse est une librairie installée par défaut avec Python.
+
 \subsubsection{Simplejson}
+
+Simplejson est une librairie Python offrant la possibilité de facilement écrire et lire des fichiers JSON\footnote{JavaScript Object Notation}.
+Elle vient par défaut avec Python sous le nom 'json'.
+Cependant, installer Simplejson séparément ajoute l'avantage d'avoir des mises à jour plus régulières et de disposer des dernières fonctionnalités plus rapidement.
 
 \subsubsection{Matplotlib}
 
+La librairie Python Matplotlib permet de générer des graphiques et de les enregistrer en tant qu'image.
+
 \subsubsection{Tqdm}
+
+Tqdm est une librairie Python permettant d'afficher des barres de chargements en ligne de commande.
+Elle permet également de donner une estimation de temps de chargement restant.
 
 \subsubsection{Decimal}
 
-\subsubsection{Numpy}
+Le module Decimal contient le type de variable décimale, comme son nom l'indique.
+
+\subsubsection{NumPy}
+
+Voir chapitre \ref{NUMPY1}.
 
 \subsubsection{Datetime}
 
+Voir chapitre \ref{DATETIME1}.
+
 \subsection{Fonctionnement du Programme}
+
+Le programme permet donc de mesurer le niveau du bruit et le signal calibreur d'un ou de plusieurs fichiers WAV du projet BRAMS.
+Il fait ceci en calculant la densité spectrale de puissance de ceux-ci.
+La densité spectrale de puissance montre la distribution des puissances à travers les différentes fréquences contenues dans le signal de base.
+Ceci permet de comparer ces différentes valeurs et de remarquer des variations non typiques.\\
+\\
+
 
 \newpage
 
 \section{Détection des Météores}
 
 \subsection{Librairies Utilisées}
+
+\subsubsection{Math}
+
+\subsubsection{Geopy}
+
+\subsubsection{Arparse}
+
+\subsubsection{Datetime}
+
+\subsubsection{Matplotlib}
+
+\subsubsection{Numpy}
+
+\subsubsection{Scipy}
 
 \subsection{Fonctionnement du Programme}
 
