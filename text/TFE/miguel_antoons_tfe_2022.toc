@@ -29,15 +29,18 @@
 \contentsline {subsubsection}{\numberline {5.1.6}NumPy}{21}{}%
 \contentsline {subsubsection}{\numberline {5.1.7}Datetime}{21}{}%
 \contentsline {subsection}{\numberline {5.2}Fonctionnement du Programme}{21}{}%
-\contentsline {section}{\numberline {6}Détection des Météores}{23}{}%
-\contentsline {subsection}{\numberline {6.1}Librairies Utilisées}{23}{}%
-\contentsline {subsubsection}{\numberline {6.1.1}Math}{23}{}%
-\contentsline {subsubsection}{\numberline {6.1.2}Geopy}{23}{}%
-\contentsline {subsubsection}{\numberline {6.1.3}Arparse}{23}{}%
-\contentsline {subsubsection}{\numberline {6.1.4}Datetime}{23}{}%
-\contentsline {subsubsection}{\numberline {6.1.5}Matplotlib}{23}{}%
-\contentsline {subsubsection}{\numberline {6.1.6}Numpy}{23}{}%
-\contentsline {subsubsection}{\numberline {6.1.7}Scipy}{23}{}%
-\contentsline {subsection}{\numberline {6.2}Fonctionnement du Programme}{23}{}%
-\contentsline {section}{\numberline {7}Améliorations Possibles}{24}{}%
-\contentsline {section}{\numberline {8}Conclusion}{25}{}%
+\contentsline {subsection}{\numberline {5.3}Résultats}{23}{}%
+\contentsline {section}{\numberline {6}Détection des Météores}{24}{}%
+\contentsline {subsection}{\numberline {6.1}Librairies Utilisées}{24}{}%
+\contentsline {subsubsection}{\numberline {6.1.1}GeoPy}{24}{}%
+\contentsline {subsubsection}{\numberline {6.1.2}Math}{24}{}%
+\contentsline {subsubsection}{\numberline {6.1.3}Argparse}{24}{}%
+\contentsline {subsubsection}{\numberline {6.1.4}Datetime}{24}{}%
+\contentsline {subsubsection}{\numberline {6.1.5}Matplotlib}{24}{}%
+\contentsline {subsubsection}{\numberline {6.1.6}NumPy}{24}{}%
+\contentsline {subsubsection}{\numberline {6.1.7}SciPy}{24}{}%
+\contentsline {subsection}{\numberline {6.2}Analyse}{25}{}%
+\contentsline {subsection}{\numberline {6.3}Fonctionnement du Programme}{26}{}%
+\contentsline {subsection}{\numberline {6.4}Résultats}{26}{}%
+\contentsline {section}{\numberline {7}Améliorations Possibles}{27}{}%
+\contentsline {section}{\numberline {8}Conclusion}{28}{}%

@@ -385,7 +385,7 @@ Ensuite, comme Numpy est une librairie open-source, il est continuellement adapt
 Finalement, une grande partie de la librairie Numpy est écrit dans des langages de bas niveau tels que le C, le C++ ou encore le Fortran.
 Ceci résulte à un code beaucoup plus proche du langage machine et qui est donc plus optimisé.
 
-\subsubsection{Scipy}
+\subsubsection{Scipy} \label{SCIPY}
 
 Scipy est une librairie qui est basé sur la librairie Numpy.
 Elle partage donc de nombreuses fonctions et méthodes avec cette dernière et fonctionne également avec des ndarray.
@@ -484,7 +484,7 @@ Dans le cas où elle n'est pas aux alentours de 1500 Hz, la probabilité qu'il y
 
 \subsection{Librairies Utilisées}
 
-\subsubsection{Argparse}
+\subsubsection{Argparse} \label{ARGPARSE}
 
 Argparse est une librairie Python qui permet de facilement créer une interface ergonomique en ligne de commande.
 On spécifie les paramètres nécessaires et optionnels pour le programme qu'on crée, et lorsqu'on lance le programme, Argparse pourra retrouver les paramètres entrés par l'utilisateur.
@@ -497,7 +497,7 @@ Simplejson est une librairie Python offrant la possibilité de facilement écrir
 Elle vient par défaut avec Python sous le nom 'json'.
 Cependant, installer Simplejson séparément ajoute l'avantage d'avoir des mises à jour plus régulières et de disposer des dernières fonctionnalités plus rapidement.
 
-\subsubsection{Matplotlib}
+\subsubsection{Matplotlib} \label{MATPLOTLIB}
 
 La librairie Python Matplotlib permet de générer des graphiques et de les enregistrer en tant qu'image.
 
@@ -521,33 +521,120 @@ Voir chapitre \ref{DATETIME1}.
 \subsection{Fonctionnement du Programme}
 
 Le programme permet donc de mesurer le niveau du bruit et le signal calibreur d'un ou de plusieurs fichiers WAV du projet BRAMS.
-Il fait ceci en calculant la densité spectrale de puissance de ceux-ci.
+Il fait ceci en calculant la densité spectrale de puissance (dsp) de ceux-ci.
 La densité spectrale de puissance montre la distribution des puissances à travers les différentes fréquences contenues dans le signal de base.
 Ceci permet de comparer ces différentes valeurs et de remarquer des variations non typiques.\\
 \\
+Lorsqu'on lance le programme, trois paramètres peuvent être ajoutés :
+\begin{enumerate}
+    \item Le paramètre \textbf{START DATE} indique la date à partir de laquelle on veut mesurer la dsp des fichiers.
+          Par défaut, elle prendra la date d'un jour avant le lancement du programme.
+    \item Le paramètre \textbf{END DATE} indique la date avant laquelle on veut mesurer la dsp des fichiers.
+          Dans le cas où le paramètre 'START DATE' n'est pas donné, elle prend la valeur de la date de lancement du programme.
+    \item Le paramètre \textbf{STATIONS} indique les stations pour lesquelles on veut mesurer la dsp des fichiers.
+          Si ce paramètre n'est pas donné, le programme mesurera la dsp des fichiers de toutes les stations.
+\end{enumerate}
 
+Le programme calculera donc la dsp des fichiers de tous les fichiers générés entre \textbf{START DATE} et \textbf{END DATE} venant des stations \textbf{STATIONS}.\\
+\\
+La première va donc, pour chaque fichier demandé, performer une suite d'étapes.
+Premièrement, elle va chercher le fichier à l'aide de la classe 'BramsWavFile'.
+Si une erreur se produit lors de la recherche du fichier, on considère que le fichier n'existe pas et le programme passe au fichier suivant.
+Lorsqu'on a le fichier, on peut calculer la dsp du bruit et du signal calibreur.\\
+\\
+Dans le cas du bruit, on prend toujours la moyenne de la dsp entre 800 Hz et 900 Hz.
+Entre ces deux fréquences on retrouve normalement uniquement du bruit.
+Dans les cas où il se trouverait qu'il y ait un signal autre que le bruit, il ne devrait pas avoir grand impact sur la dsp puisque cette dernière se calcule sur 100 Hz, sur l'entièreté d'un fichier.\\
+\\
+Pour le signal calibreur, in ne suffit pas de calculer la moyenne de la dsp à 1500 Hz.
+En effet, la fréquence du calibreur peut varier jusqu'à 250 Hz, autour de la fréquence de 1500 Hz, d'un fichier à l'autre.
+Comme le signal calibreur est le seul signal se trouvant entre 1350 Hz et 1750 Hz, il suffit de rechercher la fréquence, entre ces deux valeurs, avec la valeur de dsp maximale.\\
+% \\
+% Lorsque les deux valeurs de dsp ont été calculées, on peut maintenant détecter d'éventuels variations atypiques par rapport à d'anciennes valeurs.
+% Premièrement, le programme ajuste une droite sur les valeurs de dsp du bruit allant de la date du fichier actuel jusqu'à 
+\\
+Enfin, le programme enregistre toutes les données de dsp dans la base de données BRAMS existante.
+Chaque valeur de dsp est alors lié à son fichier.
+Si l'option \textbf{-p} (\textbf{--plot}) a été donné au lancement du programme, le programme génère également un graphique représentant l'évolution de la dsp au cours du temps.
+
+\subsection{Résultats}
+
+Lors des tests, quelques résultats ont déjà montrés des informations intéressantes.
+Un bon exemple est l'antenne quatre de la station à Humain entre
 
 \newpage
 
 \section{Détection des Météores}
 
+Finalement, on arrive à la détection des météores.
+Ce programme effectue deux tâches principales.
+La première tâche consiste à, à partir des coordonnées d'un météore donné, détecté sur une station donnée, trouver tous les échos qui viennent potentiellement du même météore.
+Ensuite, la deuxième tâche du programme est de donner l'utilisateur le plus d'informations possibles pour confirmer qu'un écho correspond à l'écho de météore reçu en entrée ou non.
+
 \subsection{Librairies Utilisées}
+
+\subsubsection{GeoPy}
+
+GeoPy est une librairie Python qui facilite la recherche de coordonnées d'adresses, de villes ou encore de lieux connues.
+Elle permet également de trouver la distance entre deux lieux en donnant les coordonnées de ces endroits.
 
 \subsubsection{Math}
 
-\subsubsection{Geopy}
+Le module math offre toute une série de fonctions mathématique de base.
+Elle est installée par défaut avec Python.
 
-\subsubsection{Arparse}
+\subsubsection{Argparse}
+
+Voir chapitre \ref{ARGPARSE}.
 
 \subsubsection{Datetime}
 
+Voir chapitre \ref{DATETIME1}.
+
 \subsubsection{Matplotlib}
 
-\subsubsection{Numpy}
+Voir chapitre \ref{MATPLOTLIB}.
 
-\subsubsection{Scipy}
+\subsubsection{NumPy}
+
+Voir chapitre \ref{NUMPY1}.
+
+\subsubsection{SciPy}
+
+Voir chapitre \ref{SCIPY}.
+
+\subsection{Analyse}
+
+C'est ici la première étape qui pose la plus grande difficulté.
+En effet, la détection de météores consiste à retrouver des objets d'une forme spécifique dans une image.
+Cette image est, dans ce cas si, un spectrogramme calculé à partir d'un fichier WAV venant d'une station de réception BRAMS.
+De plus, on retrouve sur ce spectrogramme un nombre d'autres parasites que le programme doit pouvoir différencier d'un vrai météore tel que les échos d'avions qui passent, ou encore le signal direct de l'émetteur.\\
+\\
+Afin de faciliter la rechercher d'échos météore dans un spectrogramme, l'amplification de ces échos peut faciliter la tâche.
+Un écho de météore est, dans un spectrogramme, caractérisé par un signal qui s'étale sur minimum 10 Hz et qui dur typiquement entre une et trois secondes.
+Ceci est possible en performant une convolution sur le spectrogramme.
+Une convolution est une opération mathématique qui prend deux fonctions en entrée et qui produit un nouveau signal.
+Dans ce cas si, le premier signal en entrée sera le spectrogramme, ou une partie du spectrogramme, et le deuxième signal est le filtre.
+Afin d'arriver à un bon résultat, il a fallu tester plusieurs filtres.
+Le filtre offrant les meilleurs résultats est illustré à la figure N.
+Elle permet de faire deux choses :
+
+\begin{itemize}
+    \item Premièrement, elle amplifie les éléments qui font plus de 10 Hz.
+          En effet, pour avoir un résultat d'une valeur maximale il faut que le haut et le bas du filtre soient multipliées par des grandes valeurs.
+    \item Deuxièmement, elle permet de diminuer l'intensité des éléments qui ont une longue forme horizontale (typiquement des échos d'avions).
+\end{itemize}
+
+La première méthode testée se basait sur un seuil fixe.
+Toutes les valeurs qui se trouvaient en dessous de ce seuil étaient considérées comme du bruit et leur valeur était mis à zéro.
+Bien que cette méthode fonctionnait bien sur un fichier spécifique, elle posait problème si on voulait la lancer sur plusieurs fichiers différents.
+En effet, comme toutes les stations de réception se trouvent dans des environnements différents et disposent parfois même de matériel différent, différent fichier ont des niveaux de bruits différents.\\
+\\
+
 
 \subsection{Fonctionnement du Programme}
+
+\subsection{Résultats}
 
 \newpage
 
