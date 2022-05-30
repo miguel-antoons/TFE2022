@@ -253,9 +253,9 @@ Si on rentre dans le répertoire d'une année, on se retrouve dans la troisième
 Ici, les données sont encore une fois séparées selon le mois d'enregistrement du fichier.
 Finalement, dans la quatrième couche de l'archive, on retrouve un répertoire par jour d'enregistrement d'un fichier.\\
 \\
-Dans chaque répertoire représentant un jour spécifique, on retrouve les données BRAMS organisés par heure dans des fichiers de format tar.
-Ce format permet de regrouper plusieurs fichiers dans un même fichier, qui prend alors le format tar.
-Le nom des fichiers tar et les fichiers wav qui se trouvent à l'intérieur des fichiers tar suivent également une structure fixe.
+Dans chaque répertoire représentant un jour spécifique, on retrouve les données BRAMS organisés par heure dans des fichiers de format TAR.
+Ce format permet de regrouper plusieurs fichiers dans un même fichier, qui prend alors le format TAR.
+Le nom des fichiers TAR et les fichiers WAV qui se trouvent à l'intérieur des fichiers TAR suivent également une structure fixe.
 Il est composé de six informations ordonnées de la manière suivante :
 \begin{enumerate}
     \item Les trois lettres \textbf{RAD}.
@@ -341,20 +341,82 @@ Cependant, dans le cas de ce travail, ceci ne fut pas un problème et les librai
 Ceci est dû, entre autres, grâce à la nature open-source de ces librairies ainsi que leur âge.
 Suite à ces deux facteurs, des milliers de personnes travaillent sur ces librairies depuis plusieurs années dans le but d'optimiser le plus possible ses fonctions et méthodes.
 
+\subsubsection{Librairies Utilisées}
+
+Dans cette section sont listées toutes les librairies Python utilisés pour la réalisation du travail de fin d'études.\\
+\\
+\textbf{Argparse}\\
+Argparse est une librairie Python qui permet de facilement créer une interface ergonomique en ligne de commande.
+On spécifie les paramètres nécessaires et optionnels pour le programme qu'on crée, et lorsqu'on lance le programme, Argparse pourra retrouver les paramètres entrés par l'utilisateur.
+Il indiquera également une erreur si un paramètre obligatoire manque, ou qu'un type de paramètre n'est pas respecté.
+Argparse est une librairie installée par défaut avec Python.\\
+\\
+\textbf{Datetime}\\
+La librairie Datetime offre une suite de fonctions et de classes permettant la manipulation et la conversion de temps et de dates.
+Cette librairie fait partie des modules standards de Python et ne doit donc pas être installé.\\
+\\
+\textbf{GeoPy}\\
+GeoPy est une librairie Python qui facilite la recherche de coordonnées d'adresses, de villes ou encore de lieux connus.
+Elle permet également de trouver la distance entre deux lieux en donnant les coordonnées de ces endroits.\\
+\\
+\textbf{Math}\\
+Le module math offre toute une série de fonctions mathématique de base.
+Elle est installée par défaut avec Python.
+\\
+\textbf{Matplotlib}\\
+La librairie Python Matplotlib permet de générer des graphiques et de les enregistrer en tant qu'image.\\
+\\
+\textbf{NumPy}\\
+NumPy est une librairie Python utilisée lorsqu'on travaille avec des listes très larges.
+Il contient de nombreuses fonctions pour l'algèbre linéaire, les Transformées de Fourier et les matrices.
+Par rapport aux listes classiques de Python, les listes NumPy (aussi appelés des ndarray) sont beaucoup plus rapides.\\
+\\
+Ceci est dû à trois raisons principales.
+La première est que les listes NumPy sont stockés à un endroit continu dans la mémoire RAM\footnote{Random Access Memory}, ce qui permet un accès et une manipulation plus efficace des données.
+Ensuite, comme NumPy est une librairie open-source, il est continuellement adapté à des nouvelles architectures de processeurs.
+Finalement, une grande partie de la librairie NumPy est écrit dans des langages de bas niveau tels que le C, le C++ ou encore le Fortran.
+Ceci résulte à un code beaucoup plus proche du langage machine et qui est donc plus optimisé.\\
+\\
+\textbf{Os}\\
+La librairie os de Python contient une suite de fonctions permettant d'interagir avec le système d'exploitation.
+Cette librairie vient par défaut avec une installation de Python, ce qui évite de devoir l'installer lorsque nécessaire.\\
+\\
+\textbf{SciPy}\\
+Scipy est une librairie qui est basé sur la librairie NumPy.
+Elle partage donc de nombreuses fonctions et méthodes avec cette dernière et fonctionne également avec des ndarray.
+Cependant, cette librairie ajoute des fonctions pour la science des données.
+De plus, Scipy optimise des fonctions déjà présentes dans la librairie NumPy.
+Ceci permet de construire un programme qui demande moins de ressources machine et qui est donc plus rapide.\\
+\\
+\textbf{Simplejson}\\
+Simplejson est une librairie Python offrant la possibilité de facilement écrire et lire des fichiers JSON\footnote{JavaScript Object Notation}.
+Elle vient par défaut avec Python sous le nom 'json'.
+Cependant, installer Simplejson séparément ajoute l'avantage d'avoir des mises à jour plus régulières et de disposer des dernières fonctionnalités plus rapidement.\\
+\\
+\textbf{Tarfile}\\
+Le module Python Tarfile permet de lire et écrire des fichiers du format TAR.
+Cette librairie est incluse par défaut avec Python et ne doit donc pas être installé séparément.\\
+\\
+\textbf{Tqdm}\\
+Tqdm est une librairie Python permettant d'afficher des barres de chargements en ligne de commande.
+Elle permet également de donner une estimation de temps de chargement restant.\\
+
 \subsection{MariaDB}
 
 Afin de sauvegarder les données produites par le programme, une base de données est requise.
-Les données produites seront toutes liées à un fichier, le choix d'une base de données relationnelle est donc appropriée.\\
-\\
-MariaDB est une dérivée de MySQL.
-Elle a l'avantage d'être gratuite et open-source.
-Grâce à une large communauté contribuant au développement continu de MariaDB, elle est souvent plus performante que MySQL.
-De plus, étant open-source, les problèmes sont résolus rapidement par des mises à jour régulières.\\
-\\
-Enfin, le projet BRAMS dispose actuellement déjà d'une base de données MariaDB.
-Elle contient, entre autres, les données de chaque fichier archivé, venant d'une station de réception BRAMS.
-Pour le programme, il suffit donc de rajouter les champs nécessaires à la table contenant les fichiers.
-MariaDB est donc le choix logique.
+Les données seront enregistrées dans la base de données existent du projet BRAMS.
+Le type de base de données du projet BRAMS et MariaDB.
+% Les données produites seront toutes liées à un fichier, le choix d'une base de données relationnelle est donc appropriée.\\
+% \\
+% MariaDB est une dérivée de MySQL.
+% Elle a l'avantage d'être gratuite et open-source.
+% Grâce à une large communauté contribuant au développement continu de MariaDB, elle est souvent plus performante que MySQL.
+% De plus, étant open-source, les problèmes sont résolus rapidement par des mises à jour régulières.\\
+% \\
+% Enfin, le projet BRAMS dispose actuellement déjà d'une base de données MariaDB.
+% Elle contient, entre autres, les données de chaque fichier archivé, venant d'une station de réception BRAMS.
+% Pour le programme, il suffit donc de rajouter les champs nécessaires à la table contenant les fichiers.
+% MariaDB est donc le choix logique.
 
 \newpage
 
@@ -364,44 +426,6 @@ Avant de commencer à développer des outils pour la détection des météores o
 Ce logiciel sera implémenté dans un module Python contenant une classe nommée BramsWavFile.
 Ceci veut dire qu'il pourra facilement être utilisé par d'autres fichiers Python et qu'il doit donc être flexible.
 Dans cette section, le fonctionnement de ce module est expliqué en détail.
-
-\subsection{Librairies Utilisées}
-
-\subsubsection{Os}
-
-La librairie os de Python contient une suite de fonctions permettant d'interagir avec le système d'exploitation.
-Cette librairie vient par défaut avec une installation de Python, ce qui évite de devoir l'installer lorsque nécessaire.
-Pour la classe BramsWavFile, la librairie os sera utilisée afin de récupérer des chemins de dossiers et fichiers, et pour récupérer le contenu d'un dossier.
-
-\subsubsection{Numpy} \label{NUMPY1}
-
-Numpy est une librairie Python utilisée lorsqu'on travaille avec des listes très larges.
-Il contient de nombreuses fonctions pour l'algèbre linéaire, les Transformées de Fourier et les matrices.
-Par rapport aux listes classiques de Python, les listes Numpy (aussi appelés des ndarray) sont beaucoup plus rapides.\\
-\\
-Ceci est dû à trois raisons principales.
-La première est que les listes Numpy sont stockés à un endroit continu dans la mémoire RAM\footnote{Random Access Memory}, ce qui permet un accès et une manipulation plus efficace des données.
-Ensuite, comme Numpy est une librairie open-source, il est continuellement adapté à des nouvelles architectures de processeurs.
-Finalement, une grande partie de la librairie Numpy est écrit dans des langages de bas niveau tels que le C, le C++ ou encore le Fortran.
-Ceci résulte à un code beaucoup plus proche du langage machine et qui est donc plus optimisé.
-
-\subsubsection{Scipy} \label{SCIPY}
-
-Scipy est une librairie qui est basé sur la librairie Numpy.
-Elle partage donc de nombreuses fonctions et méthodes avec cette dernière et fonctionne également avec des ndarray.
-Cependant, cette librairie ajoute des fonctions pour la science des données.
-De plus, Scipy optimise des fonctions déjà présentes dans la librairie Numpy.
-Ceci permet de construire un programme qui demande moins de ressources machine et qui est donc plus rapide.
-
-\subsubsection{Tarfile}
-
-Le module Python Tarfile permet de lire et écrire des fichiers du format tar.
-Cette librairie est incluse par défaut avec Python et ne doit donc pas être installé séparément.
-
-\subsubsection{Datetime} \label{DATETIME1}
-
-La librairie Datetime offre une suite de fonctions et de classes permettant la manipulation et la conversion de temps et de dates.
-Cette librairie fait partie des modules standards de Python et ne doit donc pas être installé.
 
 \subsection{Fonctionnement du Module}
 
@@ -423,7 +447,7 @@ La classe prend six paramètres en entrée :
           Les antennes sont spécifiées à l'aide de six caractères : les trois premiers contiennent les lettres 'SYS' et les trois suivants contiennent le numéro de l'antenne (e.g. 001, 002, ...).
           La valeur par défaut de ce paramètre est 'SYS001', c'est donc un paramètre optionnel.
           Le type du paramètre est str (chaine de caractères).
-    \item Le paramètre \textbf{is\_wav} est un booléen indiquant à la classe si le fichier recherché se trouve dans un fichier de format tar (dans quel cas la valeur devrait être 'faux') ou pas (dans quel cas la valeur devrait être 'vrai').
+    \item Le paramètre \textbf{is\_wav} est un booléen indiquant à la classe si le fichier recherché se trouve dans un fichier de format TAR (dans quel cas la valeur devrait être 'faux') ou pas (dans quel cas la valeur devrait être 'vrai').
           Ce paramètre est optionnel et prend la valeur 'faux' par défaut.
     \item Le paramètre \textbf{parent\_directory} indique le répertoire parent ou il faudra commencer la recherche du fichier demandé.
           C'est un paramètre optionnel de type str (chaine de caractère) qui prend le répertoire de l'archive BRAMS comme valeur par défaut.
@@ -437,11 +461,11 @@ Ensuite, le programme essaye de lister les contenus du dossier.
 Dans le cas ou le dossier n'est pas trouvé, l'initialisation de la classe est interrompue et l'exception 'DirectoryNotFoundError' est levée.\\
 \\
 La classe recherche ensuite pour le bon fichier dans le contenu du répertoire en comparant la date et le temps dans le nom du fichier avec la date et le temps reçu comme paramètre.
-Quand les fichiers wav sont contenus dans une archive tar, l'étape précédente est répétée pour trouver le bon fichier dans l'archive.
+Quand les fichiers WAV sont contenus dans une archive TAR, l'étape précédente est répétée pour trouver le bon fichier dans l'archive.
 Si aucun fichier correspondant à la date et la station reçue en paramètres est trouvé, l'initialisation de la classe est interrompue et l'exception 'BramsError' est levée.
 Une fois le bon fichier trouvé, toutes les données brutes sont lues et enregistrées dans un buffer (variable).\\
 \\
-La prochaine étape est la séparation des différents blocs de données (ou chunk) contenus dans le fichier wav.
+La prochaine étape est la séparation des différents blocs de données (ou chunk) contenus dans le fichier WAV.
 Pour ça, la classe parcourt le buffer contenant les données du fichier WAV.
 Il utilise un pointeur de lecture indiquant la position en octets du prochain bloc de données dans le buffer.
 Ce pointeur est calculé à partir du champ 'subChunkSize' indiquant la longueur du bloc de données courant.\\
@@ -456,7 +480,7 @@ Les données contenues dans la classe seront la fréquence d'échantillonnage, e
 \subsubsection{La méthode FFT}
 
 La classe BramsWavFile dispose d'une méthode publique.
-Cette méthode se nomme 'FFT' et permet, comme son nom l'indique, de récupérer la Transformée de Fourier de l'entièreté de la piste audio du fichier wav.
+Cette méthode se nomme 'FFT' et permet, comme son nom l'indique, de récupérer la Transformée de Fourier de l'entièreté de la piste audio du fichier WAV.
 Ceci est fait à l'aide de la fonction 'rfft' de la librairie Scipy, multipliée par une fenêtre de Hann.
 La fonction 'rfft' existe également dans la librairie NumPy, cependant dans ce cas de figure la librairie SciPy permettait de calculer la Transformée de Fourrier plus rapidement.
 Enfin, la fonction FFT retourne la Transformée de Fourier normalisée, son abscisse et sa résolution fréquentielle.
@@ -481,42 +505,6 @@ Le signal calibreur devrait toujours être présent dans un fichier produit par 
 Typiquement elle devrait se trouver autour de la fréquence 1500 Hz.
 Cependant, avec les anciennes stations, elle peut varier jusqu'à 250 Hz dépendant de la chaleur.
 Dans le cas où elle n'est pas aux alentours de 1500 Hz, la probabilité qu'il y ait une erreur avec la station est grande.
-
-\subsection{Librairies Utilisées}
-
-\subsubsection{Argparse} \label{ARGPARSE}
-
-Argparse est une librairie Python qui permet de facilement créer une interface ergonomique en ligne de commande.
-On spécifie les paramètres nécessaires et optionnels pour le programme qu'on crée, et lorsqu'on lance le programme, Argparse pourra retrouver les paramètres entrés par l'utilisateur.
-Il indiquera également une erreur si un paramètre obligatoire manque, ou qu'un type de paramètre n'est pas respecté.
-Argparse est une librairie installée par défaut avec Python.
-
-\subsubsection{Simplejson}
-
-Simplejson est une librairie Python offrant la possibilité de facilement écrire et lire des fichiers JSON\footnote{JavaScript Object Notation}.
-Elle vient par défaut avec Python sous le nom 'json'.
-Cependant, installer Simplejson séparément ajoute l'avantage d'avoir des mises à jour plus régulières et de disposer des dernières fonctionnalités plus rapidement.
-
-\subsubsection{Matplotlib} \label{MATPLOTLIB}
-
-La librairie Python Matplotlib permet de générer des graphiques et de les enregistrer en tant qu'image.
-
-\subsubsection{Tqdm}
-
-Tqdm est une librairie Python permettant d'afficher des barres de chargements en ligne de commande.
-Elle permet également de donner une estimation de temps de chargement restant.
-
-\subsubsection{Decimal}
-
-Le module Decimal contient le type de variable décimale, comme son nom l'indique.
-
-\subsubsection{NumPy}
-
-Voir chapitre \ref{NUMPY1}.
-
-\subsubsection{Datetime}
-
-Voir chapitre \ref{DATETIME1}.
 
 \subsection{Fonctionnement du Programme}
 
@@ -571,38 +559,6 @@ Ce programme effectue deux tâches principales.
 La première tâche consiste à, à partir des coordonnées d'un météore donné, détecté sur une station donnée, trouver tous les échos qui viennent potentiellement du même météore.
 Ensuite, la deuxième tâche du programme est de donner l'utilisateur le plus d'informations possibles pour confirmer qu'un écho correspond à l'écho de météore reçu en entrée ou non.
 
-\subsection{Librairies Utilisées}
-
-\subsubsection{GeoPy}
-
-GeoPy est une librairie Python qui facilite la recherche de coordonnées d'adresses, de villes ou encore de lieux connues.
-Elle permet également de trouver la distance entre deux lieux en donnant les coordonnées de ces endroits.
-
-\subsubsection{Math}
-
-Le module math offre toute une série de fonctions mathématique de base.
-Elle est installée par défaut avec Python.
-
-\subsubsection{Argparse}
-
-Voir chapitre \ref{ARGPARSE}.
-
-\subsubsection{Datetime}
-
-Voir chapitre \ref{DATETIME1}.
-
-\subsubsection{Matplotlib}
-
-Voir chapitre \ref{MATPLOTLIB}.
-
-\subsubsection{NumPy}
-
-Voir chapitre \ref{NUMPY1}.
-
-\subsubsection{SciPy}
-
-Voir chapitre \ref{SCIPY}.
-
 \subsection{Analyse}
 
 C'est ici la première étape qui pose la plus grande difficulté.
@@ -610,7 +566,7 @@ En effet, la détection de météores consiste à retrouver des objets d'une for
 Cette image est, dans ce cas si, un spectrogramme calculé à partir d'un fichier WAV venant d'une station de réception BRAMS.
 De plus, on retrouve sur ce spectrogramme un nombre d'autres parasites que le programme doit pouvoir différencier d'un vrai météore tel que les échos d'avions qui passent, ou encore le signal direct de l'émetteur.\\
 \\
-Afin de faciliter la rechercher d'échos météore dans un spectrogramme, l'amplification de ces échos peut faciliter la tâche.
+Afin de faciliter la rechercher d'échos de météores dans un spectrogramme, l'amplification de ces échos peut faciliter la tâche.
 Un écho de météore est, dans un spectrogramme, caractérisé par un signal qui s'étale sur minimum 10 Hz et qui dur typiquement entre une et trois secondes.
 Ceci est possible en performant une convolution sur le spectrogramme.
 Une convolution est une opération mathématique qui prend deux fonctions en entrée et qui produit un nouveau signal.
@@ -625,20 +581,99 @@ Elle permet de faire deux choses :
     \item Deuxièmement, elle permet de diminuer l'intensité des éléments qui ont une longue forme horizontale (typiquement des échos d'avions).
 \end{itemize}
 
+Suit alors la suppression du signal direct de l'émetteur.
+En effet, pour détecter les échos de météores, le signal direct nous complique la tâche.
+Pour l'éliminer, le programme recherche d'abord sa fréquence entre 800 Hz et 1200 Hz, en prenant la valeur maximale sur l'entièreté de la durée du fichier, entre ces deux fréquences.
+S'il n'est pas retrouvé, on considère qu'il n'est pas détecté (ce qui est le cas sur certaines stations réceptrices).
+Par contre, dans le cas où il est détecté, pour chaque seconde, on remplace la valeur du signal direct par la moyenne des valeurs se trouvant autour de la fréquence du signal direct.\\
+\\
+Ensuite, il faut trouver une méthode permettant de séparer, dans le spectrogramme, les objets du bruit.
 La première méthode testée se basait sur un seuil fixe.
-Toutes les valeurs qui se trouvaient en dessous de ce seuil étaient considérées comme du bruit et leur valeur était mis à zéro.
+Toutes les valeurs qui se trouvaient en dessous de ce seuil étaient considérées comme du bruit et leur valeur était mise à zéro.
 Bien que cette méthode fonctionnait bien sur un fichier spécifique, elle posait problème si on voulait la lancer sur plusieurs fichiers différents.
 En effet, comme toutes les stations de réception se trouvent dans des environnements différents et disposent parfois même de matériel différent, différent fichier ont des niveaux de bruits différents.\\
+Pour la deuxième méthode, le programme essayait de trouver un seuil qui se base sur la valeur du bruit sur l'entièreté d'un spectrogramme.
+Pour ce faire, la méthode divisait le spectrogramme, entre les fréquences de 600 Hz et 1400 Hz, en trente zones.
+Elle mesurait ensuite, à l'aide de la variance de chaque zone, laquelle contenait le moins d'objets possibles.
+Finalement, la méthode calculait la 95e percentile du bloc contenant le moins d'objet possibles.
+Toutes les valeurs du spectrogramme se trouvant en dessous de cette valeur seraient considérés comme du bruit et mises à zéro.
+Malgré que cette méthode produisait des résultats marginalement meilleurs que celle à seuil fixe, elle n'était toujours pas parfaite étant donné qu'elle se basait sur le bruit d'une partie du spectrogramme, or le bruit peut varier au cours du temps.\\
+Finalement, la méthode qui fonctionnait le mieux calculait la 95e percentile pour chaque colonne du spectrogramme.
+Ensuite,  elle remplace toutes les valeurs de cette colonne se trouvant en dessous de la 95e percentile avec zéro.
+Les résidus de bruits qui ne sont pas encore éliminés sont négligeables puisqu'ils s'étalent sur moins de 10 Hz et ne sont donc pas considérés comme des météores.\\
 \\
-
+Il faut maintenant éliminer tous les objets qui ne sont pas des échos de météores, mais qui s'étalent sur plus de 10 Hz.
+Ceci n'est pas une tâche facile puisque des parasites peuvent venir se mélanger à des échos de météore formant un objet.
+La première chose à faire est : nettoyer le spectrogramme des petits parasites, ou encore de résidus de bruits.
+Le programme fait cela en labellisant le spectrogramme et en éliminant tout objet s'étalant sur moins de 10 Hz.
+Ensuite, on récupère tous les objets restants.
+Pour chacun de ces objets, on vérifie s'il n'est pas composé de plusieurs parasites se superposant sur plus de 10 Hz.
+Ceci est fait en allant vérifier sur une longueur d'environ treize secondes autour de l'objet détecté, si on retrouve des parasites qui s'étalent sur la même fréquence que cet objet.
+Lorsque c'est le cas, l'objet n'est pas considéré comme un météore et est ignoré.
+À partir de ce stade, tous les objets détectés sont considérés comme étant des échos de météores.\\
+\\
+Pour la deuxième étape, le programme récolte le plus d'informations possibles à propos des échos pouvant potentiellement correspondre à l'écho de météore reçu en entrée.
+Parmi ces informations, on retrouve tout d'abord le temps où un écho s'est produit.
+Ceci est important pour pouvoir situer l'écho si on veut l'étudier en profondeur.\\
+Ensuite, le programme calcule la distance entre la station qui a détecté l'écho reçu en entrée et la station dont un écho pourrait correspondre à celui en entrée.
+En effet, un météore n'est pas détecté par toutes les stations, et dans le cas où il est détecté par plusieurs stations, ces stations se trouvent souvent proches les uns des autres.\\
+La troisième information donnée indique le nombre d'échos trouvés pour une station, pouvant correspondre à l'écho en entrée.
+Dans ce cas, il est important d'en informer l'utilisateur, puisque ces échos viennent chacun d'un météore différent et ne peuvent donc pas tous venir de cet écho reçu en entrée.\\
+La dernière information donnée par le programme sont la fréquence minimum et la fréquence maximum des échos détectés.
+Ces deux fréquences permettront, ensemble avec le temps où l'écho s'est produit, de faciliter la recherche de cet écho pour l'utilisateur.
 
 \subsection{Fonctionnement du Programme}
 
-\subsection{Résultats}
+Le programme prend en entrée le temps et la date de l'écho du météore recherché ainsi que le code de location de la station qui l'a détecté.
+À partir du temps et de la date reçue en entrée, le programme calcule l'intervalle de temps dans laquelle elle doit chercher des échos pour les autres stations réceptrices.
+Cet intervalle est toujours de six secondes autour du temps reçu en entrée.
+Cette valeur a été choisie puisque toute détection en dehors de ces six secondes a très peu de probabilité de venir du même météore que l'écho en entrée.
+Toutes les actions sur le spectrogramme s'appliqueront uniquement à l'intérieur de cet intervalle afin d'optimiser le programme.\\
+\\
+Le programme va ensuite chercher, pour toutes les stations, les informations des fichiers contenant cet intervalle.
+Il fait pour ça une requête à la base de données BRAMS.
+Puis, pour chaque station, le programme calcule la distance entre la station et la location où l'écho de météore reçu en entrée a été détecté.\\
+\\
+Quatrièmement, pour tous les fichiers dont on a récolté des informations, on va rechercher les météores dans l'intervalle calculé précédemment.
+Pour cette étape, le programme fait d'abord appelle à la classe BramsWavFile, qui ira chercher le fichier et extraire les données audio.
+L'étape suivante consiste à générer le spectrogramme à partir de ces données audio.
+Afin de générer ce spectrogramme, il faut faire appelle à la classe Spectrogram.
+Ceci est une classe spécialement faite pour ce logiciel, qui permet de créer un spectrogramme et de le modifier à l'aide d'une suite de méthodes.
+Lorsqu'on appelle cette classe, il faut passer comme paramètre les données audio.
+À partir de ces données, la classe va créer le spectrogramme du fichier avec la fonction 'scipy.signal.spectrogram()'.
+La classe gardera une copie originale du spectrogramme et une copie pour les modifications, dont elle supprime, dès l'initialisation, le signal direct de l'émetteur.\\
+% ! image
+Suit alors une convolution du spectrogramme avec le filtre permettant d'amplifier les échos de météores, cette convolution est faite à l'aide de la fonction 'scipy.ndimage.convolve()'.
+Ensuite, le filtre supprimant toutes les valeurs en dessous de la 95e percentile sera appliquée.
+Afin d'éliminer tous les résidus de bruits, le programme labellise le spectrogramme et supprime tout objet s'étalant sur plus de 6 Hz.
+Dans le but de reconnecter les météores qui auraient été divisés en deux parties différentes, on applique un filtre moyenneur sur le spectrogramme.
+Puis, le logiciel cherche les coordonnées des échos de météore sur le spectrogramme.
+Avec ces coordonnées, on pourra alors retrouver la fréquence maximale et la fréquence minimale de l'écho.\\
+\\
+%! image
+Enfin, le programme crée un fichier CSV\footnote{Comma Separated Values} qui contiendra une ligne par écho de météore détecté.
+Chaque ligne contiendra :
+\begin{enumerate}
+    \item Le code de location de la station où est détecté l'écho.
+    \item Le numéro de l'antenne qui a détecté l'écho.
+    \item La date et le temps de début d'enregistrement du fichier d'où vient l'écho.
+    \item Le nombres d'écho comptés dans le même fichier que celui d'où vient l'écho.
+    \item Le temps, précis à la microseconde, de détection de l'écho.
+    \item La fréquence minimum de l'écho.
+    \item La fréquence maximum de l'écho.
+    \item La distance entre la station où est détecté l'écho et la station de l'écho reçu en entrée.
+\end{enumerate}
+
+De cette façon, les données pourront facilement être lues et réutilisées pour étudier ces météores.
 
 \newpage
 
-\section{Améliorations Possibles}
+\section{Pistes d'Améliorations}
+
+Suite à une réflexion sur les programmes réalisés, j'ai pu trouver quelques pistes d'améliorations qui sont intéressantes pour le futur : 
+\begin{itemize}
+    \item 
+\end{itemize}
 
 \newpage
 

@@ -1,46 +1,24 @@
-\contentsline {section}{\numberline {1}Introduction}{4}{}%
-\contentsline {subsection}{\numberline {1.1}Le projet BRAMS}{4}{}%
-\contentsline {subsubsection}{\numberline {1.1.1}Le Réseau BRAMS}{4}{}%
-\contentsline {subsubsection}{\numberline {1.1.2}Le Format WAV}{4}{}%
-\contentsline {subsubsection}{\numberline {1.1.3}La Réflexion Spéculaire}{7}{}%
-\contentsline {subsubsection}{\numberline {1.1.4}Les Données BRAMS}{8}{}%
-\contentsline {subsubsection}{\numberline {1.1.5}L'Archive BRAMS}{11}{}%
-\contentsline {subsection}{\numberline {1.2}Problématique liée à l'étude des données BRAMS}{13}{}%
-\contentsline {section}{\numberline {2}Méthodologie}{14}{}%
-\contentsline {section}{\numberline {3}Technologies utilisées}{15}{}%
-\contentsline {subsection}{\numberline {3.1}Python}{15}{}%
-\contentsline {subsection}{\numberline {3.2}MariaDB}{15}{}%
-\contentsline {section}{\numberline {4}Lecture des Fichiers BRAMS}{16}{}%
-\contentsline {subsection}{\numberline {4.1}Librairies Utilisées}{16}{}%
-\contentsline {subsubsection}{\numberline {4.1.1}Os}{16}{}%
-\contentsline {subsubsection}{\numberline {4.1.2}Numpy}{16}{}%
-\contentsline {subsubsection}{\numberline {4.1.3}Scipy}{17}{}%
-\contentsline {subsubsection}{\numberline {4.1.4}Tarfile}{17}{}%
-\contentsline {subsubsection}{\numberline {4.1.5}Datetime}{17}{}%
-\contentsline {subsection}{\numberline {4.2}Fonctionnement du Module}{17}{}%
-\contentsline {subsubsection}{\numberline {4.2.1}La méthode FFT}{19}{}%
+\contentsline {section}{\numberline {1}Introduction}{3}{}%
+\contentsline {subsection}{\numberline {1.1}Le projet BRAMS}{3}{}%
+\contentsline {subsubsection}{\numberline {1.1.1}Le Réseau BRAMS}{3}{}%
+\contentsline {subsubsection}{\numberline {1.1.2}Le Format WAV}{3}{}%
+\contentsline {subsubsection}{\numberline {1.1.3}La Réflexion Spéculaire}{6}{}%
+\contentsline {subsubsection}{\numberline {1.1.4}Les Données BRAMS}{7}{}%
+\contentsline {subsubsection}{\numberline {1.1.5}L'Archive BRAMS}{10}{}%
+\contentsline {subsection}{\numberline {1.2}Problématique liée à l'étude des données BRAMS}{12}{}%
+\contentsline {section}{\numberline {2}Méthodologie}{13}{}%
+\contentsline {section}{\numberline {3}Technologies utilisées}{14}{}%
+\contentsline {subsection}{\numberline {3.1}Python}{14}{}%
+\contentsline {subsubsection}{\numberline {3.1.1}Librairies Utilisées}{14}{}%
+\contentsline {subsection}{\numberline {3.2}MariaDB}{16}{}%
+\contentsline {section}{\numberline {4}Lecture des Fichiers BRAMS}{17}{}%
+\contentsline {subsection}{\numberline {4.1}Fonctionnement du Module}{17}{}%
+\contentsline {subsubsection}{\numberline {4.1.1}La méthode FFT}{19}{}%
 \contentsline {section}{\numberline {5}Monitoring des Données BRAMS}{20}{}%
-\contentsline {subsection}{\numberline {5.1}Librairies Utilisées}{20}{}%
-\contentsline {subsubsection}{\numberline {5.1.1}Argparse}{20}{}%
-\contentsline {subsubsection}{\numberline {5.1.2}Simplejson}{21}{}%
-\contentsline {subsubsection}{\numberline {5.1.3}Matplotlib}{21}{}%
-\contentsline {subsubsection}{\numberline {5.1.4}Tqdm}{21}{}%
-\contentsline {subsubsection}{\numberline {5.1.5}Decimal}{21}{}%
-\contentsline {subsubsection}{\numberline {5.1.6}NumPy}{21}{}%
-\contentsline {subsubsection}{\numberline {5.1.7}Datetime}{21}{}%
-\contentsline {subsection}{\numberline {5.2}Fonctionnement du Programme}{21}{}%
-\contentsline {subsection}{\numberline {5.3}Résultats}{23}{}%
-\contentsline {section}{\numberline {6}Détection des Météores}{24}{}%
-\contentsline {subsection}{\numberline {6.1}Librairies Utilisées}{24}{}%
-\contentsline {subsubsection}{\numberline {6.1.1}GeoPy}{24}{}%
-\contentsline {subsubsection}{\numberline {6.1.2}Math}{24}{}%
-\contentsline {subsubsection}{\numberline {6.1.3}Argparse}{24}{}%
-\contentsline {subsubsection}{\numberline {6.1.4}Datetime}{24}{}%
-\contentsline {subsubsection}{\numberline {6.1.5}Matplotlib}{24}{}%
-\contentsline {subsubsection}{\numberline {6.1.6}NumPy}{24}{}%
-\contentsline {subsubsection}{\numberline {6.1.7}SciPy}{24}{}%
-\contentsline {subsection}{\numberline {6.2}Analyse}{25}{}%
-\contentsline {subsection}{\numberline {6.3}Fonctionnement du Programme}{26}{}%
-\contentsline {subsection}{\numberline {6.4}Résultats}{26}{}%
-\contentsline {section}{\numberline {7}Améliorations Possibles}{27}{}%
-\contentsline {section}{\numberline {8}Conclusion}{28}{}%
+\contentsline {subsection}{\numberline {5.1}Fonctionnement du Programme}{20}{}%
+\contentsline {subsection}{\numberline {5.2}Résultats}{22}{}%
+\contentsline {section}{\numberline {6}Détection des Météores}{23}{}%
+\contentsline {subsection}{\numberline {6.1}Analyse}{23}{}%
+\contentsline {subsection}{\numberline {6.2}Fonctionnement du Programme}{25}{}%
+\contentsline {section}{\numberline {7}Pistes d'Améliorations}{28}{}%
+\contentsline {section}{\numberline {8}Conclusion}{29}{}%

@@ -126,11 +126,11 @@ class BramsWavFile:
         file_alias = split_filename[5].replace('.wav', '')
 
         if respect_date:
-            min_date = date_time - timedelta(minutes=20)
-            max_date = date_time + timedelta(minutes=20)
-        else:
             min_date = date_time - timedelta(minutes=3)
             max_date = date_time + timedelta(minutes=3)
+        else:
+            min_date = date_time - timedelta(minutes=20)
+            max_date = date_time + timedelta(minutes=20)
 
         if not (
             file_datetime <= max_date

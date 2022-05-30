@@ -26,6 +26,7 @@ class Spectrogram:
         self.frequency_resolution = (
             sample_frequency / 2 / len(self.frequencies)
         )
+        print(self.frequency_resolution)
         # sample frequency of the wav audio signal
         self.sample_frequency = sample_frequency
         Pxx = self.__normalize_spectrogram(max_normalization, Pxx)
@@ -39,10 +40,11 @@ class Spectrogram:
         ) = self.__retrieve_transmitter_signal(Pxx)
         # copy of the signal strencgth in dB to be modified
         self.Pxx_modified = self.__subtract_transmitter_signal(Pxx)
+        # self.Pxx_modified = Pxx
         # initialize the figure number to 1
         self.figure_n = 1
 
-        self._default_treshold = self.__find_noise_value()
+        self._default_treshold = None
 
         # DEVELOP
         # print(f'Max spectrogram value : {np.max(self.Pxx)}')
@@ -433,13 +435,17 @@ class Spectrogram:
         start=0,
         end=None,
         delete_all=False,
-        get_copy=False
+        get_copy=False,
+        spectrogram=None
     ):
         if delete_all:
             start = 0
             end = len(self.times)
 
-        spectrogram_slice = self.__get_slice(start, end)
+        if spectrogram is None:
+            spectrogram_slice = self.__get_slice(start, end)
+        else:
+            spectrogram_slice = spectrogram
 
         if get_copy:
             spectrogram_slice = spectrogram_slice.copy()
@@ -580,15 +586,22 @@ class Spectrogram:
 
         spectrogram_copy = self.__get_slice(start, end)
         broad_spectrogram = self.__get_slice(broad_start, broad_end)
+        pxx_copy = self.__get_slice(
+            0,
+            end=len(self.Pxx_modified.T),
+            get_copy=True
+        )
 
         for i in range(len(broad_spectrogram.T)):
-            self.delete_area(27, start=(i + broad_start))
+            self.delete_area(
+                10 / self.frequency_resolution,
+                start=(i + broad_start)
+            )
 
         object_coords = self.__get_object_coords(
             start=start,
             end=end,
             get_all=get_all,
-            spectrogram=spectrogram_copy
         )
         # print(start, end)
         # print(spectrogram_copy.shape)
@@ -598,10 +611,16 @@ class Spectrogram:
             total_width = 0
             detection_start = (object[1].start - 22 + start)
             detection_stop = (object[1].stop + 22 + start)
-            fmax = object[0].stop + 4
-            fmin = object[0].start - 4
+            fmax = object[0].stop + 3
+            fmin = object[0].start - 3
             pot_meteor_height = object[0].stop - object[0].start
             pot_meteor_width = object[1].stop - object[1].start
+
+            if detection_start < 0:
+                detection_start = 0
+
+            if detection_stop > len(spectrogram_copy.T):
+                detection_stop = len(spectrogram_copy.T) - 1
 
             # if the object is higher than 60 and smaller than 6
             if pot_meteor_width < 6 and pot_meteor_height > 60:
@@ -621,10 +640,11 @@ class Spectrogram:
                 no_objects = 0
                 # iterate over the 20 columns coming before the start of the
                 # current object
-                while column > detection_start and no_objects < 2:
+                while column > detection_start and no_objects <= 2:
                     # get all the objects from the current column
                     column_objects = self.__get_object_coords(
-                        spectrogram=self.Pxx_modified[fmin:fmax, column]
+                        # spectrogram=self.Pxx_modified[fmin:fmax, column]
+                        spectrogram=pxx_copy[fmin:fmax, column]
                     )
 
                     # if there are any objects
@@ -637,10 +657,16 @@ class Spectrogram:
                             fstop = -4
 
                             for column_object in column_objects:
-                                # check if the 2 objects lay close to each
+                                max_gap = 0.25 * (fmax - fmin)
+
+                                # check if 2 objects lay clos or far form each
                                 # other
-                                if column_object[0].start > (fstop + 4):
+                                if column_object[0].start > (fstop + max_gap):
+                                    # if they lay far from each other, reset
+                                    # the start
                                     fstart = column_object[0].start
+
+                                # set new stop
                                 fstop = column_object[0].stop
 
                             slice_object = slice(fstart, fstop, None)
@@ -648,7 +674,7 @@ class Spectrogram:
                         no_objects += 1
                         if (
                             (slice_object.stop - slice_object.start)
-                            > (fmax - fmin - 12)
+                            > ((fmax - fmin) * 0.7)
                         ):
                             if no_objects > 0:
                                 no_objects -= 2
@@ -662,14 +688,15 @@ class Spectrogram:
                 column = object[1].stop + 1 + start
                 no_objects = 0
 
-                fmax = object[0].stop + 4
-                fmin = object[0].start - 4
+                fmax = object[0].stop + 3
+                fmin = object[0].start - 3
 
                 # iterate over the 20 columns coming after the stop of the
                 # current object
-                while column < detection_stop and no_objects < 2:
+                while column < detection_stop and no_objects <= 2:
                     column_objects = self.__get_object_coords(
-                        spectrogram=self.Pxx_modified[fmin:fmax, column]
+                        # spectrogram=self.Pxx_modified[fmin:fmax, column]
+                        spectrogram=pxx_copy[fmin:fmax, column]
                     )
                     if len(column_objects):
                         slice_object = column_objects[0][0]
@@ -677,8 +704,16 @@ class Spectrogram:
                             fstart = 0
                             fstop = -4
                             for column_object in column_objects:
-                                if column_object[0].start > (fstop + 6):
+                                max_gap = 0.25 * (fmax - fmin)
+
+                                # check if 2 objects lay clos or far form each
+                                # other
+                                if column_object[0].start > (fstop + max_gap):
+                                    # if they lay far from each other, reset
+                                    # the start
                                     fstart = column_object[0].start
+
+                                # set new stop
                                 fstop = column_object[0].stop
 
                             slice_object = slice(fstart, fstop, None)
@@ -686,18 +721,18 @@ class Spectrogram:
                         no_objects += 1
                         if (
                             (slice_object.stop - slice_object.start)
-                            > (fmax - fmin - 12)
+                            > ((fmax - fmin) * 0.7)
                         ):
                             if no_objects > 0:
                                 no_objects -= 2
                             total_width += 1
-                            fmax = fmin + slice_object.stop
-                            fmin += slice_object.start
+                            fmax = fmin + slice_object.stop + 3
+                            fmin += slice_object.start - 3
                     else:
                         no_objects += 1
                     column += 1
 
-                if total_width < 20:
+                if total_width < 16:
                     pot_meteors.append((
                         object[0],
                         slice(
@@ -709,8 +744,8 @@ class Spectrogram:
             # self.Pxx_modified[pot_meteors[-1][0], pot_meteors[-1][1]] = 100
 
         # * below code is for debugging purposes only
-        # for meteor in pot_meteors:
-        #     self.Pxx_modified[meteor] = 100000000
+        for meteor in pot_meteors:
+            self.Pxx_modified[meteor] = 100000000
 
         return self.__get_structured_meteor_coords(pot_meteors)
 

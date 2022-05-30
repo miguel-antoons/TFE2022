@@ -163,7 +163,7 @@ def get_meteor_coords(
                     percentile=95
                 )
                 spectrogram.delete_area(
-                    15,
+                    6 / spectrogram.frequency_resolution,
                     start=broad_interval_start,
                     end=broad_interval_end,
                 )
@@ -282,7 +282,7 @@ def main(args):
 
 
 def main_test():
-    directory = './recordings/'
+    directory = './recordings/meteor_search/'
     kernel = np.zeros((27, 7))
     kernel[12:15, 0] = -1.5
     kernel[12:15, -1] = -1.5
@@ -295,13 +295,14 @@ def main_test():
 
     print("Loading wav file into memory...")
     wav_file = BramsWavFile(
-        datetime.strptime('202204230000', '%Y%m%d%H%M'),
+        datetime.strptime('202202111800', '%Y%m%d%H%M')
+        .replace(tzinfo=timezone.utc),
         'BEHUMA',
-        "SYS003",
+        "SYS001",
         respect_date=True,
         parent_directory=directory,
         is_wav=True,
-        from_archive=True,
+        from_archive=False,
     )
 
     test_spectrogram = Spectrogram(
@@ -312,7 +313,6 @@ def main_test():
         filter_all=True, coefficient=1, kernel=kernel
     )
     test_spectrogram.filter_by_percentile(filter_all=True, percentile=95)
-    # test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
 
     test_spectrogram.delete_area(15, delete_all=True)
     test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
@@ -407,7 +407,7 @@ def arguments():
 
 
 if __name__ == '__main__':
-    # main_test()
-    args = arguments()
-    main(args)
-    print('Exiting...')
+    main_test()
+    # args = arguments()
+    # main(args)
+    # print('Exiting...')

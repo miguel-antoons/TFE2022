@@ -24,3 +24,10 @@ Arparse
 GeoPy
 dsp
 START
+TAR
+moyenneur
+scipy
+spectrogram
+Spectrogram
+ndimage
+convolve
