@@ -352,11 +352,17 @@ class BramsWavFile:
         ):
             return self.fft_freq, self.fft, self.fft_fbin
 
+        # get the length of all the audio samples
         nsamples = Isamples.size
+
+        # create a window funtion
         w = windows.hann(nsamples)
         w_scale = 1 / w.mean()
+
+        # apply that window on all the audio samples
         Isamples = Isamples * w * w_scale
 
+        # get the Fourier Tranform and normalize it
         S = rfft(Isamples) / nsamples
         S[1: -1] *= 2
 

@@ -5,9 +5,36 @@
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{listings}
 \usepackage[T1]{fontenc}
 \usepackage[bottom]{footmisc}
 \graphicspath{ {./images/} }
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{CStyle}{
+    backgroundcolor=\color{backgroundColour},   
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle=\color{mPurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=C
+}
 
 \newenvironment{remerciements}
   {
@@ -118,12 +145,15 @@ Le format de fichier WAV (Waveform Audio File) est un format destiné au stockag
 Il est construit conformément au RIFF (Ressource Interchange File Format) ce qui veut dire que le fichier est organisé en blocs de données, aussi nommés des "chunks" ou "data chunks".\\
 \\
 Chaque bloc de données dispose d'un ID codé sur 4 octets, qui représente souvent un mot de 4 lettres.
-Suit ensuite le champ "ChunkSize" indiquant la taille des données à venir dans l'ensemble du fichier, codé également sur 4 octets.
-Cette valeur exclut donc les champs "ID" et "ChunkSize" ainsi que la taille de tous les éventuels blocs de données venant avant le bloc courant.
+Suit ensuite le champ "subChunkSize" indiquant la taille des données à venir dans le bloc de données, codé également sur 4 octets.
+Cette valeur exclut donc les champs "ID" et "subChunkSize" du bloc courant.
 Après ces 2 champs, on est libre de rajouter le nombre de champs que l'on souhaite, avec la taille en octets que l'on souhaite.\\
 \\
 Pour un fichier WAV, on retrouve typiquement 3 blocs de données.
-On retrouve premièrement le bloc "RIFF" qui contient la taille de l'entièreté du fichier moins 8 octets (4 octets du champ "ID" et 4 octets du champ "ChunkSize") suivi du champ indiquant le format du fichier.
+On retrouve premièrement le bloc "RIFF", dont le champ "ID" contient les quatre lettres "RIFF".
+Ce bloc est particulier puisque, au lieu d'avoir un champ "subChunkSize", il a un champ "ChunkSize".
+La différence est que, contrairement au champ "subChunkSize", le champ "ChunkSize" contient la taille de l'entièreté du fichier, exclu le champ "ID" et le champ "ChunkSize" même du bloc "RIFF".
+Vient ensuite le champ "format", ce champ indique le type de fichier actuel.
 Dans le cas du fichier WAV, ce dernier contient les quatre lettres "WAVE".\\
 \\
 Le deuxième bloc, nommé le bloc FMT\footnote{FMT pour format}, contenu dans un fichier WAV ordinaire contient toutes les données techniques des données.
@@ -294,9 +324,11 @@ De plus, certaines données peuvent être corrompues ou encore, non-existantes.\
 \\
 De plus, savoir, ou au moins avoir une idée, si un météore détecté par une station réceptrice est le même qu'un météore détecté sur une autre station réceptrice serait une grosse économie de temps.\\
 \\
-C'est pour cette raison que les membres du projet BRAMS souhaitent disposer d'un programme qui remplit deux fonctions.
-D'une part, elle doit être capable de vérifier si un fichier contient des données non-corrompues et utilisables.
-D'autre part, elle devra, sur base d'un écho de météore d'une station de réception, retrouver les échos de ce même météore sur des fichiers d'autres stations de réception.
+C'est pour cette raison que les membres du projet BRAMS souhaitent automatiser deux procédures.
+D'une part, il faut un logiciel capable de vérifier si un fichier contient des données non-corrompues et utilisables.
+Dans le cas où les données sont inutilisables, le programme doit pouvoir aider l'utilisateur à retrouver la cause du problème.
+D'autre part, il faut un programme qui, sur base d'un écho de météore d'une station de réception, retrouve les échos pouvant venir de ce même météore sur des fichiers d'autres stations de réception.
+Ce dernier logiciel doit également donner le plus d'informations possibles pouvant aider à confirmer si un écho correspond à un autre.
 
 \newpage
 
@@ -351,9 +383,15 @@ On spécifie les paramètres nécessaires et optionnels pour le programme qu'on 
 Il indiquera également une erreur si un paramètre obligatoire manque, ou qu'un type de paramètre n'est pas respecté.
 Argparse est une librairie installée par défaut avec Python.\\
 \\
+\textbf{CSV}\\
+La librairie CSV offre la possibilité d'écrire et de lire des fichiers CSV à l'aide d'un programme en Python.\\
+\\
 \textbf{Datetime}\\
 La librairie Datetime offre une suite de fonctions et de classes permettant la manipulation et la conversion de temps et de dates.
 Cette librairie fait partie des modules standards de Python et ne doit donc pas être installé.\\
+\\
+\textbf{Dotenv}\\
+La librairie Dotenv permet de lire les fichiers et les variables d'environnement.\\
 \\
 \textbf{GeoPy}\\
 GeoPy est une librairie Python qui facilite la recherche de coordonnées d'adresses, de villes ou encore de lieux connus.
@@ -365,6 +403,10 @@ Elle est installée par défaut avec Python.
 \\
 \textbf{Matplotlib}\\
 La librairie Python Matplotlib permet de générer des graphiques et de les enregistrer en tant qu'image.\\
+\\
+\textbf{Mysql.connector}\\
+Cette librairie permet d'établir une connexion à une base de données MySQL ou MariaDB.
+Avec cette connexion, un programme Python peut faire des requêtes à cette base de données.\\
 \\
 \textbf{NumPy}\\
 NumPy est une librairie Python utilisée lorsqu'on travaille avec des listes très larges.
@@ -483,7 +525,43 @@ La classe BramsWavFile dispose d'une méthode publique.
 Cette méthode se nomme 'FFT' et permet, comme son nom l'indique, de récupérer la Transformée de Fourier de l'entièreté de la piste audio du fichier WAV.
 Ceci est fait à l'aide de la fonction 'rfft' de la librairie Scipy, multipliée par une fenêtre de Hann.
 La fonction 'rfft' existe également dans la librairie NumPy, cependant dans ce cas de figure la librairie SciPy permettait de calculer la Transformée de Fourrier plus rapidement.
-Enfin, la fonction FFT retourne la Transformée de Fourier normalisée, son abscisse et sa résolution fréquentielle.
+Enfin, la fonction FFT retourne la Transformée de Fourier normalisée, son abscisse et sa résolution fréquentielle.\\
+\\
+Le code de cette méthode peut être visualisé à la figure %! figure.
+
+\begin{figure}
+    \begin{lstlisting}[style=CStyle]
+def FFT(self, Isamples, force_new=False):
+    if (
+        self.fft is not None
+        and self.fft_fbin is not None
+        and self.fft_freq is not None
+        and not force_new
+    ):
+        return self.fft_freq, self.fft, self.fft_fbin
+
+    # get the length of all the audio samples
+    nsamples = Isamples.size
+
+    # create a window funtion
+    w = windows.hann(nsamples)
+    w_scale = 1 / w.mean()
+
+    # apply that window on all the audio samples
+    Isamples = Isamples * w * w_scale
+
+    # get the Fourier Tranform and normalize it
+    S = rfft(Isamples) / nsamples
+    S[1: -1] *= 2
+
+    self.fft = S
+    self.fft_fbin = self.fs / nsamples
+    self.fft_freq = rfftfreq(nsamples, 1 / self.fs)
+
+    return self.fft_freq, S, self.fft_fbin
+    \end{lstlisting}
+    \caption{Code de la méthode qui génère une Transformée de Fourier sur base de données audio.}
+\end{figure}
 
 \newpage
 
@@ -508,6 +586,24 @@ Dans le cas où elle n'est pas aux alentours de 1500 Hz, la probabilité qu'il y
 
 \subsection{Fonctionnement du Programme}
 
+\begin{figure}
+    \begin{lstlisting}[style=CStyle]
+def get_psd(f, flow=800, fhigh=900):
+    # get fourier tranform from BramsWavFile class
+    freq, S, fbin = f.FFT(f.Isamples)
+    idx = (freq >= flow) * (freq < fhigh)
+
+    # calculate the total power of the wanted frequencies
+    p = (S[idx] * S[idx].conj()).real / 2
+
+    # get a mean normalized to 1Hz
+    psd = p.mean() / fbin
+
+    return psd
+    \end{lstlisting}
+    \caption{Code de la fonction permettant de calculer la dsp.}
+\end{figure}
+
 Le programme permet donc de mesurer le niveau du bruit et le signal calibreur d'un ou de plusieurs fichiers WAV du projet BRAMS.
 Il fait ceci en calculant la densité spectrale de puissance (dsp) de ceux-ci.
 La densité spectrale de puissance montre la distribution des puissances à travers les différentes fréquences contenues dans le signal de base.
@@ -528,7 +624,8 @@ Le programme calculera donc la dsp des fichiers de tous les fichiers générés 
 La première va donc, pour chaque fichier demandé, performer une suite d'étapes.
 Premièrement, elle va chercher le fichier à l'aide de la classe 'BramsWavFile'.
 Si une erreur se produit lors de la recherche du fichier, on considère que le fichier n'existe pas et le programme passe au fichier suivant.
-Lorsqu'on a le fichier, on peut calculer la dsp du bruit et du signal calibreur.\\
+Lorsqu'on a le fichier, on peut calculer la dsp du bruit et du signal calibreur.
+La fonction permettant de calculer le bruit est affichée ce dessous.\\
 \\
 Dans le cas du bruit, on prend toujours la moyenne de la dsp entre 800 Hz et 900 Hz.
 Entre ces deux fréquences on retrouve normalement uniquement du bruit.
@@ -547,8 +644,31 @@ Si l'option \textbf{-p} (\textbf{--plot}) a été donné au lancement du program
 
 \subsection{Résultats}
 
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.235]{BEHUMA4_2022-03-01_2022-04-30_calibrator.png}
+        \caption{Signal calibreur de la station BEHUMA, antenne 4 entre le 1\textsuperscript{er} mars 2022 et le 30 avril 2022.}
+    \end{center}
+\end{figure}
+
 Lors des tests, quelques résultats ont déjà montrés des informations intéressantes.
-Un bon exemple est l'antenne quatre de la station à Humain entre
+Un bon exemple est l'antenne quatre de la station à Humain entre le 1\textsuperscript{er} mars 2022 et le 30 avril 2022, à la figure %! figure.
+On remarque qu'à partir 8 mars 2022, le signal calibreur diminue fortement d'intensité.
+Après une étude en profondeur par les scientifiques du projet BRAMS, ils ont trouvé que ceci était dû à un problème avec l'oscillateur local.
+Ce problème causait une translation de 500 Hz vers le bas de tout signal.
+Ceci veut dire que tous les fichiers générés alors qu'il y avait ce problème sont inutilisables.\\
+\\
+Un autre exemple est la station à Haacht entre le 1\textsuperscript{er} juillet 2021 et le 31 août 2021 affichée à la figure %! figure n.
+Ici, on constate une diminution graduelle de l'intensité du bruit, jusqu'à ce que le récepteur ne capte plus rien.
+Ceci est causé suite au vieillissement du récepteur ICOM.
+Cette station a donc dû être remplacée.
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.235]{BEHAAC1_2021-07-01_2021-08-31_noise.png}
+        \caption{Intensité du bruit de la station BEHAAC, antenne 1 entre le 1\textsuperscript{er} juillet 2021 et le 31 août 2021.}
+    \end{center}
+\end{figure}
 
 \newpage
 
@@ -561,6 +681,13 @@ Ensuite, la deuxième tâche du programme est de donner l'utilisateur le plus d'
 
 \subsection{Analyse}
 
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.6]{a-Illustration-of-the-operation-principle-of-the-convolution-kernel-convolutional-layer.png}
+        \caption{Illustration de la convolution.}
+    \end{center}
+\end{figure}
+
 C'est ici la première étape qui pose la plus grande difficulté.
 En effet, la détection de météores consiste à retrouver des objets d'une forme spécifique dans une image.
 Cette image est, dans ce cas si, un spectrogramme calculé à partir d'un fichier WAV venant d'une station de réception BRAMS.
@@ -570,9 +697,10 @@ Afin de faciliter la rechercher d'échos de météores dans un spectrogramme, l'
 Un écho de météore est, dans un spectrogramme, caractérisé par un signal qui s'étale sur minimum 10 Hz et qui dur typiquement entre une et trois secondes.
 Ceci est possible en performant une convolution sur le spectrogramme.
 Une convolution est une opération mathématique qui prend deux fonctions en entrée et qui produit un nouveau signal.
-Dans ce cas si, le premier signal en entrée sera le spectrogramme, ou une partie du spectrogramme, et le deuxième signal est le filtre.
+Dans ce cas si, le  signal en entrée sera le spectrogramme, ou une partie du spectrogramme, et le deuxième signal est le filtre.
+Une illustration de la convolution peut être trouvée à la figure %!figure.
 Afin d'arriver à un bon résultat, il a fallu tester plusieurs filtres.
-Le filtre offrant les meilleurs résultats est illustré à la figure N.
+Le filtre offrant les meilleurs résultats est illustré à la figure %!figure.
 Elle permet de faire deux choses :
 
 \begin{itemize}
@@ -599,7 +727,7 @@ Finalement, la méthode calculait la 95e percentile du bloc contenant le moins d
 Toutes les valeurs du spectrogramme se trouvant en dessous de cette valeur seraient considérés comme du bruit et mises à zéro.
 Malgré que cette méthode produisait des résultats marginalement meilleurs que celle à seuil fixe, elle n'était toujours pas parfaite étant donné qu'elle se basait sur le bruit d'une partie du spectrogramme, or le bruit peut varier au cours du temps.\\
 Finalement, la méthode qui fonctionnait le mieux calculait la 95e percentile pour chaque colonne du spectrogramme.
-Ensuite,  elle remplace toutes les valeurs de cette colonne se trouvant en dessous de la 95e percentile avec zéro.
+Ensuite, elle remplace toutes les valeurs de cette colonne se trouvant en dessous de la 95e percentile avec zéro.
 Les résidus de bruits qui ne sont pas encore éliminés sont négligeables puisqu'ils s'étalent sur moins de 10 Hz et ne sont donc pas considérés comme des météores.\\
 \\
 Il faut maintenant éliminer tous les objets qui ne sont pas des échos de météores, mais qui s'étalent sur plus de 10 Hz.
@@ -622,7 +750,47 @@ Dans ce cas, il est important d'en informer l'utilisateur, puisque ces échos vi
 La dernière information donnée par le programme sont la fréquence minimum et la fréquence maximum des échos détectés.
 Ces deux fréquences permettront, ensemble avec le temps où l'écho s'est produit, de faciliter la recherche de cet écho pour l'utilisateur.
 
+\begin{figure}
+    \begin{lstlisting}[style=CStyle]
+        [[ 0.   0.   0.  50.   0.   0.   0. ]
+         [ 0.   0.   0.  50.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [-1.5  0.   0.   0.   0.   0.  -1.5]
+         [-1.5  0.   0.   0.   0.   0.  -1.5]
+         [-1.5  0.   0.   0.   0.   0.  -1.5]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.   0.   0.   0.   0. ]
+         [ 0.   0.   0.  50.   0.   0.   0. ]
+         [ 0.   0.   0.  50.   0.   0.   0. ]]
+    \end{lstlisting}
+    \caption{Filtre utilisé pour amplifier les échos de météores.}
+\end{figure}
+
 \subsection{Fonctionnement du Programme}
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.25]{Screenshot from 2022-05-31 16-44-50.png}
+        \caption{Spectrogram originale, sans modifications. Les échos de météores sont entourés en rouge.}
+    \end{center}
+\end{figure}
 
 Le programme prend en entrée le temps et la date de l'écho du météore recherché ainsi que le code de location de la station qui l'a détecté.
 À partir du temps et de la date reçue en entrée, le programme calcule l'intervalle de temps dans laquelle elle doit chercher des échos pour les autres stations réceptrices.
@@ -634,23 +802,36 @@ Le programme va ensuite chercher, pour toutes les stations, les informations des
 Il fait pour ça une requête à la base de données BRAMS.
 Puis, pour chaque station, le programme calcule la distance entre la station et la location où l'écho de météore reçu en entrée a été détecté.\\
 \\
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.22]{Screenshot from 2022-05-31 16-32-43.png}
+        \caption{Spectrogramme après l'amplification des échos de météores et la suppression de la majorité du bruit.}
+    \end{center}
+\end{figure}
 Quatrièmement, pour tous les fichiers dont on a récolté des informations, on va rechercher les météores dans l'intervalle calculé précédemment.
 Pour cette étape, le programme fait d'abord appelle à la classe BramsWavFile, qui ira chercher le fichier et extraire les données audio.
 L'étape suivante consiste à générer le spectrogramme à partir de ces données audio.
 Afin de générer ce spectrogramme, il faut faire appelle à la classe Spectrogram.
 Ceci est une classe spécialement faite pour ce logiciel, qui permet de créer un spectrogramme et de le modifier à l'aide d'une suite de méthodes.
 Lorsqu'on appelle cette classe, il faut passer comme paramètre les données audio.
-À partir de ces données, la classe va créer le spectrogramme du fichier avec la fonction 'scipy.signal.spectrogram()'.
+À partir de ces données, la classe va créer le spectrogramme du fichier avec la fonction "scipy.signal.spectrogram()", un exemple du spectrogramme original peut être visualisé à la figure 14.
 La classe gardera une copie originale du spectrogramme et une copie pour les modifications, dont elle supprime, dès l'initialisation, le signal direct de l'émetteur.\\
-% ! image
 Suit alors une convolution du spectrogramme avec le filtre permettant d'amplifier les échos de météores, cette convolution est faite à l'aide de la fonction 'scipy.ndimage.convolve()'.
 Ensuite, le filtre supprimant toutes les valeurs en dessous de la 95e percentile sera appliquée.
+Un spectrogramme à ce stade est illustré à la figure 15, ce spectrogramme est le même que celui à la figure 14.
 Afin d'éliminer tous les résidus de bruits, le programme labellise le spectrogramme et supprime tout objet s'étalant sur plus de 6 Hz.
 Dans le but de reconnecter les météores qui auraient été divisés en deux parties différentes, on applique un filtre moyenneur sur le spectrogramme.
 Puis, le logiciel cherche les coordonnées des échos de météore sur le spectrogramme.
+Les météores trouvés sur le spectrogramme de la figure 14 et 15 sont affichées à la figure 16.
+En comparant les météores mise en évidence à la figure 14 et les échos trouvés par le programme à la figure 16, on constate que le programme arrive bien à retrouver les échos des météores.
 Avec ces coordonnées, on pourra alors retrouver la fréquence maximale et la fréquence minimale de l'écho.\\
 \\
-%! image
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.22]{Screenshot from 2022-05-31 16-33-53.png}
+        \caption{Spectrogramme après l'amplification des échos de météores et la suppression de la majorité du bruit.}
+    \end{center}
+\end{figure}
 Enfin, le programme crée un fichier CSV\footnote{Comma Separated Values} qui contiendra une ligne par écho de météore détecté.
 Chaque ligne contiendra :
 \begin{enumerate}
@@ -670,13 +851,35 @@ De cette façon, les données pourront facilement être lues et réutilisées po
 
 \section{Pistes d'Améliorations}
 
-Suite à une réflexion sur les programmes réalisés, j'ai pu trouver quelques pistes d'améliorations qui sont intéressantes pour le futur : 
+Suite à une réflexion sur les programmes réalisés, j'ai pu trouver quelques pistes d'améliorations qui sont intéressantes pour le futur :
 \begin{itemize}
-    \item 
+    \item Malgré que l'algorithme permettant de détecter des échos de météore fonctionne assez bien, il y a des cas où il détecte des échos là où il n'y en a pas et inversement.
+          En effet, lors de cas extrêmes (échos de météore faibles, superposition de nombreux parasites), le programme a parfois du mal à séparer les échos de météores du reste des objets.
+          Peaufiner cet algorithme permettrait d'éviter ces problèmes.
+    \item Lors de la détection des échos de météore, l'élimination du signal direct de l'émetteur est également un domaine qui peut être amélioré.
+          Actuellement, il est remplacé par la moyenne des valeurs situées autour de la fréquence du signal directe.
+          Cependant, ceci n'est pas l'idéal puisqu'on élimine une partie du signal utile avec cette méthode.
+          Une meilleure façon de l'éliminer est la reconstruction du signal directe, suivi de la soustraction.
+    \item Afin d'améliorer l'expérience utilisateur du programme, on pourrait ajouter ces deux programmes au site web BRAMS.
+          Ceci permet d'avoir un programme avec une interface plutôt que d'avoir un programme en ligne de commande.
+    \item Bien que ce n'est pas un point important, l'optimisation du programme permettrait d'avoir un temps d'exécution plus court.
+          Cela peut être achevé en essayant des librairies alternatives à NumPy et SciPy, ou encore à l'aide du développement de ses propres fonctions et méthodes.
 \end{itemize}
 
 \newpage
 
 \section{Conclusion}
+
+Le but du travail était d'automatiser deux procédures du projet BRAMS.
+Premièrement elle devait permettre aux scientifiques d'identifier les données corrompues et aider à retrouver la cause de ceux-ci.
+Ceci a été accompli à l'aide du logiciel de monitoring qui analyse les fichiers du projet BRAMS.\\
+\\
+Deuxièmement, le travail devait automatiser la recherche de tous les échos de météores pouvant correspondre à un météore spécifique.
+Cette tâche peut maintenant être complétée à l'aide du programme de détection de météore.\\
+\\
+Ce travail m'a permis d'étendre mes connaissances dans le domaine du traitement du signal en mettant en pratique plusieurs notions théoriques vues durant les cours.
+Le mélange de ces connaissances avec des nouvelles notions, que je n'avais pas encore appris, afin d'arriver à un résultat final a été un vrai défi pour moi.\\
+\\
+Enfin, ce projet m'a permis de contribuer à un projet scientifique de grande échelle.
 
 \end{document}

@@ -129,6 +129,41 @@ INPUT /usr/share/texmf/tex/latex/lm/lmodern.sty
 INPUT /usr/share/texmf/tex/latex/lm/lmodern.sty
 INPUT /usr/share/texmf/tex/latex/lm/lmodern.sty
 INPUT /usr/share/texmf/tex/latex/lm/lmodern.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
+INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
+INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
+INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.cfg
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.cfg
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.cfg
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/listings.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
@@ -382,12 +417,51 @@ INPUT ./images//file_name.png
 INPUT ./images//file_name.png
 INPUT ./images//file_name.png
 INPUT ./images//file_name.png
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+INPUT /usr/share/texmf/fonts/tfm/public/lm/ts1-lmr9.tfm
+INPUT ./images//BEHUMA4_2022-03-01_2022-04-30_calibrator.png
+INPUT ./images//BEHUMA4_2022-03-01_2022-04-30_calibrator.png
+INPUT ./images//BEHUMA4_2022-03-01_2022-04-30_calibrator.png
+INPUT ./images//BEHUMA4_2022-03-01_2022-04-30_calibrator.png
+INPUT ./images//BEHUMA4_2022-03-01_2022-04-30_calibrator.png
+INPUT ./images//BEHAAC1_2021-07-01_2021-08-31_noise.png
+INPUT ./images//BEHAAC1_2021-07-01_2021-08-31_noise.png
+INPUT ./images//BEHAAC1_2021-07-01_2021-08-31_noise.png
+INPUT ./images//BEHAAC1_2021-07-01_2021-08-31_noise.png
+INPUT ./images//BEHAAC1_2021-07-01_2021-08-31_noise.png
+INPUT ./images//a-Illustration-of-the-operation-principle-of-the-convolution-kernel-convolutional-layer.png
+INPUT ./images//a-Illustration-of-the-operation-principle-of-the-convolution-kernel-convolutional-layer.png
+INPUT ./images//a-Illustration-of-the-operation-principle-of-the-convolution-kernel-convolutional-layer.png
+INPUT ./images//a-Illustration-of-the-operation-principle-of-the-convolution-kernel-convolutional-layer.png
+INPUT ./images//a-Illustration-of-the-operation-principle-of-the-convolution-kernel-convolutional-layer.png
+INPUT ./images//Screenshot from 2022-05-31 16-44-50.png
+INPUT ./images//Screenshot from 2022-05-31 16-44-50.png
+INPUT ./images//Screenshot from 2022-05-31 16-44-50.png
+INPUT ./images//Screenshot from 2022-05-31 16-44-50.png
+INPUT ./images//Screenshot from 2022-05-31 16-44-50.png
+INPUT ./images//Screenshot from 2022-05-31 16-32-43.png
+INPUT ./images//Screenshot from 2022-05-31 16-32-43.png
+INPUT ./images//Screenshot from 2022-05-31 16-32-43.png
+INPUT ./images//Screenshot from 2022-05-31 16-32-43.png
+INPUT ./images//Screenshot from 2022-05-31 16-32-43.png
+INPUT ./images//Screenshot from 2022-05-31 16-33-53.png
+INPUT ./images//Screenshot from 2022-05-31 16-33-53.png
+INPUT ./images//Screenshot from 2022-05-31 16-33-53.png
+INPUT ./images//Screenshot from 2022-05-31 16-33-53.png
+INPUT ./images//Screenshot from 2022-05-31 16-33-53.png
 INPUT miguel_antoons_tfe_2022.aux
+INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc
 INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc
 INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc
 INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc
 INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc
-INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc
 INPUT /usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb
 INPUT /usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb
 INPUT /usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb
