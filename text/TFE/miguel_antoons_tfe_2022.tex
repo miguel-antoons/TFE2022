@@ -139,8 +139,6 @@ Il existe 2 types de station de réception :
 
 \subsubsection{Le Format WAV}
 
-% ! corrections for chunkSize and subChunkSize
-
 Le format de fichier WAV (Waveform Audio File) est un format destiné au stockage de signal audio développé par Microsoft et IBM.
 Il est construit conformément au RIFF (Ressource Interchange File Format) ce qui veut dire que le fichier est organisé en blocs de données, aussi nommés des "chunks" ou "data chunks".\\
 \\
@@ -527,7 +525,7 @@ Ceci est fait à l'aide de la fonction 'rfft' de la librairie Scipy, multipliée
 La fonction 'rfft' existe également dans la librairie NumPy, cependant dans ce cas de figure la librairie SciPy permettait de calculer la Transformée de Fourrier plus rapidement.
 Enfin, la fonction FFT retourne la Transformée de Fourier normalisée, son abscisse et sa résolution fréquentielle.\\
 \\
-Le code de cette méthode peut être visualisé à la figure %! figure.
+Le code de cette méthode peut être visualisé à la figure 8.
 
 \begin{figure}
     \begin{lstlisting}[style=CStyle]
@@ -625,7 +623,7 @@ La première va donc, pour chaque fichier demandé, performer une suite d'étape
 Premièrement, elle va chercher le fichier à l'aide de la classe 'BramsWavFile'.
 Si une erreur se produit lors de la recherche du fichier, on considère que le fichier n'existe pas et le programme passe au fichier suivant.
 Lorsqu'on a le fichier, on peut calculer la dsp du bruit et du signal calibreur.
-La fonction permettant de calculer le bruit est affichée ce dessous.\\
+La fonction permettant de calculer la dsp, peut être visualisée à la figure 9.\\
 \\
 Dans le cas du bruit, on prend toujours la moyenne de la dsp entre 800 Hz et 900 Hz.
 Entre ces deux fréquences on retrouve normalement uniquement du bruit.
@@ -652,13 +650,13 @@ Si l'option \textbf{-p} (\textbf{--plot}) a été donné au lancement du program
 \end{figure}
 
 Lors des tests, quelques résultats ont déjà montrés des informations intéressantes.
-Un bon exemple est l'antenne quatre de la station à Humain entre le 1\textsuperscript{er} mars 2022 et le 30 avril 2022, à la figure %! figure.
+Un bon exemple est l'antenne quatre de la station à Humain entre le 1\textsuperscript{er} mars 2022 et le 30 avril 2022, à la figure 10.
 On remarque qu'à partir 8 mars 2022, le signal calibreur diminue fortement d'intensité.
 Après une étude en profondeur par les scientifiques du projet BRAMS, ils ont trouvé que ceci était dû à un problème avec l'oscillateur local.
 Ce problème causait une translation de 500 Hz vers le bas de tout signal.
 Ceci veut dire que tous les fichiers générés alors qu'il y avait ce problème sont inutilisables.\\
 \\
-Un autre exemple est la station à Haacht entre le 1\textsuperscript{er} juillet 2021 et le 31 août 2021 affichée à la figure %! figure n.
+Un autre exemple est la station à Haacht entre le 1\textsuperscript{er} juillet 2021 et le 31 août 2021 affichée à la figure 11.
 Ici, on constate une diminution graduelle de l'intensité du bruit, jusqu'à ce que le récepteur ne capte plus rien.
 Ceci est causé suite au vieillissement du récepteur ICOM.
 Cette station a donc dû être remplacée.
@@ -698,9 +696,9 @@ Un écho de météore est, dans un spectrogramme, caractérisé par un signal qu
 Ceci est possible en performant une convolution sur le spectrogramme.
 Une convolution est une opération mathématique qui prend deux fonctions en entrée et qui produit un nouveau signal.
 Dans ce cas si, le  signal en entrée sera le spectrogramme, ou une partie du spectrogramme, et le deuxième signal est le filtre.
-Une illustration de la convolution peut être trouvée à la figure %!figure.
+Une illustration de la convolution peut être trouvée à la figure 12.
 Afin d'arriver à un bon résultat, il a fallu tester plusieurs filtres.
-Le filtre offrant les meilleurs résultats est illustré à la figure %!figure.
+Le filtre offrant les meilleurs résultats est illustré à la figure 13.
 Elle permet de faire deux choses :
 
 \begin{itemize}
