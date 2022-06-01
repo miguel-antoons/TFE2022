@@ -113,7 +113,8 @@ def get_meteor_coords(
                 try:
                     # read the wav file
                     wav = BramsWavFile(
-                        datetime.strptime(date, '%Y%m%d%H%M'),
+                        datetime.strptime(date, '%Y%m%d%H%M')
+                        .replace(tzinfo=timezone.utc),
                         location,
                         f"SYS{antenna.rjust(3, '0')}",
                         respect_date=True,
