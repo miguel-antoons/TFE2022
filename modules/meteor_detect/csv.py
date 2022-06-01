@@ -2,11 +2,12 @@ import csv
 import os
 
 from datetime import datetime, timezone, timedelta
+from typing import Union
 
 
 def write_csv(
     data: list,
-    directory: str | None = None,
+    directory: Union[str, None] = None,
     filename: str = 'meteor_detect',
     header: list = [
         'location_code',

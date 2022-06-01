@@ -13,6 +13,7 @@ from modules.meteor_detect.spectrogram import Spectrogram
 from datetime import datetime, timedelta, timezone
 from scipy.fft import rfft, rfftfreq
 from scipy.signal import windows
+from typing import Union
 
 # default_dir = 'recordings/'
 default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
@@ -216,8 +217,8 @@ def get_close(stations, reference_station_code=None):
 
 def generate_filename(
     basis: str = 'meteor_detect',
-    date: datetime | None = None,
-    station: str | None = None
+    date: Union[datetime, None] = None,
+    station: Union[str, None] = None
 ):
     if date is None:
         date = ''

@@ -6,9 +6,12 @@
 \usepackage{graphicx}
 \usepackage{lmodern}
 \usepackage{xcolor}
-\usepackage{listings}
 \usepackage[T1]{fontenc}
 \usepackage[bottom]{footmisc}
+\usepackage[french]{babel}
+\usepackage{hyperref}
+\def\UrlBreaks{\do\/\do-}
+\usepackage{listings}
 \graphicspath{ {./images/} }
 
 \definecolor{mGreen}{rgb}{0,0.6,0}
@@ -397,7 +400,7 @@ Elle permet également de trouver la distance entre deux lieux en donnant les co
 \\
 \textbf{Math}\\
 Le module math offre toute une série de fonctions mathématique de base.
-Elle est installée par défaut avec Python.
+Elle est installée par défaut avec Python.\\
 \\
 \textbf{Matplotlib}\\
 La librairie Python Matplotlib permet de générer des graphiques et de les enregistrer en tant qu'image.\\
@@ -830,7 +833,7 @@ Avec ces coordonnées, on pourra alors retrouver la fréquence maximale et la fr
         \caption{Spectrogramme après l'amplification des échos de météores et la suppression de la majorité du bruit.}
     \end{center}
 \end{figure}
-Enfin, le programme crée un fichier CSV\footnote{Comma Separated Values} qui contiendra une ligne par écho de météore détecté.
+Enfin, le programme crée un fichier CSV\footnote{Comma Separated Values} (figure 17) qui contiendra une ligne par écho de météore détecté.
 Chaque ligne contiendra :
 \begin{enumerate}
     \item Le code de location de la station où est détecté l'écho.
@@ -844,6 +847,14 @@ Chaque ligne contiendra :
 \end{enumerate}
 
 De cette façon, les données pourront facilement être lues et réutilisées pour étudier ces météores.
+
+%? maybe change this image ?
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.44]{Screenshot from 2022-05-31 16-35-06.png}
+        \caption{Exemple de fichier CSV généré par le programme de détection de météores.}
+    \end{center}
+\end{figure}
 
 \newpage
 
@@ -879,5 +890,42 @@ Ce travail m'a permis d'étendre mes connaissances dans le domaine du traitement
 Le mélange de ces connaissances avec des nouvelles notions, que je n'avais pas encore appris, afin d'arriver à un résultat final a été un vrai défi pour moi.\\
 \\
 Enfin, ce projet m'a permis de contribuer à un projet scientifique de grande échelle.
+
+\newpage
+
+\begin{thebibliography}{100}
+    \bibitem{brams_site} \textit{Site internet du projet BRAMS}, consulté en janvier 2022\\\url{https://brams.aeronomie.be/}
+    \bibitem{sc.spectrogram} \textit{Documentation de la fonction scipy.signal.spectrogram}, consulté en février 2022\\\url{https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.spectrogram.html}
+    \bibitem{spectro1} \textit{Hands-On Tutorial on Visualizing Spectrograms in Python}, consulté en février 2022\\\url{https://analyticsindiamag.com/hands-on-tutorial-on-visualizing-spectrograms-in-python/}
+    \bibitem{spectro2} \textit{Cutting unused frequencies with specgram, matplotib}, consulté en février 2022\\\url{https://stackoverflow.com/questions/19468923/cutting-of-unused-frequencies-in-specgram-matplotlib}
+    \bibitem{matplotlib} \textit{Documentation Matplotlib}, consulté en février 2022\\\url{https://matplotlib.org/stable/api/mlab_api.html#matplotlib.mlab.specgram}
+    \bibitem{spectro3} \textit{Set spectrogram Parameters}, consulté en février 2022\\\url{https://stackoverflow.com/questions/29321696/what-is-a-spectrogram-and-how-do-i-set-its-parameters}
+    \bibitem{convolve} \textit{Documentation de la fonction numpy.convolve}, consulté en mars 2022\\\url{https://numpy.org/doc/stable/reference/generated/numpy.convolve.html}
+    \bibitem{convolve2} \textit{How to convolve two 2-dimensional matrices in python with scipy}, consulté en mars 2022\\\url{https://moonbooks.org/Articles/How-to-do-a-simple-2D-convolution-between-a-kernel-and-an-image-in-python-with-scipy-/}
+    \bibitem{blocs} \textit{Slice 2D array in smaller 2D arrays}, consulté en mars 2022\\\url{https://stackoverflow.com/questions/16856788/slice-2d-array-into-smaller-2d-arrays}
+    \bibitem{conf_factor} \textit{Compute a confidence interval from sample data}, consulté en mars 2022\\\url{https://stackoverflow.com/questions/15033511/compute-a-confidence-interval-from-sample-data}
+    \bibitem{wav}\textit{Microsoft WAVE soundfile format}, consulté en mars 2022\\\url{http://soundfile.sapp.org/doc/WaveFormat/}
+    \bibitem{mail} \textit{Python - Sending Email using SMTP}, consulté en mars 2022\\\url{https://www.tutorialspoint.com/python/python_sending_email.htm}
+    \bibitem{convolve3}\textit{The fastest 2D convolution in the world}, consulté en mars 2022\\\url{https://laurentperrinet.github.io/sciblog/posts/2017-09-20-the-fastest-2d-convolution-in-the-world.html}
+    \bibitem{convolve4}\textit{Documentation de la fonction scipy.ndimage.convolve}, consulté en mars 2022\\\url{https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.convolve.html}
+    \bibitem{psd}\textit{Power Spectral Density - an overview}, consulté en avril 2022\\\url{https://www.sciencedirect.com/topics/computer-science/power-spectral-density}
+    \bibitem{psd2}\textit{What is a Power Spectral Density}, consulté en avril 2022\\\url{https://community.sw.siemens.com/s/article/what-is-a-power-spectral-density-psd}
+    \bibitem{datetime}\textit{How to add time onto a datetime object in Python}, consulté en avril 2022\\\url{https://www.adamsmith.haus/python/answers/how-to-add-time-onto-a-datetime-object-in-python}
+    \bibitem{fft1}\textit{Fourier Transforms With scipy.fft: Python Signal Processing}, consulté en avril 2022\\\url{https://realpython.com/python-scipy-fft/#why-would-you-need-the-fourier-transform}
+    \bibitem{fft2}\textit{Documentation de la fonction scipy.fft.rfft}, consulté en avril 2022\\\url{https://docs.scipy.org/doc/scipy/reference/generated/scipy.fft.rfft.html}
+    \bibitem{csv}\textit{Reading and Writing CSV Files in Python - Real Python}, consulté en mai 2022\\\url{https://realpython.com/python-csv/}
+    \bibitem{tqdm}\textit{A Fast, Extensible Progress Bar for Python and CLI - TQDM}, consulté en mai 2022\\\url{https://github.com/tqdm/tqdm}
+    \bibitem{tarfile}\textit{Documentation du module tarfile}, consulté en mai 2022\\\url{https://docs.python.org/3/library/tarfile.html}
+    \bibitem{json}\textit{Documentation de la librairie simplejson}, consulté en mai 2022\\\url{https://pypi.org/project/simplejson/}
+    \bibitem{cmd_args} \textit{Python Command Line Arguments}, consulté en mai 2022\\\url{https://realpython.com/python-command-line-arguments/}
+    \bibitem{argparse}\textit{Documentation du module argparse}, consulté en mai 2022\\\url{https://docs.python.org/3/library/argparse.html}
+    \bibitem{img}\textit{Artificial neural network for bubbles pattern recognition on the images - Scientific Figure on ResearchGate}, consulté en mai 2022\\\url{https://www.researchgate.net/figure/a-Illustration-of-the-operation-principle-of-the-convolution-kernel-convolutional-layer_fig2_309487032}
+\end{thebibliography}
+
+\newpage
+
+\section{Annexes}
+
+
 
 \end{document}

@@ -46,7 +46,7 @@ class Spectrogram:
 
         self._default_treshold = None
 
-        # DEVELOP
+        # * DEVELOP
         # print(f'Max spectrogram value : {np.max(self.Pxx)}')
         # print(f'Min spectrogram value : {np.min(self.Pxx)}')
 
