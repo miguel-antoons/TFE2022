@@ -189,7 +189,7 @@ def get_meteor_coords(
                 # find a more precise representation of the meteor coords
                 specs = spectrogram.get_meteor_specs(coords)
                 print(
-                    f"Found {len(specs)} meteors is file "
+                    f"Found {len(specs)} meteors in file "
                     f"{system_file['file_path']}."
                 )
 
@@ -409,7 +409,7 @@ def arguments():
 
 
 if __name__ == '__main__':
-    main_test()
-    # args = arguments()
-    # main(args)
-    # print('Exiting...')
+    # main_test()
+    args = arguments()
+    main(args)
+    print('Exiting...')

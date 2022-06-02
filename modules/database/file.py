@@ -274,7 +274,8 @@ def get_file_by_interval(stations, interval):
         "   precise_end,\n"
         "   file.start,\n"
         "   longitude,\n"
-        "   latitude\n"
+        "   latitude,\n"
+        "   path\n"
         "FROM file\n"
         "JOIN `system` on file.system_id = system.id\n"
         "JOIN location on system.location_id = location.id\n"
@@ -298,7 +299,7 @@ def get_file_by_interval(stations, interval):
 
     # structure all the data received from the database in a dictionary
     # where the location codes and teh antennas are the keys
-    for (code, antenna, start, end, date, longitude, latitude) in cursor:
+    for (code, antenna, start, end, date, longitude, latitude, path) in cursor:
         date = date.replace(tzinfo=timezone.utc)
         if code not in files.keys():
             files[code] = {
@@ -314,7 +315,7 @@ def get_file_by_interval(stations, interval):
             'start': start,
             'end': end,
             'date': date,
-            'file_path': None
+            'file_path': path
         }
 
     db.close_connection(cursor, connection)
