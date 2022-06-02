@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1654112904 "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" "miguel_antoons_tfe_2022.pdf" "miguel_antoons_tfe_2022" 1654112909
+["pdflatex"] 1654200117 "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" "miguel_antoons_tfe_2022.pdf" "miguel_antoons_tfe_2022" 1654200121
   "/etc/texmf/web2c/texmf.cnf" 1651002338 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" 1654112904 63579 78626948f5625fc2e4eae9e266ccb3a6 ""
+  "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" 1654200116 64867 d6dce4f6e927abb7a1bdaac712301b86 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmr10.tfm" 1136768653 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
   "/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1461363279 71627 94eb9990bed73c364d7f53f960cc8c5b ""
@@ -131,11 +131,10 @@
   "images//spectre.png" 1653309004 22579 7da7312ab7ca30e8e0d170478db63a05 ""
   "images//spectrogramme_legend.png" 1653311080 538000 55efe22b7cdd87aeb3be13a471cb1006 ""
   "images//wav_brut.png" 1653309040 96701 4bb4639119472dea20b877c879e2297d ""
-  "images//wav_structure.png" 1654000781 456572 3d2e92f62212c69db203a027c0f3cb7f ""
-  "miguel_antoons_tfe_2022.aux" 1654112909 7601 9eeb2282162b749331775d588320077f "pdflatex"
-  "miguel_antoons_tfe_2022.out" 1654112909 3780 91ffffe76a0fa20fcb0133c75a9dcbae "pdflatex"
-  "miguel_antoons_tfe_2022.tex" 1654112904 63579 78626948f5625fc2e4eae9e266ccb3a6 ""
-  "miguel_antoons_tfe_2022.toc" 1654112909 2143 b7b0f89874459b8861ea84ab4ff873f0 "pdflatex"
+  "miguel_antoons_tfe_2022.aux" 1654200121 7533 72b08b02d6123630a5833213b5017f89 "pdflatex"
+  "miguel_antoons_tfe_2022.out" 1654200121 4003 367e124b294ae0363308f35dfdb8ff86 "pdflatex"
+  "miguel_antoons_tfe_2022.tex" 1654200116 64867 d6dce4f6e927abb7a1bdaac712301b86 ""
+  "miguel_antoons_tfe_2022.toc" 1654200121 2184 3304030478a251db8237d198620f96f9 "pdflatex"
   (generated)
   "miguel_antoons_tfe_2022.aux"
   "miguel_antoons_tfe_2022.log"

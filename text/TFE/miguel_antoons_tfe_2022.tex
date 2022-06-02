@@ -112,79 +112,36 @@
 
 \section{Introduction}
 
-\subsection{Le projet BRAMS}
-
-Lancé en 2010 par Monsieur Hervé Lamy à l'Institut Royal d'Aéronomie Spatiale de Belgique, le projet BRAMS (Belgian RAdio Meteor Stations) à pour but de collecter et stocker des données relatives à des objets rentrant dans l'atmosphère belge et, plus précisément, des météores.
-Ces données pourront ensuite être analysés afin de retrouver la trajectoire, la vitesse ou encore la masse d'un ou de plusieurs météores.\\
-
-\subsubsection{Le Réseau BRAMS}
-
-Afin d'accomplir ce but, le projet BRAMS dispose d'un réseau de stations nommé le réseau BRAMS.
-Ce réseau est composé d'un ensemble de quarante-deux stations émettrices, situées en Belgique ou dans les pays avoisinants, et d'un émetteur dédié situé à Dourbes, dans le sud de la Belgique.\\
+Chaque jour, des milliers d'objets passent tout près de l'atmosphère terrestre.
+Parmi ces objets, on retrouve les météoroïdes : un corps pierreux ou métallique d'une largeur pouvant varier de quelques millimètres à un mètre.
+Un météoroïde, une fois rentré dans l'atmosphère, devient un météore et peut créer un phénomène lumineux connu sous le nom de "Étoile filante".
+Contrairement à ce que l'on peut penser, un météoroïde qui rentre dans l'atmosphère terrestre est un événement qui se passe des milliers de fois par jour.
 \\
-Il existe 2 types de station de réception :
-\begin{itemize}
-    \item Il y a d'abord les stations avec des récepteurs Icom IC-R75, que j'apellerai les récepteurs ICOM dans ce document.
-          Ce sont les premières stations réceptrices mises en service pour le réseau BRAMS.
-          Actuellement, ces stations ne sont plus utilisées suite à l'arrêt de la commercialisation du récepteur Icom IC-R75.
-          De plus, une variation de température pouvait causer une légère déstabilisation en fréquence.
-    \item C'est alors que les stations utilisant le récepteur RSP 2 ont été développés.
-          Ces stations n'éliminaient pas seulement en grande partie les problèmes des anciennes stations, mais sont également plus compacts et plus faciles à installer.
-          Une image des stations RSP 2 peut être trouvé à la figure 1.
-\end{itemize}
+\\
+L'étude de ces météores permet de retrouver différentes informations telles que la masse ou encore la trajectoire de ceux-ci.
+Mais, afin de pouvoir les étudier, il est nécessaire de les détecter avant.
+Actuellement, différentes techniques existent pour détecter des météores dans l'atmosphère.
 
-\begin{figure}[t]
-    \begin{center}
-        \includegraphics[scale=0.5]{RPS2.png}
-        \caption{Station RSP 2 du réseau BRAMS}
-    \end{center}
-\end{figure}
+%* CAMS
+%* radio detection
+%*link to next paragraph
 
-\subsubsection{Le Format WAV}
 
-Le format de fichier WAV (Waveform Audio File) est un format destiné au stockage de signal audio développé par Microsoft et IBM.
-Il est construit conformément au RIFF (Ressource Interchange File Format) ce qui veut dire que le fichier est organisé en blocs de données, aussi nommés des "chunks" ou "data chunks".\\
-\\
-Chaque bloc de données dispose d'un ID codé sur 4 octets, qui représente souvent un mot de 4 lettres.
-Suit ensuite le champ "subChunkSize" indiquant la taille des données à venir dans le bloc de données, codé également sur 4 octets.
-Cette valeur exclut donc les champs "ID" et "subChunkSize" du bloc courant.
-Après ces 2 champs, on est libre de rajouter le nombre de champs que l'on souhaite, avec la taille en octets que l'on souhaite.\\
-\\
-Pour un fichier WAV, on retrouve typiquement 3 blocs de données.
-On retrouve premièrement le bloc "RIFF", dont le champ "ID" contient les quatre lettres "RIFF".
-Ce bloc est particulier puisque, au lieu d'avoir un champ "subChunkSize", il a un champ "ChunkSize".
-La différence est que, contrairement au champ "subChunkSize", le champ "ChunkSize" contient la taille de l'entièreté du fichier, exclu le champ "ID" et le champ "ChunkSize" même du bloc "RIFF".
-Vient ensuite le champ "format", ce champ indique le type de fichier actuel.
-Dans le cas du fichier WAV, ce dernier contient les quatre lettres "WAVE".\\
-\\
-Le deuxième bloc, nommé le bloc FMT\footnote{FMT pour format}, contenu dans un fichier WAV ordinaire contient toutes les données techniques des données.
-On y trouve notamment la fréquence d'échantillonnage, le nombre de pistes audio ou encore le nombre d'octets par secondes.\\
-\\
-Vient enfin le bloc principal du fichier : le bloc de données.
-C'est dans ce bloc que se trouvent les données audio brutes.
-La taille de ce bloc varie bien-entendu selon les caractéristiques techniques des données audio (longueur, fréquence d'échantillonnage, nombre de pistes, etc.).\\
-\\
-Une chose à noter à propos des fichiers WAV est que leur structure offre une grande flexibilité.
-En effet, elle permet non-seulement de lire et interpréter les fichiers facilement, mais également de rajouter des blocs de données personnalisés sans corrompre les autres données.\\
-\\
-La figure 2 montre la structure d'un fichier WAV ordinaire.
 
-\begin{figure}[t]
-    \begin{center}
-        \includegraphics[scale=0.3]{wav_structure.png}
-        \caption{Structure d'un fichier WAV ordinaire}
-    \end{center}
-\end{figure}
 
 \newpage
 
-\subsubsection{La Réflexion Spéculaire}
+\section{Détection des météores par ondes radios}
+
+%! this title should go away
+\subsection{La Réflexion Spéculaire}
 
 Pour comprendre le fonctionnement du réseau BRAMS, la première chose à savoir est : lorsqu'un météore passe dans l'atmosphère, il laisse derrière lui une trainée ionisée.
 Cette trainée à la propriété de réfléchir les ondes radio.
 Dans la plus grande partie des cas cette réflexion se fait en un seul point le long de la trajectoire, phénomène qui s'appelle la réflexion spéculaire (illustré à la figure 3).
 La position de ce point, nommé le point de réflexion spéculaire, dépend notamment du positionnement de l'émetteur, du positionnement du récepteur et de la trajectoire du météore.\\
 \\
+%! below part must not be here
 Pour exploiter le phénomène de la réflexion spéculaire et réussir à détecter les météores à l'aide d'ondes radios, le réseau BRAMS fonctionne de la façon suivante :
 \begin{enumerate}
     \item Un émetteur, situé à Dourbes, transmet de façon continue un signal à une fréquence de 49.97 MHz.
@@ -208,7 +165,77 @@ Pour exploiter le phénomène de la réflexion spéculaire et réussir à détec
     \end{center}
 \end{figure}
 
-\subsubsection{Les Données BRAMS}
+\section{Le projet BRAMS}
+
+Lancé en 2010 par Monsieur Hervé Lamy à l'Institut Royal d'Aéronomie Spatiale de Belgique, le projet BRAMS (Belgian RAdio Meteor Stations) à pour but de collecter et stocker des données relatives à des objets rentrant dans l'atmosphère belge et, plus précisément, des météores.
+Ces données pourront ensuite être analysés afin de retrouver la trajectoire, la vitesse ou encore la masse d'un ou de plusieurs météores.\\
+
+\subsection{L'Émetteur}
+% TODO
+
+\subsection{Les Stations de Réception}
+%! below part needs to be restructured
+Afin d'accomplir ce but, le projet BRAMS dispose d'un réseau de stations nommé le réseau BRAMS.
+Ce réseau est composé d'un ensemble de quarante-deux stations émettrices, situées en Belgique ou dans les pays avoisinants, et d'un émetteur dédié situé à Dourbes, dans le sud de la Belgique.\\
+\\
+Il existe 2 types de station de réception :
+% ! the part below should be divided in 2 subtitles and should also be developped more
+\begin{itemize}
+    \item Il y a d'abord les stations avec des récepteurs Icom IC-R75, que j'apellerai les récepteurs ICOM dans ce document.
+          Ce sont les premières stations réceptrices mises en service pour le réseau BRAMS.
+          Actuellement, ces stations ne sont plus utilisées suite à l'arrêt de la commercialisation du récepteur Icom IC-R75.
+          De plus, une variation de température pouvait causer une légère déstabilisation en fréquence.
+    \item C'est alors que les stations utilisant le récepteur RSP 2 ont été développés.
+          Ces stations n'éliminaient pas seulement en grande partie les problèmes des anciennes stations, mais sont également plus compacts et plus faciles à installer.
+          Une image des stations RSP 2 peut être trouvé à la figure 1.
+\end{itemize}
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.5]{RPS2.png}
+        \caption{Station RSP 2 du réseau BRAMS}
+    \end{center}
+\end{figure}
+
+% \subsubsection{Le Format WAV}
+
+% Le format de fichier WAV (Waveform Audio File) est un format destiné au stockage de signal audio développé par Microsoft et IBM.
+% Il est construit conformément au RIFF (Ressource Interchange File Format) ce qui veut dire que le fichier est organisé en blocs de données, aussi nommés des "chunks" ou "data chunks".\\
+% \\
+% Chaque bloc de données dispose d'un ID codé sur 4 octets, qui représente souvent un mot de 4 lettres.
+% Suit ensuite le champ "subChunkSize" indiquant la taille des données à venir dans le bloc de données, codé également sur 4 octets.
+% Cette valeur exclut donc les champs "ID" et "subChunkSize" du bloc courant.
+% Après ces 2 champs, on est libre de rajouter le nombre de champs que l'on souhaite, avec la taille en octets que l'on souhaite.\\
+% \\
+% Pour un fichier WAV, on retrouve typiquement 3 blocs de données.
+% On retrouve premièrement le bloc "RIFF", dont le champ "ID" contient les quatre lettres "RIFF".
+% Ce bloc est particulier puisque, au lieu d'avoir un champ "subChunkSize", il a un champ "ChunkSize".
+% La différence est que, contrairement au champ "subChunkSize", le champ "ChunkSize" contient la taille de l'entièreté du fichier, exclu le champ "ID" et le champ "ChunkSize" même du bloc "RIFF".
+% Vient ensuite le champ "format", ce champ indique le type de fichier actuel.
+% Dans le cas du fichier WAV, ce dernier contient les quatre lettres "WAVE".\\
+% \\
+% Le deuxième bloc, nommé le bloc FMT\footnote{FMT pour format}, contenu dans un fichier WAV ordinaire contient toutes les données techniques des données.
+% On y trouve notamment la fréquence d'échantillonnage, le nombre de pistes audio ou encore le nombre d'octets par secondes.\\
+% \\
+% Vient enfin le bloc principal du fichier : le bloc de données.
+% C'est dans ce bloc que se trouvent les données audio brutes.
+% La taille de ce bloc varie bien-entendu selon les caractéristiques techniques des données audio (longueur, fréquence d'échantillonnage, nombre de pistes, etc.).\\
+% \\
+% Une chose à noter à propos des fichiers WAV est que leur structure offre une grande flexibilité.
+% En effet, elle permet non-seulement de lire et interpréter les fichiers facilement, mais également de rajouter des blocs de données personnalisés sans corrompre les autres données.\\
+% \\
+% La figure 2 montre la structure d'un fichier WAV ordinaire.
+
+% \begin{figure}[t]
+%     \begin{center}
+%         \includegraphics[scale=0.3]{wav_structure.png}
+%         \caption{Structure d'un fichier WAV ordinaire}
+%     \end{center}
+% \end{figure}
+
+% \newpage
+
+\subsection{Les Données BRAMS}
 
 Un fichier WAV venant d'une station réceptrice contient donc le signal capté par l'antenne ensemble avec un signal calibreur.
 Il est composé d'une seule piste audio, échantillonnée à une fréquence de 5512.5 Hz ou 6048 Hz.
@@ -271,7 +298,7 @@ Un exemple de spectrogramme venant d'une station de réception est affiché à l
     \end{center}
 \end{figure}
 
-\subsubsection{L'Archive BRAMS}
+\subsection{L'Archive BRAMS}
 
 Quand les fichiers venant des stations de réception sont archivés, ils sont placés dans une structure de répertoires spécifique.
 Cette structure dépend de la date de début d'enregistrement des données contenues dans le fichier.\\
@@ -316,7 +343,8 @@ Un exemple de nom de fichier est affichée à la figure 7.
 
 \newpage
 
-\subsection{Problématique liée à l'étude des données BRAMS}
+%! develop this part more
+\section{Problématique liée à l'étude des données BRAMS}
 
 Afin de pouvoir trouver la trajectoire d'un météore dans l'atmosphère, il est nécessaire de rechercher par quelles stations réceptrices le météore est détecté.
 Ceci est une procédure qui prend un temps non négligeable pour les scientifiques du projet.
