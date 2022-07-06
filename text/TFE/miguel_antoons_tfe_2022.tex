@@ -115,69 +115,115 @@
 Chaque jour, des milliers d'objets passent tout près de l'atmosphère terrestre.
 Parmi ces objets, on retrouve les météoroïdes : un corps pierreux ou métallique d'une largeur pouvant varier de quelques millimètres à un mètre.
 Un météoroïde, une fois rentré dans l'atmosphère, devient un météore et peut créer un phénomène lumineux connu sous le nom de "Étoile filante".
-Contrairement à ce que l'on peut penser, un météoroïde qui rentre dans l'atmosphère terrestre est un événement qui se passe des milliers de fois par jour.
+Contrairement à ce que l'on peut penser, un météoroïde qui entre dans l'atmosphère terrestre est un événement qui se produit des milliers de fois par jour.
 \\
 \\
 L'étude de ces météores permet de retrouver différentes informations telles que la masse ou encore la trajectoire de ceux-ci.
+Ce travail de fin d'étude a pour objectif de faciliter l'étude de météores.
+Il fera ceci en permettant une visualisation facile de la qualité des données étudiées et en automatisant une partie de la détection des météores.
 Mais, afin de pouvoir les étudier, il est nécessaire de les détecter avant.
 Actuellement, différentes techniques existent pour détecter des météores dans l'atmosphère.
-
-%* CAMS
-%* radio detection
-%*link to next paragraph
-
-
-
+\\
+\\
+L'une d'entre elles est la détection à l'aide de caméras.
+Ceci a l'avantage de directement voir la trajectoire du météore et facilite donc l'étude.
+Cependant, elle a un grand défaut : lorsque le ciel est nuageux ou qu'il fait jour la technique est moins efficace.
+De plus, lorsqu'un petit météoroïde entre dans l'atmosphère, elle ne produit pas assez de lumière pour pouvoir être détecté par une caméra.
+C'est alors qu'une autre technique, celle par détection à l'aide d'ondes radio devient intéressante.
+\\
+\\
+Ce travail de fin d'études consistera à l'automatisation de deux étapes du traitement des données produites par cette dernière technique.
+%? Personal objectives?
 
 \newpage
 
 \section{Détection des météores par ondes radios}
 
-%! this title should go away
-\subsection{La Réflexion Spéculaire}
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.37]{ForwardScatter_principle.png}
+        \caption{Détection d'un météore à l'aide d'ondes radios.}
+        \label{fig:forward_scatt}
+    \end{center}
+\end{figure}
 
-Pour comprendre le fonctionnement du réseau BRAMS, la première chose à savoir est : lorsqu'un météore passe dans l'atmosphère, il laisse derrière lui une trainée ionisée.
+Quand un météoroïde entre dans la partie haute de l'atmosphère (approximativement à 80 - 120 km de la surface terrestre) il laisse derrière lui une trainée ionisée.
 Cette trainée à la propriété de réfléchir les ondes radio.
-Dans la plus grande partie des cas cette réflexion se fait en un seul point le long de la trajectoire, phénomène qui s'appelle la réflexion spéculaire (illustré à la figure 3).
-La position de ce point, nommé le point de réflexion spéculaire, dépend notamment du positionnement de l'émetteur, du positionnement du récepteur et de la trajectoire du météore.\\
+On peut donc détecter un météore à l'aide de sa trainée ionisée.
 \\
-%! below part must not be here
-Pour exploiter le phénomène de la réflexion spéculaire et réussir à détecter les météores à l'aide d'ondes radios, le réseau BRAMS fonctionne de la façon suivante :
-\begin{enumerate}
-    \item Un émetteur, situé à Dourbes, transmet de façon continue un signal à une fréquence de 49.97 MHz.
-          Ce signal est émis en direction du ciel et peut être réfléchi sur des trainées ionisées dans le sillage des météores.
-    \item Lorsque le signal est réfléchi, il peut être détecté par une ou plusieurs stations réceptrices faisant partie du réseau BRAMS.
-          Un signal calibreur est alors additionné au signal venant du ciel.
-          Ce signal est injecté à 49.9705 MHz, c'est-à-dire 500 Hz plus haut que le signal direct.
-          Il dispose d'une amplitude fixe et sert de référence d'amplitude pour le reste du signal.
-          La station réceptrice décale ensuite le signal direct de 49.97 MHz vers une fréquence de 1 kHz.
-    \item Ensuite, la station réceptrice enregistre l'ensemble du signal dans un fichier audio de type WAV.
-          Le signal est échantillonné à une fréquence de 5512,5 Hz pour les stations ICOM et 6048 Hz pour les stations RSP2.
-          Si tout se passe bien, un fichier est généré toutes les cinq minutes et chaque fichier devrait commencer et terminer à un temps prédéfini (par exemple : 16 h 00 à 16 h 05, 16 h 05 à 16 h 10, etc.).
-    \item Tous les fichiers générés par les stations réceptrices sont envoyés à intervalle régulier aux serveurs utilisés pour le projet BRAMS par internet.
-    \item Une fois sur le serveur, les fichiers WAV sont archivés, manipulés et étudiés par les scientifiques du projet BRAMS afin d'en extraire les informations utiles.
-\end{enumerate}
+\\
+Afin d'exploiter cette réflexion, il nous faut un émetteur dont le signal radio est réfléchi à l'aide de la trainée d'un météore et est ensuite enregistré par un récepteur.
+Cette procédure est illustrée à la figure \ref{fig:forward_scatt}, où la flèche jaune représente la trainée ionisée produite par le météore.
+Le signal reçu par l'émetteur est alors appelé un écho de météore.
+Un écho de météore peut durer entre une et 10 secondes, selon la durée d'existence de la trainée ionisée.
+\\
+\\
+Une caractéristique importante de cette technique de détection est la réflexion spéculaire.
+Ceci veut dire que la trainée ionisée du météore agit comme un miroir sur lequel la réflexion se produit uniquement à un point précis, appelé le point de réflexion spéculaire.
+Le point de réflexion spéculaire dépend de la position de l'émetteur, la position du récepteur et la trajectoire du météore.
+La conséquence est que les données reçues par un récepteur particulier sont relatives qu'à une partie précise de la trainée.
+\\
+\\
+De plus, deux récepteurs, situés à des endroits différents, enregistreront un écho de météore à des instants différents puisque leurs points de réflexion spéculaire sont situés à des endroits différents sur la trajectoire.
+Ceci est illustré à la figure \ref{fig:specular_reflex} où le point de réflexion P0 entre le transmetteur Tx et le récepteur Rx0 est situé à un endroit différent que le point de réflexion P1 entre le transmetteur et le récepteur Rx1.
 
 \begin{figure}[t]
     \begin{center}
-        \includegraphics[scale=0.6]{SpecularReflection.png}
-        \caption{Représentation de la réflexion spéculaire.}
+        \includegraphics[scale=1]{scema_reflexion_speculaire.png}
+        \caption{Le point de réflexion spéculaire est différent pour chaque station réceptrice.}
+        \label{fig:specular_reflex}
+    \end{center}
+\end{figure}
+
+%! below part must not be here
+% Pour exploiter le phénomène de la réflexion spéculaire et réussir à détecter les météores à l'aide d'ondes radios, le réseau BRAMS fonctionne de la façon suivante :
+% \begin{enumerate}
+%     \item Un émetteur, situé à Dourbes, transmet de façon continue un signal à une fréquence de 49.97 MHz.
+%           Ce signal est émis en direction du ciel et peut être réfléchi sur des trainées ionisées dans le sillage des météores.
+%     \item Lorsque le signal est réfléchi, il peut être détecté par une ou plusieurs stations réceptrices faisant partie du réseau BRAMS.
+%           Un signal calibreur est alors additionné au signal venant du ciel.
+%           Ce signal est injecté à 49.9705 MHz, c'est-à-dire 500 Hz plus haut que le signal direct.
+%           Il dispose d'une amplitude fixe et sert de référence d'amplitude pour le reste du signal.
+%           La station réceptrice décale ensuite le signal direct de 49.97 MHz vers une fréquence de 1 kHz.
+%     \item Ensuite, la station réceptrice enregistre l'ensemble du signal dans un fichier audio de type WAV.
+%           Le signal est échantillonné à une fréquence de 5512,5 Hz pour les stations ICOM et 6048 Hz pour les stations RSP2.
+%           Si tout se passe bien, un fichier est généré toutes les cinq minutes et chaque fichier devrait commencer et terminer à un temps prédéfini (par exemple : 16 h 00 à 16 h 05, 16 h 05 à 16 h 10, etc.).
+%     \item Tous les fichiers générés par les stations réceptrices sont envoyés à intervalle régulier aux serveurs utilisés pour le projet BRAMS par internet.
+%     \item Une fois sur le serveur, les fichiers WAV sont archivés, manipulés et étudiés par les scientifiques du projet BRAMS afin d'en extraire les informations utiles.
+% \end{enumerate}
+
+\newpage
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.5]{station_map.png}
+        \caption{Carte montrant l'emplacement de l'émetteur et des réceptrices.}
+        \label{fig:station_map}
     \end{center}
 \end{figure}
 
 \section{Le projet BRAMS}
 
-Lancé en 2010 par Monsieur Hervé Lamy à l'Institut Royal d'Aéronomie Spatiale de Belgique, le projet BRAMS (Belgian RAdio Meteor Stations) à pour but de collecter et stocker des données relatives à des objets rentrant dans l'atmosphère belge et, plus précisément, des météores.
-Ces données pourront ensuite être analysés afin de retrouver la trajectoire, la vitesse ou encore la masse d'un ou de plusieurs météores.\\
+Lancé en 2010 par Monsieur Hervé Lamy à l'Institut Royal d'Aéronomie Spatiale de Belgique, le projet BRAMS (Belgian RAdio Meteor Stations) a pour but de détecter et d'étudier les météores.
+Il dispose pour ceci d'un réseau d'un émetteur et de quarante-deux récepteurs situés dans la Belgique et dans les pays avoisinants qui utilise la détection des météores par ondes radios.
+Dans cette section, ce réseau et son fonctionnement seront expliqués.
 
 \subsection{L'Émetteur}
-% TODO
+
+Le réseau BRAMS dispose donc d'un émetteur unique situé à Dourbes, dans le sud de la Belgique.
+Sa location peut être visualisé sur la figure \ref{fig:station_map} où l'émetteur est représenté par un triangle bleue.
+Cet émetteur transmet de façon continue un signal à la fréquence 49.970 MHz et d'une puissance d'approximativement 120 W.
+Ce signal sera réfléchi sur d'éventuelles trainées de météores et pourra être détecté par des récepteurs.
 
 \subsection{Les Stations de Réception}
 %! below part needs to be restructured
 Afin d'accomplir ce but, le projet BRAMS dispose d'un réseau de stations nommé le réseau BRAMS.
 Ce réseau est composé d'un ensemble de quarante-deux stations émettrices, situées en Belgique ou dans les pays avoisinants, et d'un émetteur dédié situé à Dourbes, dans le sud de la Belgique.\\
 \\
+
+\subsubsection{Les Stations V1}
+
+\subsubsection{Les Stations V2}
 Il existe 2 types de station de réception :
 % ! the part below should be divided in 2 subtitles and should also be developped more
 \begin{itemize}
@@ -249,7 +295,7 @@ Ce bloc de données se trouve entre le bloc FMT et le bloc de données.\\
 Ces fichiers audio, comme montrée à la figure 4, sont très difficiles à interpréter.
 Ils sont composés de bruits et de parasites sur l'entièreté de leur bande de fréquence.
 Par contre, lorsque l'on calcule le spectrogramme du fichier WAV, les données deviennent beaucoup plus simples à lire.
-\begin{figure}[t]
+\begin{figure}[t] % ! below image must be changed to a better one
     \begin{center}
         \includegraphics[scale=0.5]{wav_brut.png}
         \caption{Données brutes venant d'un fichier audio d'une station réceptrice.}

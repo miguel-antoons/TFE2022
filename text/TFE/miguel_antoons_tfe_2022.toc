@@ -1,27 +1,28 @@
 \babel@toc {french}{}\relax 
 \contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
 \contentsline {section}{\numberline {2}Détection des météores par ondes radios}{4}{section.2}%
-\contentsline {subsection}{\numberline {2.1}La Réflexion Spéculaire}{4}{subsection.2.1}%
-\contentsline {section}{\numberline {3}Le projet BRAMS}{5}{section.3}%
-\contentsline {subsection}{\numberline {3.1}L'Émetteur}{5}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Les Stations de Réception}{5}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Les Données BRAMS}{6}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}L'Archive BRAMS}{9}{subsection.3.4}%
-\contentsline {section}{\numberline {4}Problématique liée à l'étude des données BRAMS}{11}{section.4}%
-\contentsline {section}{\numberline {5}Méthodologie}{12}{section.5}%
-\contentsline {section}{\numberline {6}Technologies utilisées}{13}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Python}{13}{subsection.6.1}%
-\contentsline {subsubsection}{\numberline {6.1.1}Librairies Utilisées}{13}{subsubsection.6.1.1}%
-\contentsline {subsection}{\numberline {6.2}MariaDB}{16}{subsection.6.2}%
-\contentsline {section}{\numberline {7}Lecture des Fichiers BRAMS}{17}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Fonctionnement du Module}{17}{subsection.7.1}%
-\contentsline {subsubsection}{\numberline {7.1.1}La méthode FFT}{19}{subsubsection.7.1.1}%
-\contentsline {section}{\numberline {8}Monitoring des Données BRAMS}{21}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Fonctionnement du Programme}{21}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Résultats}{23}{subsection.8.2}%
-\contentsline {section}{\numberline {9}Détection des Météores}{25}{section.9}%
-\contentsline {subsection}{\numberline {9.1}Analyse}{25}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}Fonctionnement du Programme}{28}{subsection.9.2}%
-\contentsline {section}{\numberline {10}Pistes d'Améliorations}{33}{section.10}%
-\contentsline {section}{\numberline {11}Conclusion}{34}{section.11}%
-\contentsline {section}{\numberline {12}Annexes}{38}{section.12}%
+\contentsline {section}{\numberline {3}Le projet BRAMS}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}L'Émetteur}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Les Stations de Réception}{7}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Les Stations V1}{7}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Les Stations V2}{7}{subsubsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.3}Les Données BRAMS}{7}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}L'Archive BRAMS}{10}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Problématique liée à l'étude des données BRAMS}{13}{section.4}%
+\contentsline {section}{\numberline {5}Méthodologie}{14}{section.5}%
+\contentsline {section}{\numberline {6}Technologies utilisées}{15}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Python}{15}{subsection.6.1}%
+\contentsline {subsubsection}{\numberline {6.1.1}Librairies Utilisées}{15}{subsubsection.6.1.1}%
+\contentsline {subsection}{\numberline {6.2}MariaDB}{18}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Lecture des Fichiers BRAMS}{19}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Fonctionnement du Module}{19}{subsection.7.1}%
+\contentsline {subsubsection}{\numberline {7.1.1}La méthode FFT}{21}{subsubsection.7.1.1}%
+\contentsline {section}{\numberline {8}Monitoring des Données BRAMS}{23}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Fonctionnement du Programme}{23}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Résultats}{25}{subsection.8.2}%
+\contentsline {section}{\numberline {9}Détection des Météores}{27}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Analyse}{27}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Fonctionnement du Programme}{30}{subsection.9.2}%
+\contentsline {section}{\numberline {10}Pistes d'Améliorations}{35}{section.10}%
+\contentsline {section}{\numberline {11}Conclusion}{36}{section.11}%
+\contentsline {section}{\numberline {12}Annexes}{40}{section.12}%
