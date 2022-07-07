@@ -206,22 +206,26 @@ Ceci est illustré à la figure \ref{fig:specular_reflex} où le point de réfle
 
 Lancé en 2010 par Monsieur Hervé Lamy à l'Institut Royal d'Aéronomie Spatiale de Belgique, le projet BRAMS (Belgian RAdio Meteor Stations) a pour but de détecter et d'étudier les météores.
 Il dispose pour ceci d'un réseau d'un émetteur et de quarante-deux récepteurs situés dans la Belgique et dans les pays avoisinants qui utilise la détection des météores par ondes radios.
+Les emplacements de ces stations peuvent être visualisé sur la figure \ref{fig:station_map}, où le triangle bleu représente l'émetteur et les boules vertes sont des réceptrices.
 Dans cette section, ce réseau et son fonctionnement seront expliqués.
 
 \subsection{L'Émetteur}
 
 Le réseau BRAMS dispose donc d'un émetteur unique situé à Dourbes, dans le sud de la Belgique.
-Sa location peut être visualisé sur la figure \ref{fig:station_map} où l'émetteur est représenté par un triangle bleue.
 Cet émetteur transmet de façon continue un signal à la fréquence 49.970 MHz et d'une puissance d'approximativement 120 W.
 Ce signal sera réfléchi sur d'éventuelles trainées de météores et pourra être détecté par des récepteurs.
 
 \subsection{Les Stations de Réception}
 %! below part needs to be restructured
-Afin d'accomplir ce but, le projet BRAMS dispose d'un réseau de stations nommé le réseau BRAMS.
-Ce réseau est composé d'un ensemble de quarante-deux stations émettrices, situées en Belgique ou dans les pays avoisinants, et d'un émetteur dédié situé à Dourbes, dans le sud de la Belgique.\\
-\\
+Les stations réceptrices permettent donc de récupérer le signal de l'émetteur, réfléchi par les échos de météores.
+Durant la période d'existence du projet BRAMS, plusieurs stations réceptrices ont été développées.
+Actuellement, le réseau BRAMS est composé de deux types de stations différentes.
+Ces deux stations réceptrices et leurs différences seront expliquées ci-dessous.
 
 \subsubsection{Les Stations V1}
+
+Les premières stations utilisaient des récepteurs analogiques ICOM-R75.
+Ce récepteur décale le signal reçu par l'antenne de 49.97 MHz à 1 kHz à l'aide de l'oscillateur local qui est réglé à 49,969 MHz.
 
 \subsubsection{Les Stations V2}
 Il existe 2 types de station de réception :
@@ -448,75 +452,75 @@ Cependant, dans le cas de ce travail, ceci ne fut pas un problème et les librai
 Ceci est dû, entre autres, grâce à la nature open-source de ces librairies ainsi que leur âge.
 Suite à ces deux facteurs, des milliers de personnes travaillent sur ces librairies depuis plusieurs années dans le but d'optimiser le plus possible ses fonctions et méthodes.
 
-\subsubsection{Librairies Utilisées}
+% \subsubsection{Librairies Utilisées}
 
-Dans cette section sont listées toutes les librairies Python utilisés pour la réalisation du travail de fin d'études.\\
-\\
-\textbf{Argparse}\\
-Argparse est une librairie Python qui permet de facilement créer une interface ergonomique en ligne de commande.
-On spécifie les paramètres nécessaires et optionnels pour le programme qu'on crée, et lorsqu'on lance le programme, Argparse pourra retrouver les paramètres entrés par l'utilisateur.
-Il indiquera également une erreur si un paramètre obligatoire manque, ou qu'un type de paramètre n'est pas respecté.
-Argparse est une librairie installée par défaut avec Python.\\
-\\
-\textbf{CSV}\\
-La librairie CSV offre la possibilité d'écrire et de lire des fichiers CSV à l'aide d'un programme en Python.\\
-\\
-\textbf{Datetime}\\
-La librairie Datetime offre une suite de fonctions et de classes permettant la manipulation et la conversion de temps et de dates.
-Cette librairie fait partie des modules standards de Python et ne doit donc pas être installé.\\
-\\
-\textbf{Dotenv}\\
-La librairie Dotenv permet de lire les fichiers et les variables d'environnement.\\
-\\
-\textbf{GeoPy}\\
-GeoPy est une librairie Python qui facilite la recherche de coordonnées d'adresses, de villes ou encore de lieux connus.
-Elle permet également de trouver la distance entre deux lieux en donnant les coordonnées de ces endroits.\\
-\\
-\textbf{Math}\\
-Le module math offre toute une série de fonctions mathématique de base.
-Elle est installée par défaut avec Python.\\
-\\
-\textbf{Matplotlib}\\
-La librairie Python Matplotlib permet de générer des graphiques et de les enregistrer en tant qu'image.\\
-\\
-\textbf{Mysql.connector}\\
-Cette librairie permet d'établir une connexion à une base de données MySQL ou MariaDB.
-Avec cette connexion, un programme Python peut faire des requêtes à cette base de données.\\
-\\
-\textbf{NumPy}\\
-NumPy est une librairie Python utilisée lorsqu'on travaille avec des listes très larges.
-Il contient de nombreuses fonctions pour l'algèbre linéaire, les Transformées de Fourier et les matrices.
-Par rapport aux listes classiques de Python, les listes NumPy (aussi appelés des ndarray) sont beaucoup plus rapides.\\
-\\
-Ceci est dû à trois raisons principales.
-La première est que les listes NumPy sont stockés à un endroit continu dans la mémoire RAM\footnote{Random Access Memory}, ce qui permet un accès et une manipulation plus efficace des données.
-Ensuite, comme NumPy est une librairie open-source, il est continuellement adapté à des nouvelles architectures de processeurs.
-Finalement, une grande partie de la librairie NumPy est écrit dans des langages de bas niveau tels que le C, le C++ ou encore le Fortran.
-Ceci résulte à un code beaucoup plus proche du langage machine et qui est donc plus optimisé.\\
-\\
-\textbf{Os}\\
-La librairie os de Python contient une suite de fonctions permettant d'interagir avec le système d'exploitation.
-Cette librairie vient par défaut avec une installation de Python, ce qui évite de devoir l'installer lorsque nécessaire.\\
-\\
-\textbf{SciPy}\\
-Scipy est une librairie qui est basé sur la librairie NumPy.
-Elle partage donc de nombreuses fonctions et méthodes avec cette dernière et fonctionne également avec des ndarray.
-Cependant, cette librairie ajoute des fonctions pour la science des données.
-De plus, Scipy optimise des fonctions déjà présentes dans la librairie NumPy.
-Ceci permet de construire un programme qui demande moins de ressources machine et qui est donc plus rapide.\\
-\\
-\textbf{Simplejson}\\
-Simplejson est une librairie Python offrant la possibilité de facilement écrire et lire des fichiers JSON\footnote{JavaScript Object Notation}.
-Elle vient par défaut avec Python sous le nom 'json'.
-Cependant, installer Simplejson séparément ajoute l'avantage d'avoir des mises à jour plus régulières et de disposer des dernières fonctionnalités plus rapidement.\\
-\\
-\textbf{Tarfile}\\
-Le module Python Tarfile permet de lire et écrire des fichiers du format TAR.
-Cette librairie est incluse par défaut avec Python et ne doit donc pas être installé séparément.\\
-\\
-\textbf{Tqdm}\\
-Tqdm est une librairie Python permettant d'afficher des barres de chargements en ligne de commande.
-Elle permet également de donner une estimation de temps de chargement restant.\\
+% Dans cette section sont listées toutes les librairies Python utilisés pour la réalisation du travail de fin d'études.\\
+% \\
+% \textbf{Argparse}\\
+% Argparse est une librairie Python qui permet de facilement créer une interface ergonomique en ligne de commande.
+% On spécifie les paramètres nécessaires et optionnels pour le programme qu'on crée, et lorsqu'on lance le programme, Argparse pourra retrouver les paramètres entrés par l'utilisateur.
+% Il indiquera également une erreur si un paramètre obligatoire manque, ou qu'un type de paramètre n'est pas respecté.
+% Argparse est une librairie installée par défaut avec Python.\\
+% \\
+% \textbf{CSV}\\
+% La librairie CSV offre la possibilité d'écrire et de lire des fichiers CSV à l'aide d'un programme en Python.\\
+% \\
+% \textbf{Datetime}\\
+% La librairie Datetime offre une suite de fonctions et de classes permettant la manipulation et la conversion de temps et de dates.
+% Cette librairie fait partie des modules standards de Python et ne doit donc pas être installé.\\
+% \\
+% \textbf{Dotenv}\\
+% La librairie Dotenv permet de lire les fichiers et les variables d'environnement.\\
+% \\
+% \textbf{GeoPy}\\
+% GeoPy est une librairie Python qui facilite la recherche de coordonnées d'adresses, de villes ou encore de lieux connus.
+% Elle permet également de trouver la distance entre deux lieux en donnant les coordonnées de ces endroits.\\
+% \\
+% \textbf{Math}\\
+% Le module math offre toute une série de fonctions mathématique de base.
+% Elle est installée par défaut avec Python.\\
+% \\
+% \textbf{Matplotlib}\\
+% La librairie Python Matplotlib permet de générer des graphiques et de les enregistrer en tant qu'image.\\
+% \\
+% \textbf{Mysql.connector}\\
+% Cette librairie permet d'établir une connexion à une base de données MySQL ou MariaDB.
+% Avec cette connexion, un programme Python peut faire des requêtes à cette base de données.\\
+% \\
+% \textbf{NumPy}\\
+% NumPy est une librairie Python utilisée lorsqu'on travaille avec des listes très larges.
+% Il contient de nombreuses fonctions pour l'algèbre linéaire, les Transformées de Fourier et les matrices.
+% Par rapport aux listes classiques de Python, les listes NumPy (aussi appelés des ndarray) sont beaucoup plus rapides.\\
+% \\
+% Ceci est dû à trois raisons principales.
+% La première est que les listes NumPy sont stockés à un endroit continu dans la mémoire RAM\footnote{Random Access Memory}, ce qui permet un accès et une manipulation plus efficace des données.
+% Ensuite, comme NumPy est une librairie open-source, il est continuellement adapté à des nouvelles architectures de processeurs.
+% Finalement, une grande partie de la librairie NumPy est écrit dans des langages de bas niveau tels que le C, le C++ ou encore le Fortran.
+% Ceci résulte à un code beaucoup plus proche du langage machine et qui est donc plus optimisé.\\
+% \\
+% \textbf{Os}\\
+% La librairie os de Python contient une suite de fonctions permettant d'interagir avec le système d'exploitation.
+% Cette librairie vient par défaut avec une installation de Python, ce qui évite de devoir l'installer lorsque nécessaire.\\
+% \\
+% \textbf{SciPy}\\
+% Scipy est une librairie qui est basé sur la librairie NumPy.
+% Elle partage donc de nombreuses fonctions et méthodes avec cette dernière et fonctionne également avec des ndarray.
+% Cependant, cette librairie ajoute des fonctions pour la science des données.
+% De plus, Scipy optimise des fonctions déjà présentes dans la librairie NumPy.
+% Ceci permet de construire un programme qui demande moins de ressources machine et qui est donc plus rapide.\\
+% \\
+% \textbf{Simplejson}\\
+% Simplejson est une librairie Python offrant la possibilité de facilement écrire et lire des fichiers JSON\footnote{JavaScript Object Notation}.
+% Elle vient par défaut avec Python sous le nom 'json'.
+% Cependant, installer Simplejson séparément ajoute l'avantage d'avoir des mises à jour plus régulières et de disposer des dernières fonctionnalités plus rapidement.\\
+% \\
+% \textbf{Tarfile}\\
+% Le module Python Tarfile permet de lire et écrire des fichiers du format TAR.
+% Cette librairie est incluse par défaut avec Python et ne doit donc pas être installé séparément.\\
+% \\
+% \textbf{Tqdm}\\
+% Tqdm est une librairie Python permettant d'afficher des barres de chargements en ligne de commande.
+% Elle permet également de donner une estimation de temps de chargement restant.\\
 
 \subsection{MariaDB}
 

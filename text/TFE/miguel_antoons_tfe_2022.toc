@@ -12,17 +12,16 @@
 \contentsline {section}{\numberline {5}Méthodologie}{14}{section.5}%
 \contentsline {section}{\numberline {6}Technologies utilisées}{15}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Python}{15}{subsection.6.1}%
-\contentsline {subsubsection}{\numberline {6.1.1}Librairies Utilisées}{15}{subsubsection.6.1.1}%
-\contentsline {subsection}{\numberline {6.2}MariaDB}{18}{subsection.6.2}%
-\contentsline {section}{\numberline {7}Lecture des Fichiers BRAMS}{19}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Fonctionnement du Module}{19}{subsection.7.1}%
-\contentsline {subsubsection}{\numberline {7.1.1}La méthode FFT}{21}{subsubsection.7.1.1}%
-\contentsline {section}{\numberline {8}Monitoring des Données BRAMS}{23}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Fonctionnement du Programme}{23}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Résultats}{25}{subsection.8.2}%
-\contentsline {section}{\numberline {9}Détection des Météores}{27}{section.9}%
-\contentsline {subsection}{\numberline {9.1}Analyse}{27}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}Fonctionnement du Programme}{30}{subsection.9.2}%
-\contentsline {section}{\numberline {10}Pistes d'Améliorations}{35}{section.10}%
-\contentsline {section}{\numberline {11}Conclusion}{36}{section.11}%
-\contentsline {section}{\numberline {12}Annexes}{40}{section.12}%
+\contentsline {subsection}{\numberline {6.2}MariaDB}{15}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Lecture des Fichiers BRAMS}{16}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Fonctionnement du Module}{16}{subsection.7.1}%
+\contentsline {subsubsection}{\numberline {7.1.1}La méthode FFT}{18}{subsubsection.7.1.1}%
+\contentsline {section}{\numberline {8}Monitoring des Données BRAMS}{20}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Fonctionnement du Programme}{20}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Résultats}{22}{subsection.8.2}%
+\contentsline {section}{\numberline {9}Détection des Météores}{24}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Analyse}{24}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Fonctionnement du Programme}{27}{subsection.9.2}%
+\contentsline {section}{\numberline {10}Pistes d'Améliorations}{32}{section.10}%
+\contentsline {section}{\numberline {11}Conclusion}{33}{section.11}%
+\contentsline {section}{\numberline {12}Annexes}{37}{section.12}%
