@@ -224,8 +224,32 @@ Ces deux stations réceptrices et leurs différences seront expliquées ci-desso
 
 \subsubsection{Les Stations V1}
 
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[scale=0.6]{Material_BRAMS_1.0.png}
+        \caption{Station v1 du réseau BRAMS}
+        \label{fig:station_icom}
+    \end{center}
+\end{figure}
+
 Les premières stations utilisaient des récepteurs analogiques ICOM-R75.
-Ce récepteur décale le signal reçu par l'antenne de 49.97 MHz à 1 kHz à l'aide de l'oscillateur local qui est réglé à 49,969 MHz.
+Dans ce récepteur étaient injectés le signal venant de l'antenne à 49,97 MHz et le signal calibreur.
+Le signal calibreur est constant et dispose d'une fréquence de 49,975 MHz (500 Hz au-dessus du signal de l'antenne).
+Elle est additionnée au signal de l'antenne à l'aide d'un simple T.\\
+\\
+Le récepteur décale le signal reçu par l'antenne et le calibreur à 1 kHz à l'aide de l'oscillateur local qui est réglé à 49,969 MHz.
+Le signal passe ensuite par une carte son externe, où il est échantillonnée à un taux de 22050 Hz.
+Cette carte son est également connectée à une horloge GPS Garmin.
+L'horloge ajoute un signal de 1 PPS \footnote{Pulse Per Second} suivi de données NMEA \footnote{National Marine Electronics Association} au signal reçu par l'antenne.
+Les données NMEA contiennent, entre autres, les informations à propos de la seconde associée au dernier PPS (horodatage).
+Ceci permet d'avoir un temps très précis pour chaque échantillon du signal.\\
+\\
+La carte son est ensuite connectée à un ordinateur faisant tourner le logiciel 'Spectrum Lab'.
+C'est ce logiciel qui pilote la station et la procédure permettant de détecter des échos de météores.
+Afin de synchroniser l'horloge de l'ordinateur, celle-ci est également connectée à l'horloge GPS.
+Les données récupérées sont enregistrées toutes les cinq minutes dans des fichiers de format WAV\footnote{Waveform Audio File}.
+La figure \ref{fig:station_icom} montre un schéma de la station v1.
+
 
 \subsubsection{Les Stations V2}
 Il existe 2 types de station de réception :

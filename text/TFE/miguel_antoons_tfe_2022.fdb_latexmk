@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1657222389 "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" "miguel_antoons_tfe_2022.pdf" "miguel_antoons_tfe_2022" 1657222393
+["pdflatex"] 1657314775 "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" "miguel_antoons_tfe_2022.pdf" "miguel_antoons_tfe_2022" 1657314780
   "/etc/texmf/web2c/texmf.cnf" 1651002338 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" 1657222387 68629 ff99aec970bd630d6e3652f9a84c2b19 ""
+  "/home/niutalol/Documents/TFE2022/text/TFE/miguel_antoons_tfe_2022.tex" 1657314768 70195 04f564a391ebd6fcb9f8ea9b28e0f54b ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmr10.tfm" 1136768653 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
   "/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1461363279 71627 94eb9990bed73c364d7f53f960cc8c5b ""
@@ -119,6 +119,7 @@
   "images//BEHAAC1_2021-07-01_2021-08-31_noise.png" 1654002315 338891 0ec2ecdad90c08daf14c975847c03889 ""
   "images//BEHUMA4_2022-03-01_2022-04-30_calibrator.png" 1654002343 328674 37c43a92e136a898577d4d2039b2e434 ""
   "images//ForwardScatter_principle.png" 1654244708 41996 c0eb8cf4f09a650874208ec780061d74 ""
+  "images//Material_BRAMS_1.0.png" 1657314597 354991 759994655dfa06c6d3a717e1b677c26f ""
   "images//RPS2.png" 1653233430 1282207 087e09e21e95135c1e12a7f947835fa7 ""
   "images//Screenshot from 2022-05-31 16-32-43.png" 1654007563 325615 d9fb7f75d9209588aa6e30104b14b09a ""
   "images//Screenshot from 2022-05-31 16-33-53.png" 1654007633 245713 a38d83184cfafea0763c4aaf0f8f925f ""
@@ -133,10 +134,10 @@
   "images//spectrogramme_legend.png" 1653311080 538000 55efe22b7cdd87aeb3be13a471cb1006 ""
   "images//station_map.png" 1657127109 97162 9a1ddf144cd2c4b4b59595f7afb92653 ""
   "images//wav_brut.png" 1653309040 96701 4bb4639119472dea20b877c879e2297d ""
-  "miguel_antoons_tfe_2022.aux" 1657222393 8254 bb1608ea6db21c91a0f92fe949946d7b "pdflatex"
-  "miguel_antoons_tfe_2022.out" 1657222393 3942 3a22b9a679e08153e55de502bf43a76a "pdflatex"
-  "miguel_antoons_tfe_2022.tex" 1657222387 68629 ff99aec970bd630d6e3652f9a84c2b19 ""
-  "miguel_antoons_tfe_2022.toc" 1657222393 2178 9aead16b476313936f445bad342fd3c1 "pdflatex"
+  "miguel_antoons_tfe_2022.aux" 1657314780 8472 2e7e84d4d5a3d768127c968971700624 "pdflatex"
+  "miguel_antoons_tfe_2022.out" 1657314780 3942 3a22b9a679e08153e55de502bf43a76a "pdflatex"
+  "miguel_antoons_tfe_2022.tex" 1657314768 70195 04f564a391ebd6fcb9f8ea9b28e0f54b ""
+  "miguel_antoons_tfe_2022.toc" 1657314780 2178 b48f1dcc248ec58c37be1a640bf8f1fc "pdflatex"
   (generated)
   "miguel_antoons_tfe_2022.aux"
   "miguel_antoons_tfe_2022.log"
