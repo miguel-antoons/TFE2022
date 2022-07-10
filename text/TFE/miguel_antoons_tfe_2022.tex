@@ -247,27 +247,53 @@ Ceci permet d'avoir un temps très précis pour chaque échantillon du signal.\\
 La carte son est ensuite connectée à un ordinateur faisant tourner le logiciel 'Spectrum Lab'.
 C'est ce logiciel qui pilote la station et la procédure permettant de détecter des échos de météores.
 Afin de synchroniser l'horloge de l'ordinateur, celle-ci est également connectée à l'horloge GPS.
-Les données récupérées sont enregistrées toutes les cinq minutes dans des fichiers de format WAV\footnote{Waveform Audio File}.
-La figure \ref{fig:station_icom} montre un schéma de la station v1.
-
+Les données récupérées sont enregistrées toutes les cinq minutes dans des fichiers de format WAV\footnote{Waveform Audio File} avec un taux d'échantillonnage de 5512,5 Hz.
+La figure \ref{fig:station_icom} montre un schéma de la station v1.\\
+\\
+Ces stations ont fonctionné très bien pendant longtemps.
+Cependant, une fois arrivé en 2018 un problème avec le récepteur ICOM était de plus en plus récurant sur les stations v1.
+Remplacer ces récepteurs s'est avéré compliqué comme le récepteur ICOM n'était plus produit.
+D'autres récepteurs analogiques pouvaient servir comme remplaçant, mais ceux-ci étaient bien plus chers.
+De plus, la station v1 disposait de plusieurs autres problèmes comme une faible portabilité ou encore une installation complexe.
+Ceci a poussé les membres du projet BRAMS à réfléchir à une nouvelle solution permettant de remplacer les stations v1.
 
 \subsubsection{Les Stations V2}
-Il existe 2 types de station de réception :
-% ! the part below should be divided in 2 subtitles and should also be developped more
-\begin{itemize}
-    \item Il y a d'abord les stations avec des récepteurs Icom IC-R75, que j'apellerai les récepteurs ICOM dans ce document.
-          Ce sont les premières stations réceptrices mises en service pour le réseau BRAMS.
-          Actuellement, ces stations ne sont plus utilisées suite à l'arrêt de la commercialisation du récepteur Icom IC-R75.
-          De plus, une variation de température pouvait causer une légère déstabilisation en fréquence.
-    \item C'est alors que les stations utilisant le récepteur RSP 2 ont été développés.
-          Ces stations n'éliminaient pas seulement en grande partie les problèmes des anciennes stations, mais sont également plus compacts et plus faciles à installer.
-          Une image des stations RSP 2 peut être trouvé à la figure 1.
-\end{itemize}
+
+En 2017 un étudiant venant de l'Ephec, nommé Antoine Calegaro, a créé un prototype d'une nouvelle station.
+Ce prototype serait la base pour la station v2, destiné à remplacer la station v1.\\
+\\
+La station v2 est piloté par un Raspberry PI dont l'horloge est synchronisé avec le signal PPS du même GPS Garmin utilisé sur la station v1.
+Son récepteur est un RSP2 qui à l'avantage d'avoir une portée dynamique plus grande et une sensibilité supérieure par rapport au récepteur ICOM.
+Il est également moins cher qui son prédécesseur.
+Cependant, il ne permet pas l'échantillonnage du signal de l'antenne ensemble avec le signal GPS de 1 PPS.
+La fréquence du récepteur est stabilisé à l'aide d'une fréquence de référence externe à 24 MHz donné par un GPSDO\footnote{GPS Disciplined Oscillator}.\\
+\\
+L'utilisation de deux horloges GPS (un pour le timing sur le Raspberry et un pour la fréquence sur le récepteur) permet d'avoir la fréquence de l'émetteur exactement à 1 kHz et le signal calibreur exactement 500 Hz au-dessus.
+Ceci était un problème sur les anciens récepteurs qui ne permettaient pas de stabiliser la fréquence à l'aide d'une source extérieure, ce qui causait des dérives de fréquence selon la température de celui-ci.
+La figure \ref{fig:station_rsp2} montre un schéma des composants de la nouvelle station réceptrice.
+En 2020, la station serait placée dans une boite métallique et la fréquence de référence du GPSDO serait également utilisé pour stabiliser l'oscillateur local du calibreur.\\
+\\
+Cette station était donc beaucoup plus simple à installer et gérer puisque plus aucun ordinateur externe était nécessaire pour son fonctionnement.
+En plus d'être plus compact et facile à installer que la station v1, la station v2 améliore la qualité des données et est moins cher.
+
+
+% Il existe 2 types de station de réception :
+% % ! the part below should be divided in 2 subtitles and should also be developped more
+% \begin{itemize}
+%     \item Il y a d'abord les stations avec des récepteurs Icom IC-R75, que j'apellerai les récepteurs ICOM dans ce document.
+%           Ce sont les premières stations réceptrices mises en service pour le réseau BRAMS.
+%           Actuellement, ces stations ne sont plus utilisées suite à l'arrêt de la commercialisation du récepteur Icom IC-R75.
+%           De plus, une variation de température pouvait causer une légère déstabilisation en fréquence.
+%     \item C'est alors que les stations utilisant le récepteur RSP 2 ont été développés.
+%           Ces stations n'éliminaient pas seulement en grande partie les problèmes des anciennes stations, mais sont également plus compacts et plus faciles à installer.
+%           Une image des stations RSP 2 peut être trouvé à la figure 1.
+% \end{itemize}
 
 \begin{figure}[t]
     \begin{center}
-        \includegraphics[scale=0.5]{RPS2.png}
-        \caption{Station RSP 2 du réseau BRAMS}
+        \includegraphics[scale=0.3]{schema_rsp2.png}
+        \caption{Station v2 du réseau BRAMS.}
+        \label{fig:station_rsp2}
     \end{center}
 \end{figure}
 

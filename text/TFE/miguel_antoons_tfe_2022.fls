@@ -652,11 +652,11 @@ INPUT ./images//Material_BRAMS_1.0.png
 INPUT ./images//Material_BRAMS_1.0.png
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmr8.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmr9.tfm
-INPUT ./images//RPS2.png
-INPUT ./images//RPS2.png
-INPUT ./images//RPS2.png
-INPUT ./images//RPS2.png
-INPUT ./images//RPS2.png
+INPUT ./images//schema_rsp2.png
+INPUT ./images//schema_rsp2.png
+INPUT ./images//schema_rsp2.png
+INPUT ./images//schema_rsp2.png
+INPUT ./images//schema_rsp2.png
 INPUT ./images//wav_brut.png
 INPUT ./images//wav_brut.png
 INPUT ./images//wav_brut.png
