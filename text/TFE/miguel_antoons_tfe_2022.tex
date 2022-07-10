@@ -239,7 +239,7 @@ Elle est additionnée au signal de l'antenne à l'aide d'un simple T.\\
 \\
 Le récepteur décale le signal reçu par l'antenne et le calibreur à 1 kHz à l'aide de l'oscillateur local qui est réglé à 49,969 MHz.
 Le signal passe ensuite par une carte son externe, où il est échantillonnée à un taux de 22050 Hz.
-Cette carte son est également connectée à une horloge GPS Garmin.
+Cette carte son est également connectée à une horloge GPS\footnote{Global Positioning System} Garmin.
 L'horloge ajoute un signal de 1 PPS \footnote{Pulse Per Second} suivi de données NMEA \footnote{National Marine Electronics Association} au signal reçu par l'antenne.
 Les données NMEA contiennent, entre autres, les informations à propos de la seconde associée au dernier PPS (horodatage).
 Ceci permet d'avoir un temps très précis pour chaque échantillon du signal.\\
@@ -247,7 +247,7 @@ Ceci permet d'avoir un temps très précis pour chaque échantillon du signal.\\
 La carte son est ensuite connectée à un ordinateur faisant tourner le logiciel 'Spectrum Lab'.
 C'est ce logiciel qui pilote la station et la procédure permettant de détecter des échos de météores.
 Afin de synchroniser l'horloge de l'ordinateur, celle-ci est également connectée à l'horloge GPS.
-Les données récupérées sont enregistrées toutes les cinq minutes dans des fichiers de format WAV\footnote{Waveform Audio File} avec un taux d'échantillonnage de 5512,5 Hz.
+Les données récupérées sont enregistrées toutes les cinq minutes dans des fichiers de format WAV\footnote{Waveform Audio File}.
 La figure \ref{fig:station_icom} montre un schéma de la station v1.\\
 \\
 Ces stations ont fonctionné très bien pendant longtemps.
@@ -273,7 +273,7 @@ Ceci était un problème sur les anciens récepteurs qui ne permettaient pas de 
 La figure \ref{fig:station_rsp2} montre un schéma des composants de la nouvelle station réceptrice.
 En 2020, la station serait placée dans une boite métallique et la fréquence de référence du GPSDO serait également utilisé pour stabiliser l'oscillateur local du calibreur.\\
 \\
-Cette station était donc beaucoup plus simple à installer et gérer puisque plus aucun ordinateur externe était nécessaire pour son fonctionnement.
+Cette station est donc beaucoup plus simple à installer puisqu'il ne nécessite plus d'ordinateur externe pour son fonctionnement.
 En plus d'être plus compact et facile à installer que la station v1, la station v2 améliore la qualité des données et est moins cher.
 
 
@@ -337,68 +337,72 @@ En plus d'être plus compact et facile à installer que la station v1, la statio
 
 \subsection{Les Données BRAMS}
 
+%! add that the where the files are stored
+
 Un fichier WAV venant d'une station réceptrice contient donc le signal capté par l'antenne ensemble avec un signal calibreur.
-Il est composé d'une seule piste audio, échantillonnée à une fréquence de 5512.5 Hz ou 6048 Hz.
+Il est composé d'une seule piste audio, échantillonnée à une fréquence de 5512.5 Hz pour les stations v1 ou 6048 Hz pour les stations v2.
 Cette fréquence permet d'enregistrer des données dans une bande de fréquences allant jusqu'à 2756.25 Hz ou 3024 Hz (ou la moitié de la fréquence d'échantillonnage), selon le théorème de Nyquist.
-Sachant que les échos de météores apparaissent typiquement dans une bande de fréquence de 100 Hz autour du signal de l'émetteur à 1000 Hz, cette bande de fréquence couvre l'ensemble des signaux utiles à l'étude des météores.\\
+Sachant que les échos de météores apparaissent typiquement dans une bande de fréquence de 100 Hz autour du signal de l'émetteur qui est décalé à 1000 Hz, cette bande de fréquence couvre l'ensemble des signaux utiles à l'étude des météores.\\
 \\
 À chaque fichier WAV est rajouté un bloc de données (data chunk) conçu pour faciliter l'étude des données.
-Dans ce bloc, on retrouve quelques informations relatives à la station de réception, la station émettrice, le signal GPS\footnote{Global Positioning System} ou encore, la fréquence d'échantillonnage.
-Ce bloc de données se trouve entre le bloc FMT et le bloc de données.\\
+Dans ce bloc, on retrouve quelques informations relatives à la station de réception, la station émettrice, le signal GPS ou encore, la fréquence d'échantillonnage.\\
 \\
-Ces fichiers audio, comme montrée à la figure 4, sont très difficiles à interpréter.
+Ces fichiers audio, comme montrée à la figure \ref{fig:wav_brut}, sont très difficiles à interpréter.
 Ils sont composés de bruits et de parasites sur l'entièreté de leur bande de fréquence.
 Par contre, lorsque l'on calcule le spectrogramme du fichier WAV, les données deviennent beaucoup plus simples à lire.
 \begin{figure}[t] % ! below image must be changed to a better one
     \begin{center}
         \includegraphics[scale=0.5]{wav_brut.png}
         \caption{Données brutes venant d'un fichier audio d'une station réceptrice.}
+        \label{fig:wav_brut}
     \end{center}
 \end{figure}
 \\
 \\
 Un spectrogramme est une représentation différente des données contenues dans un fichier audio.
 Au lieu de représenter la puissance sur l'ordonnée et le temps sur l'abscisse, un spectrogramme représente la répartition des fréquences au cours du temps.
-Il contient donc trois axes :
+Il contient donc trois dimensions :
 \begin{itemize}
-    \item Sur l'abscisse on retrouve toujours le temps.
-    \item Sur l'ordonnée on retrouve la fréquence.
-    \item Sur la cote, on retrouve la puissance. Cet axe est souvent représenté par un code couleur.
+    \item Le temps sur l'abscisse.
+    \item La fréquence sur l'ordonnée.
+    \item La puissance représentée par un code couleur.\\
 \end{itemize}
 
-Pour générer un spectrogramme, il faut calculer un ensemble de Transformées de Fourrier.
-La Transformée de Fourrier permet de représenter la répartition de puissance entre les fréquences contenues dans un signal ou une partie d'un signal temporel.
+Pour générer un spectrogramme, il faut calculer un ensemble de Transformées de Fourier.
+La Transformée de Fourier permet de représenter la répartition de puissance entre les fréquences contenues dans un signal ou une partie d'un signal temporel.
 Elle produit donc se qu'on appelle le spectre du signal.
 Elle se calcule sur un nombre quelconque d'échantillons qui se suivent dans un signal temporel.
-Dans l'informatique, elle est souvent calculée à l'aide de la FFT\footnote{Faste Fourier transform}.
-C'est un algorithme qui permet de calculer une Transformée de Fourrier plus rapidement, mais qui exige un nombre d'échantillons $2^{n}$.\\
+Ce spectre est souvent calculé à l'aide de la FFT\footnote{Faste Fourier transform} qui est plus rapide, mais qui exige un nombre d'échantillons $2^{n}$.\\
 \\
-Sur la figure 5, on peut voir en rouge un signal temporel et le spectre de ce même signal en bleu.
+Sur la figure \ref{fig:expl_fourier}, on peut voir en rouge un signal temporel et le spectre de ce même signal en bleu.
 Les signaux en mauve claire sont les signaux à une fréquence, dont le signal rouge est composé.
 \begin{figure}[t]
     \begin{center}
         \includegraphics[scale=0.7]{spectre.png}
         \caption{Représentation visuelle de la Transformée de Fourier.}
+        \label{fig:expl_fourier}
     \end{center}
 \end{figure}
 \\
 \\
 Dans le cas des spectrogrammes pour le projet BRAMS, les FFT contenus dans un spectrogramme sont calculés sur 16384 échantillons.
-Si on suppose qu'un fichier WAV venant d'une station réceptrice dure en moyenne trois-cents secondes (ou cinq minutes), un spectrogramme est composé d'environ 101 spectres pour les stations ICOM et 111 pour les staions RSP2.
+Si on suppose qu'un fichier WAV venant d'une station réceptrice dure en moyenne trois-cents secondes (ou cinq minutes), un spectrogramme est composé d'environ 101 spectres pour les stations v1 et 111 pour les stations v2.
 Ce nombre est obtenu avec la formule ci-dessous, où Fs est la fréquence d'échantillonnage, T la durée en secondes du signal et nfft le nombre d'échantillons utilisés pour générer un spectre.
 \[\frac{Fs * T}{nfft}\]
-Le spectrogramme généré aura une résolution fréquentielle, donnée par la formule \(Fs / nfft\), de 0.34 Hz pour les stations ICOM et 0.37 Hz pour les stations RSP2.
-Sa résolution temporelle, donnée par la formule \(nfft / Fs\), est de 2.97 secondes pour les stations ICOM et de 2.7 secondes pour les stations RSP2.
+Le spectrogramme généré aura une résolution fréquentielle, donnée par la formule \(Fs / nfft\), de 0.34 Hz pour les stations v1 et 0.37 Hz pour les stations v2.
+Sa résolution temporelle, donnée par la formule \(nfft / Fs\), est de 2.97 secondes pour les stations v1 et de 2.7 secondes pour les stations v2.
 Un exemple de spectrogramme venant d'une station de réception est affiché à la figure 6.
 
 \begin{figure}[t]
     \begin{center}
         \includegraphics[scale=0.29]{spectrogramme_legend.png}
         \caption{Exemple d'un spectrogramme du projet BRAMS.}
+        \label{fig:spectro_brams1}
     \end{center}
 \end{figure}
 
 \subsection{L'Archive BRAMS}
+%? arrives here
 
 Quand les fichiers venant des stations de réception sont archivés, ils sont placés dans une structure de répertoires spécifique.
 Cette structure dépend de la date de début d'enregistrement des données contenues dans le fichier.\\
@@ -653,7 +657,7 @@ Les données contenues dans la classe seront la fréquence d'échantillonnage, e
 La classe BramsWavFile dispose d'une méthode publique.
 Cette méthode se nomme 'FFT' et permet, comme son nom l'indique, de récupérer la Transformée de Fourier de l'entièreté de la piste audio du fichier WAV.
 Ceci est fait à l'aide de la fonction 'rfft' de la librairie Scipy, multipliée par une fenêtre de Hann.
-La fonction 'rfft' existe également dans la librairie NumPy, cependant dans ce cas de figure la librairie SciPy permettait de calculer la Transformée de Fourrier plus rapidement.
+La fonction 'rfft' existe également dans la librairie NumPy, cependant dans ce cas de figure la librairie SciPy permettait de calculer la Transformée de Fourier plus rapidement.
 Enfin, la fonction FFT retourne la Transformée de Fourier normalisée, son abscisse et sa résolution fréquentielle.\\
 \\
 Le code de cette méthode peut être visualisé à la figure 8.
