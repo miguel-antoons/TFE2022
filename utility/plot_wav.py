@@ -41,6 +41,7 @@ def generate_plot(
     y_max=None,
 ):
     plt.rcParams['agg.path.chunksize'] = 10000
+    plt.rcParams.update({'font.size': 22})
     plt.figure(num=figure_n, figsize=(width, height), dpi=dpi)
     plt.plot(x, y)
 
