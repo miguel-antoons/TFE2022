@@ -132,8 +132,12 @@ De plus, lorsqu'un petit météoroïde entre dans l'atmosphère, elle ne produit
 C'est alors qu'une autre technique, celle par détection à l'aide d'ondes radio devient intéressante.
 \\
 \\
-Ce travail de fin d'études consistera à l'automatisation de deux étapes du traitement des données produites par cette dernière technique.
-%? Personal objectives?
+Ce travail de fin d'études consistera à faciliter l'étude des trajectoires de météores.
+Cet objectif sera accompli en automatisant, facilitant deux étapes du traitement des données produites par la détection de météores à l'aide d'ondes radios.
+Notamment la détection des météores et la détection de données erronées.\\
+\\
+Ce travail, pour moi, permettra de prouver mes capacités à réaliser un projet d'une grande ampleur en autonomie.
+De plus, elle aidera également à mieux m'orienter dans les années à suivre.
 
 \newpage
 
@@ -391,57 +395,32 @@ Ce nombre est obtenu avec la formule ci-dessous, où Fs est la fréquence d'éch
 \[\frac{Fs * T}{nfft}\]
 Le spectrogramme généré aura une résolution fréquentielle, donnée par la formule \(Fs / nfft\), de 0.34 Hz pour les stations v1 et 0.37 Hz pour les stations v2.
 Sa résolution temporelle, donnée par la formule \(nfft / Fs\), est de 2.97 secondes pour les stations v1 et de 2.7 secondes pour les stations v2.
-Un exemple de spectrogramme venant d'une station de réception est affiché à la figure 6.
+Un exemple de spectrogramme venant d'une station de réception est affiché à la figure \ref{fig:spectro_brams-a}.
 
 \begin{figure}[t]
     \begin{center}
         \includegraphics[scale=0.29]{spectrogramme_legend.png}
         \caption{Exemple d'un spectrogramme du projet BRAMS.}
-        \label{fig:spectro_brams1}
+        \label{fig:spectro_brams-a}
     \end{center}
 \end{figure}
 
 \subsection{L'Archive BRAMS}
-%? arrives here
 
+Les stations réceptrices produisent donc, en théorie, un fichier WAV toutes les cinq minutes.
+Ces fichiers ne sont bien évidement pas stocké sur les stations mêmes, mais sont envoyés à intervalle régulier aux serveurs dédiés du projet BRAMS.
+Les fichiers qui arrivent aux serveurs sont archivés une fois par jour.
+Cette procédure d'archivage est activé manuellement en lançant un script bash.\\
+\\
 Quand les fichiers venant des stations de réception sont archivés, ils sont placés dans une structure de répertoires spécifique.
-Cette structure dépend de la date de début d'enregistrement des données contenues dans le fichier.\\
-\\
-Dans la première couche de l'archive, on retrouve un répertoire par station BRAMS.
-Chaque nom de répertoire est le code de location de la station dont elle contient les données.
-Ensuite, on retrouve un nombre de répertoires, chacun contenant les fichiers d'une année spécifique.
-Le nom de ces répertoires est donc l'année des données qu'elles contiennent.
-Si on rentre dans le répertoire d'une année, on se retrouve dans la troisième couche de l'archive BRAMS.
-Ici, les données sont encore une fois séparées selon le mois d'enregistrement du fichier.
-Finalement, dans la quatrième couche de l'archive, on retrouve un répertoire par jour d'enregistrement d'un fichier.\\
-\\
-Dans chaque répertoire représentant un jour spécifique, on retrouve les données BRAMS organisés par heure dans des fichiers de format TAR.
-Ce format permet de regrouper plusieurs fichiers dans un même fichier, qui prend alors le format TAR.
-Le nom des fichiers TAR et les fichiers WAV qui se trouvent à l'intérieur des fichiers TAR suivent également une structure fixe.
-Il est composé de six informations ordonnées de la manière suivante :
-\begin{enumerate}
-    \item Les trois lettres \textbf{RAD}.
-    \item Le code de la station émettrice.
-          Comme il n'y a qu'une station réceptrice à présent, la valeur sera toujours \textbf{BEDOUR}.
-    \item La date du début de l'enregistrement du fichier.
-          Elle respecte le format YYYYMMDD.
-    \item Le temps du début de l'enregistrement du fichier, précis à la minute.
-          Elle respecte le format HHMM.
-    \item Le code de location de la station émettrice.
-          Un code de location est composé de deux informations.
-          Les deux premiers caractères représentent le code du pays ou se trouve la station (e.g. BE, FR, ...) et les quatre lettres restantes représentent typiquement les quatre premières lettres de la ville où est situé la station (e.g. HUMA pour Humain, UCCL pour Uccle, ...).
-    \item L'alias de la station.
-          Elle est composée des trois caractères 'SYS', suivie du numéro de l'antenne qu'a capté les données.
-          Le numéro de l'antenne est toujours écrit sur trois chiffres (e.g. 001, 002, ...).
-\end{enumerate}
-
-Toutes ses valeurs sont séparées par un tiret bas.
-Un exemple de nom de fichier est affichée à la figure 7.
+Le chemin pour accéder à un fichier WAV spécifique et son nom dépendent de la station d'où vient le fichier ainsi que la date de début d'enregistrement du fichier.
+C'est grâce à ces noms de fichiers, dont vous trouverez un exemple à la figure \ref{fig:file_name_brams}, et cette structure fixe qu'on peut retrouver facilement chaque fichier au sein de l'archive.\\
 
 \begin{figure}[t]
     \begin{center}
         \includegraphics[scale=0.15]{file_name.png}
         \caption{Exemple de nom de fichier BRAMS.}
+        \label{fig:file_name_brams}
     \end{center}
 \end{figure}
 
@@ -450,18 +429,26 @@ Un exemple de nom de fichier est affichée à la figure 7.
 %! develop this part more
 \section{Problématique liée à l'étude des données BRAMS}
 
-Afin de pouvoir trouver la trajectoire d'un météore dans l'atmosphère, il est nécessaire de rechercher par quelles stations réceptrices le météore est détecté.
-Ceci est une procédure qui prend un temps non négligeable pour les scientifiques du projet.
-En effet, toutes les stations de réception ne détectent pas tous les météores.
-De plus, certaines données peuvent être corrompues ou encore, non-existantes.\\
+Le but du projet BRAMS est donc d'étudier les fichiers WAV venant des stations réceptrices afin de retrouver, entre autres, la trajectoire des météores.
+Pour retrouver la trajectoire d'un météore, il est d'abord nécessaire de retrouver tous les fichiers contenant un écho de ce météore.
+C'est une action qui demande beaucoup de temps puisque l'utilisateur doit pour ça ouvrir chaque fichier de toutes les stations et vérifier s'il y a bien écho venant du météore.\\
 \\
-De plus, savoir, ou au moins avoir une idée, si un météore détecté par une station réceptrice est le même qu'un météore détecté sur une autre station réceptrice serait une grosse économie de temps.\\
+De plus, actuellement il n'existe aucune façon de détecter une station qui produit des données erronées.
+Ceci veut dire qu'une station pourrait produire des fichiers inutilisables pendant plusieurs mois sans que quelqu'un s'en aperçoit.
+Ces fichiers prendraient non-seulement de l'espace de stockage inutilement, mais dans le cas où une étude nécessite les données de cette station, ça pose un grand problème.\\
 \\
-C'est pour cette raison que les membres du projet BRAMS souhaitent automatiser deux procédures.
-D'une part, il faut un logiciel capable de vérifier si un fichier contient des données non-corrompues et utilisables.
-Dans le cas où les données sont inutilisables, le programme doit pouvoir aider l'utilisateur à retrouver la cause du problème.
-D'autre part, il faut un programme qui, sur base d'un écho de météore d'une station de réception, retrouve les échos pouvant venir de ce même météore sur des fichiers d'autres stations de réception.
-Ce dernier logiciel doit également donner le plus d'informations possibles pouvant aider à confirmer si un écho correspond à un autre.
+C'est pour ces deux raisons que les membres du projet BRAMS souhaite faciliter et automatiser certaines étapes dans l'étude des données BRAMS.
+Ils ont donc demandé à réaliser un ou plusieurs solutions permettant les actions suivantes :
+
+\begin{itemize}
+    \item La détection la plus précise des échos d'un météore dans les fichiers de stations réceptrices différentes.\\
+          Le résultat du programme doit être un fichier de format CSV\footnote{Comma Separated Values} qui indique chaque écho dont le programme pense qu'il vient du météore recherché.
+          Pour chaque écho indiqué dans le résultat il faut bien entendu également rajouter des informations telles que la station où il a été détecté ou encore le temps de détection.
+    \item Le monitoring constant des données des différentes stations à l'aide d'une interface sur le site web du projet BRAMS.
+          Ce monitoring doit permettre aux scientifiques du projet de détecter facilement une anomalie dans les données.
+    \item L'avertissement via mail si une anomalie est détectée dans les données BRAMS.
+          Cette action implique également la détection automatique d'anomalies dans les données venant des stations réceptrices.
+\end{itemize}
 
 \newpage
 
