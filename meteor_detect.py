@@ -261,6 +261,8 @@ def main(args):
         from_archive = False
 
     # get distance between stations and reference stations
+    # ! add try except clause below in case the file for the specified
+    # ! station does not exist
     stations = get_close(stations, args.reference_station)
     stations = get_meteor_coords(
         stations,
@@ -284,7 +286,7 @@ def main(args):
 
 
 def main_test():
-    directory = './recordings/meteor_search/'
+    directory = './recordings/traj_105/'
     kernel = np.zeros((27, 7))
     kernel[12:15, 0] = -1.5
     kernel[12:15, -1] = -1.5
@@ -297,9 +299,9 @@ def main_test():
 
     print("Loading wav file into memory...")
     wav_file = BramsWavFile(
-        datetime.strptime('202202111800', '%Y%m%d%H%M')
+        datetime.strptime('202007292335', '%Y%m%d%H%M')
         .replace(tzinfo=timezone.utc),
-        'BEHUMA',
+        'BEKAMP',
         "SYS001",
         respect_date=True,
         parent_directory=directory,
@@ -318,6 +320,7 @@ def main_test():
 
     test_spectrogram.delete_area(15, delete_all=True)
     test_spectrogram.filter_with_kernel(filter_all=True, coefficient=1)
+    test_spectrogram.increase_object_value(get_all=True)
     test_spectrogram.get_potential_meteors(get_all=True)
     # test_spectrogram.get_meteor_specs(coords)
 
@@ -409,7 +412,8 @@ def arguments():
 
 
 if __name__ == '__main__':
-    # main_test()
+    main_test()
+    exit()
     args = arguments()
     main(args)
     print('Exiting...')

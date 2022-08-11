@@ -40,6 +40,7 @@ class Spectrogram:
         ) = self.__retrieve_transmitter_signal(Pxx)
         # copy of the signal strencgth in dB to be modified
         self.Pxx_modified = self.__subtract_transmitter_signal(Pxx)
+        print(self.Pxx_modified.shape)
         # self.Pxx_modified = Pxx
         # initialize the figure number to 1
         self.figure_n = 1
@@ -584,13 +585,8 @@ class Spectrogram:
         if broad_end is None:
             broad_end = end
 
-        spectrogram_copy = self.__get_slice(start, end)
         broad_spectrogram = self.__get_slice(broad_start, broad_end)
-        pxx_copy = self.__get_slice(
-            0,
-            end=len(self.Pxx_modified.T),
-            get_copy=True
-        )
+        pxx_copy = self.Pxx_modified.copy()
 
         for i in range(len(broad_spectrogram.T)):
             self.delete_area(
@@ -619,11 +615,11 @@ class Spectrogram:
             if detection_start < 0:
                 detection_start = 0
 
-            if detection_stop > len(spectrogram_copy.T):
-                detection_stop = len(spectrogram_copy.T) - 1
+            if detection_stop > len(self.times):
+                detection_stop = len(self.times) - 1
 
             # if the object is higher than 60 and smaller than 6
-            if pot_meteor_width < 6 and pot_meteor_height > 60:
+            if pot_meteor_width < 6 and pot_meteor_height > 50:
                 # consider the object as a meteor
                 pot_meteors.append((
                     object[0],
@@ -640,7 +636,11 @@ class Spectrogram:
                 no_objects = 0
                 # iterate over the 20 columns coming before the start of the
                 # current object
-                while column > detection_start and no_objects <= 2:
+                while (
+                    column > detection_start
+                    and no_objects <= 2
+                    and total_width < 16
+                ):
                     # get all the objects from the current column
                     column_objects = self.__get_object_coords(
                         # spectrogram=self.Pxx_modified[fmin:fmax, column]
@@ -659,7 +659,7 @@ class Spectrogram:
                             for column_object in column_objects:
                                 max_gap = 0.25 * (fmax - fmin)
 
-                                # check if 2 objects lay clos or far form each
+                                # check if 2 objects lay close or far form each
                                 # other
                                 if column_object[0].start > (fstop + max_gap):
                                     # if they lay far from each other, reset
@@ -693,7 +693,11 @@ class Spectrogram:
 
                 # iterate over the 20 columns coming after the stop of the
                 # current object
-                while column < detection_stop and no_objects <= 2:
+                while (
+                    column < detection_stop
+                    and no_objects <= 2
+                    and total_width < 16
+                ):
                     column_objects = self.__get_object_coords(
                         # spectrogram=self.Pxx_modified[fmin:fmax, column]
                         spectrogram=pxx_copy[fmin:fmax, column]
@@ -853,3 +857,34 @@ class Spectrogram:
             )]
 
         return meteor_coords
+
+    def increase_object_value(
+        self,
+        start=0,
+        end=None,
+        get_all=False
+    ):
+        # if the users wants the meteors on the whole spectrogram
+        if get_all:
+            start = 0
+            end = len(self.times)
+
+        if start < 0:
+            start = 0
+
+        spectrogram_slice = self.__get_slice(start, end)
+
+        for i in range(len(spectrogram_slice.T)):
+            object_coords = self.__get_object_coords(
+                start=i + start,
+                get_all=False,
+                treshold=0.002,
+            )
+
+            for coords in object_coords:
+                if (coords[0].stop - coords[0].start) > 12:
+                    coords_corrected = (
+                        coords[0],
+                        slice(i + start, i + start + 1, None)
+                    )
+                    self.Pxx_modified[coords_corrected] = 10

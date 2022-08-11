@@ -41,20 +41,29 @@ def detect_noise_increase(previous_value, current_value, current_index):
     return False
 
 
-def detect_calibrator_variations(previous_value, current_value):
-    if current_value is None:
-        # print('No calibrator signal was detected!!')
-        return 100
-    elif previous_value is None:
-        # print('No value to compare the current value to')
+def detect_noise_variations(y_data, current_noise):
+    mean_noise = np.mean(y_data)
+    std_dev_noise = np.std(y_data)
+
+    reference_deviation = 4 * std_dev_noise
+
+    if current_noise >= (mean_noise + reference_deviation):
+        return 1
+    elif current_noise <= (mean_noise - reference_deviation):
+        return -1
+    else:
         return 0
 
-    difference = (current_value / previous_value - 1) * 10
 
-    # if abs(difference) > 50:
-    #     print('ATTENTION : hight calibrator change detected!!')
+def detect_calibrator_variations(y_data, current_calibrator):
+    mean_calibrator = np.mean(y_data)
+    std_dev_calibrator = np.std(y_data)
 
-    # print(f'Detected a difference of {difference} %')
-    # print(f'{previous_value} --> {current_value}')
+    reference_deviation = 4 * std_dev_calibrator
 
-    return abs(difference)
+    if current_calibrator >= (mean_calibrator + reference_deviation):
+        return 1
+    elif current_calibrator <= (mean_calibrator - reference_deviation):
+        return -1
+    else:
+        return 0

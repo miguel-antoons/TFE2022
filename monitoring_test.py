@@ -12,10 +12,6 @@ from modules.brams_wav import BramsError, BramsWavFile, DirectoryNotFoundError
 from datetime import datetime, timedelta, timezone
 from tqdm import tqdm
 
-# 1. assume that the files are structured by YEAR/MONTH/DATE by default
-# 2. don't forget to take into account the interval
-# 3. create graph and png from that graph (with matplotlib)
-
 
 # default_dir = 'recordings/wav/'
 default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
@@ -81,6 +77,10 @@ def get_dates(start_date: str = None, end_date: str = None):
     return start_date, end_date
 
 
+def round_interval(interval):
+    return interval - (interval % 5) if (interval - (interval % 5) > 0) else 5
+
+
 def main(args):
     files = []
     psd_memory = {}
@@ -100,6 +100,9 @@ def main(args):
     # get the start and end date
     start_date, end_date = get_dates(args.start_date, args.end_date)
 
+    args.interval = round_interval(args.interval)
+    detection_condition_value = int(20160 / args.interval)
+
     interval_delta = timedelta(minutes=args.interval)
     day_delta = timedelta(days=1)
     interval_sec = interval_delta.total_seconds()
@@ -115,18 +118,14 @@ def main(args):
         position=0,
         desc='Calculating for each station...'
     ):
-        for antenna in tqdm(
-            systems[lcode].keys(),
-            position=1,
-            desc='Calculating for each antenna...'
-        ):
+        for antenna in systems[lcode].keys():
             sys_id = systems[lcode][antenna]
             requested_date = start_date
 
             with tqdm(
                 total=difference,
-                position=2,
-                desc='Calculating psd...',
+                position=1,
+                desc=f'{lcode}, antenna {antenna}',
             ) as pbar:
                 # perform the monitoring on the whole time interval
                 while requested_date < end_date:
@@ -137,9 +136,6 @@ def main(args):
                         # previous psd values
                         previous_psd = {sys_id: []}
 
-                        # if non values were found, default to None
-                        previous_calibrator = {sys_id: None}
-
                         # add a dict to the noise_memory variable representing
                         # psd values for the current station
                         psd_memory[sys_id] = {
@@ -148,7 +144,6 @@ def main(args):
                             "x": [i for i in range(len(previous_psd[sys_id]))],
                             "n_y": previous_psd[sys_id],
                             "c_y": [],
-                            "previous_calibrator": previous_calibrator[sys_id],
                             "previous_f": None,
                             "warnings": {
                                 "noise": {
@@ -201,35 +196,61 @@ def main(args):
                         "calibrator_psd": db_cal_psd
                     })
 
-                    if variations.detect_calibrator_variations(
-                        sys_psd['previous_calibrator'],
-                        calibrator_psd
-                    ) > 50:
-                        sys_psd['warnings']['calibrator'].append(sys_psd['i'])
-
-                    # if there is a value to compare to
-                    if sys_psd['i'] > 1:
-                        # compare the current psd to the previous one in order
-                        # to detect high noise increases
-                        if variations.detect_noise_increase(
-                            sys_psd['n_y'][-1],
+                    # if there is at least 2 weeks of psd data available
+                    # check for marginal noise/calibrator variations
+                    if sys_psd['i'] >= detection_condition_value:
+                        relevant_noise_y = (
+                            sys_psd
+                            ['n_y']
+                            [-detection_condition_value:]
+                        )
+                        noise_variations = variations.detect_noise_variations(
+                            relevant_noise_y,
                             noise_psd,
-                            sys_psd['i']
-                        ):
+                        )
+                        # detect high noise increases
+                        if noise_variations > 0:
                             sys_psd['warnings']['noise']['asc'].append(
-                                sys_psd['i']
+                                wav.date.strftime('%Y-%m-%d %H:%M')
                             )
 
-                    # finally, detect if there is a noise decrease
-                    if variations.detect_noise_decrease(
-                        [i for i in range(len(sys_psd['n_y']))],
-                        sys_psd['n_y'],
-                        sys_psd['i']
-                    ):
-                        sys_psd['warnings']['noise']['desc'].append(
-                            sys_psd['i'])
+                        # do the same, but this time check for high noise
+                        # decreases
+                        elif noise_variations < 0:
+                            sys_psd['warnings']['noise']['desc'].append(
+                                wav.date.strftime('%Y-%m-%d %H:%M')
+                            )
 
-                    sys_psd['previous_calibrator'] = calibrator_psd
+                        relevant_calibrator_y = (
+                            sys_psd
+                            ['c_y']
+                            [-detection_condition_value:]
+                        )
+                        calibrator_variations = (
+                            variations.detect_calibrator_variations(
+                                relevant_calibrator_y,
+                                calibrator_psd
+                            )
+                        )
+
+                        # check for high calibrator psd increase
+                        if calibrator_variations > 0:
+                            sys_psd['warnings']['calibrator'].append(
+                                (
+                                    wav.date.strftime('%Y-%m-%d %H:%M'),
+                                    calibrator_f
+                                )
+                            )
+
+                        # check for high calibrator psd decrease
+                        elif calibrator_variations < 0:
+                            sys_psd['warnings']['calibrator'].append(
+                                (
+                                    wav.date.strftime('%Y-%m-%d %H:%M'),
+                                    calibrator_f
+                                )
+                            )
+
                     sys_psd['previous_f'] = calibrator_f
 
                     requested_date = wav.date + interval_delta
@@ -280,17 +301,15 @@ def generate_plot(
     title='',
     y_title='',
     x_title='',
+    y_min=None,
+    y_max=None,
 ):
-    y = np.array(y)
-    y_median, y_mad = mad(y)
-    min_3mad = y_median - (3 * y_mad)
-    plus_3mad = y_median + (3 * y_mad)
-    lowest_value = np.min(np.abs(y[y > min_3mad]))
-    y_min = min_3mad - lowest_value
-    y_max = plus_3mad + lowest_value
+    if not len(x) or not len(y) or not len(x) == len(y):
+        return
 
     plt.figure(num=figure_n, figsize=(width, height), dpi=dpi)
     plt.plot(x, y)
+
     axis = plt.gca()
     axis.set_ylim([y_min, y_max])
     plt.title(title)
@@ -301,6 +320,7 @@ def generate_plot(
         step = int(len(x) / 10)
     else:
         step = 1
+
     plt.xticks([i for i in range(0, len(x), step)])
     plt.savefig(f'{im_name}.png')
     plt.close(figure_n)

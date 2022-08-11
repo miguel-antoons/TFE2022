@@ -318,6 +318,9 @@ class BramsWavFile:
                 )[0]
                 self.fs = bra1['sample_rate']
             elif hid == b'data':
+                if hsize > (len(file) - subchunk_offset):
+                    hsize = len(file) - subchunk_offset
+
                 data = np.frombuffer(
                     file,
                     dtype='<i2',

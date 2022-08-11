@@ -120,7 +120,7 @@ def main(args):
                     if str_date in pre_psd[sys_id].keys():
                         previous_noise.append(pre_psd[sys_id][str_date])
                         previous_dates.append(str_date)
-
+                        # ? change calibrator to array similar to noise array?
                         if (requested_date + interval_delta) >= start_date:
                             previous_calibrator = pre_psd[sys_id][str_date]
 
