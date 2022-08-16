@@ -45,7 +45,7 @@ def detect_noise_variations(y_data, current_noise):
     mean_noise = np.mean(y_data)
     std_dev_noise = np.std(y_data)
 
-    reference_deviation = 4 * std_dev_noise
+    reference_deviation = 3.2 * std_dev_noise
 
     if current_noise >= (mean_noise + reference_deviation):
         return 1
@@ -59,7 +59,7 @@ def detect_calibrator_variations(y_data, current_calibrator):
     mean_calibrator = np.mean(y_data)
     std_dev_calibrator = np.std(y_data)
 
-    reference_deviation = 4 * std_dev_calibrator
+    reference_deviation = 3.5 * std_dev_calibrator
 
     if current_calibrator >= (mean_calibrator + reference_deviation):
         return 1
@@ -67,3 +67,8 @@ def detect_calibrator_variations(y_data, current_calibrator):
         return -1
     else:
         return 0
+
+
+def mad(array):
+    median = np.median(array)
+    return median, np.median(np.abs(array - median))

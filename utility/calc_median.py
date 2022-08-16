@@ -33,21 +33,25 @@ def calc_median(json_path):
         median_noise, mad_noise = mad(noise)
         mean_noise = np.mean(noise)
         std_dev_noise = np.std(noise)
+        variance_noise = np.var(noise)
 
         median_calibrator, mad_calibrator = mad(calibrator)
         mean_calibrator = np.mean(calibrator)
         std_dev_calibrator = np.std(calibrator)
+        variance_calibrator = np.var(calibrator)
 
         print(f'\n------ ID {sys_id} ------')
         print(f'Median noise :\t\t\t {median_noise}')
         print(f'Mad noise :\t\t\t {mad_noise}')
         print(f'Mean noise :\t\t\t {mean_noise}')
         print(f'Standard deviation noise :\t {std_dev_noise}')
+        print(f'Variance noise : \t\t {variance_noise}')
 
         print(f'Median calibrator :\t\t {median_calibrator}')
         print(f'Mad calibrator :\t\t {mad_calibrator}')
         print(f'Mean calibrator :\t\t {mean_calibrator}')
         print(f'Standard deviation calibrator :\t {std_dev_calibrator}')
+        print(f'Variance calibrator :\t\t {variance_calibrator}')
 
 
 if __name__ == '__main__':

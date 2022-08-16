@@ -180,11 +180,11 @@ def get_meteor_coords(
                     broad_start=broad_interval_start,
                     broad_end=broad_interval_end,
                 )
-                # spectrogram.plot_modified_spectrogram(
-                #     interval=250,
-                #     show=True,
-                #     title=system_file['file_path']
-                # )
+                spectrogram.plot_modified_spectrogram(
+                    interval=250,
+                    show=True,
+                    title=system_file['file_path']
+                )
 
                 # find a more precise representation of the meteor coords
                 specs = spectrogram.get_meteor_specs(coords)
@@ -200,8 +200,8 @@ def get_meteor_coords(
 
 def get_close(stations, reference_station_code=None):
     if reference_station_code is None:
-        for location in stations:
-            location['distance'] = None
+        for location in stations.keys():
+            stations[location]['distance'] = None
     else:
         ref_station = stations[reference_station_code]
         for location in stations.keys():
@@ -412,8 +412,8 @@ def arguments():
 
 
 if __name__ == '__main__':
-    main_test()
-    exit()
+    # main_test()
+    # exit()
     args = arguments()
     main(args)
     print('Exiting...')
