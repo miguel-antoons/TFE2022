@@ -18,11 +18,13 @@ from scipy import signal
 
 
 def get_psd(f, flow=800, fhigh=900):
-    # get fourier tranform from BramsWavFile class
+    # get fourier transform from BramsWavFile class
     freq, S, fbin = f.FFT(f.Isamples)
     idx = (freq >= flow) * (freq < fhigh)
 
     # calculate the total power of the wanted frequencies
+    # divided by 2 to prevent having the negative frequencies added to the
+    # positives
     p = (S[idx] * S[idx].conj()).real / 2
 
     # get a mean normalized to 1Hz

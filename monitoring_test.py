@@ -101,7 +101,7 @@ def main(args):
     start_date, end_date = get_dates(args.start_date, args.end_date)
 
     args.interval = round_interval(args.interval)
-    detection_condition_value = int(20160 / args.interval)
+    detection_condition_value = int(17280 / args.interval)
 
     interval_delta = timedelta(minutes=args.interval)
     day_delta = timedelta(days=1)
