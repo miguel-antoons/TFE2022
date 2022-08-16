@@ -330,12 +330,10 @@ class BramsWavFile:
 
                 self.Isamples = data[:]
 
-                if self.fs is not None:
-                    break
+                if self.fs is None:
+                    self.fs = fmt['sample_rate']
 
-        if self.fs is None:
-            # print(self.fmt)
-            self.fs = fmt['sample_rate']
+                break
 
     def skip_samples(self, start_second=0.1):
 
