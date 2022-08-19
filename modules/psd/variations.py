@@ -1,4 +1,3 @@
-# import matplotlib.pyplot as plt
 import numpy as np
 
 from scipy.optimize import curve_fit
@@ -55,6 +54,23 @@ def detect_noise_variations(y_data, current_noise):
         return 0
 
 
+def detect_noise_variations2(y_data, current_noise):
+    q1 = np.percentile(y_data, 25, interpolation='lower')
+    q3 = np.percentile(y_data, 75, interpolation='higher')
+
+    interquartile = q3 - q1
+
+    upper_limit = q3 + (2.4 * interquartile)
+    lower_limit = q1 - (2.4 * interquartile)
+
+    if current_noise >= upper_limit:
+        return 1
+    elif current_noise <= lower_limit:
+        return -1
+    else:
+        return 0
+
+
 def detect_calibrator_variations(y_data, current_calibrator):
     mean_calibrator = np.mean(y_data)
     std_dev_calibrator = np.std(y_data)
@@ -64,6 +80,23 @@ def detect_calibrator_variations(y_data, current_calibrator):
     if current_calibrator >= (mean_calibrator + reference_deviation):
         return 1
     elif current_calibrator <= (mean_calibrator - reference_deviation):
+        return -1
+    else:
+        return 0
+
+
+def detect_calibrator_variations2(y_data, current_calibrator):
+    q1 = np.percentile(y_data, 25, interpolation='lower')
+    q3 = np.percentile(y_data, 75, interpolation='higher')
+
+    interquartile = q3 - q1
+
+    upper_limit = q3 + (2.5 * interquartile)
+    lower_limit = q1 - (2.5 * interquartile)
+
+    if current_calibrator >= upper_limit:
+        return 1
+    elif current_calibrator <= lower_limit:
         return -1
     else:
         return 0

@@ -98,7 +98,7 @@
     \par
     En commençant par mon professeur rapporteur, à qui j'ai pu poser mes questions en cas de besoin et qui s'est assuré que tout se passe bien tout au long du projet.\\
     \par
-    Ensuite, je voudrai remercier Mr Hervé Lamy pour avoir proposé ce sujet de fin d'études, mais également pour m'avoir expliqué, de façon claire et précise, toutes les notions qui nécessitaient des explications.\\
+    Ensuite, je voudrais remercier Mr Hervé Lamy d'avoir proposé ce sujet, mais également d'avoir expliqué, de façon claire et précise, toutes les notions qui nécessitaient des explications.\\
     \par
     Je tiens également à remercier Mrs Antoine Calegaro et Michel Anciaux, qui m'ont guidé quand c'était nécessaire et qui m'ont conseillé durant le projet de fin d'études.\\
     \par
@@ -114,14 +114,14 @@
 \section{Introduction}
 
 Chaque jour, des milliers d'objets passent tout près de l'atmosphère terrestre.
-Parmi ces objets, on retrouve les météoroïdes : un corps pierreux ou métallique d'une largeur pouvant varier de quelques millimètres à un mètre.
-Un météoroïde, une fois rentré dans l'atmosphère, devient un météore et peut créer un phénomène lumineux connu sous le nom de "Étoile filante".
+Parmi ces objets, on retrouve les météoroïdes : des corps pierreux ou métalliques d'une largeur pouvant varier de quelques millimètres à un mètre.
+Un météoroïde, une fois rentré dans l'atmosphère, devient un météore et peut créer un phénomène lumineux connu sous le nom d' "Étoile filante".
 Contrairement à ce que l'on peut penser, un météoroïde qui entre dans l'atmosphère terrestre est un événement qui se produit des milliers de fois par jour.
 \\
 \\
 L'étude de ces météores permet de retrouver différentes informations telles que la masse ou encore la trajectoire de ceux-ci.
-Ce travail de fin d'étude a pour objectif de faciliter l'étude de météores.
-Il fera ceci en permettant une visualisation facile de la qualité des données étudiées et en automatisant une partie de la détection des météores.
+Ce travail de fin d'étude a pour objectif de faciliter cette étude.
+Cet objectif sera accompli en permettant une visualisation facile de la qualité des données étudiées et en automatisant une partie de la détection des météores.
 Mais, afin de pouvoir les étudier, il est nécessaire de les détecter avant.
 Actuellement, différentes techniques existent pour détecter des météores dans l'atmosphère.
 \\
@@ -160,7 +160,7 @@ On peut donc détecter un météore à l'aide de sa trainée ionisée.
 Afin d'exploiter cette réflexion, il nous faut un émetteur dont le signal radio est réfléchi à l'aide de la trainée d'un météore et est ensuite enregistré par un récepteur.
 Cette procédure est illustrée à la figure \ref{fig:forward_scatt}, où la flèche jaune représente la trainée ionisée produite par le météore.
 Le signal reçu par l'émetteur est alors appelé un écho de météore.
-Un écho de météore peut durer entre une et 10 secondes, selon la durée d'existence de la trainée ionisée.
+Un écho de météore peut durer entre 1 et 10 secondes, selon la durée d'existence de la trainée ionisée.
 \\
 \\
 Une caractéristique importante de cette technique de détection est la réflexion spéculaire.
@@ -262,12 +262,12 @@ Cependant, une fois arrivé en 2018 un problème avec le récepteur ICOM était 
 Remplacer ces récepteurs s'est avéré compliqué comme le récepteur ICOM n'était plus produit.
 D'autres récepteurs analogiques pouvaient servir comme remplaçant, mais ceux-ci étaient bien plus chers.
 De plus, la station v1 disposait de plusieurs autres problèmes comme une faible portabilité ou encore une installation complexe.
-Ceci a poussé les membres du projet BRAMS à réfléchir à une nouvelle solution permettant de remplacer les stations v1.
+Ceci a poussé les membres du projet BRAMS au développement d'une nouvelle solution permettant de remplacer les stations v1.
 
 \subsubsection{Les Stations V2}
 
 En 2017 un étudiant venant de l'Ephec, nommé Antoine Calegaro, a créé un prototype d'une nouvelle station.
-Ce prototype serait la base pour la station v2, destiné à remplacer la station v1.\\
+À partir de ce prototype Michel Anciaux, membre du projet BRAMS, a développé la station v2, destiné à remplacer les stations v1\\
 \\
 La station v2 est piloté par un Raspberry PI dont l'horloge est synchronisé avec le signal PPS du même GPS Garmin utilisé sur la station v1.
 Son récepteur est un RSP2 qui à l'avantage d'avoir une portée dynamique plus grande et une sensibilité supérieure par rapport au récepteur ICOM.
@@ -735,19 +735,69 @@ La deuxième est qu'une fois la dsp moyenne du signal calibreur est calculée, o
 Les étapes listées ci-dessus permettent d'avoir les informations nécessaires afin de pouvoir déterminer s'il y a un problème avec un fichier, et donc par conséquence, avec une station.
 Les deux valeurs de dsp moyenne sont enregistrées dans la base de données du projet BRAMS et sont donc réutilisables.
 
+% TODO
 \subsubsection{L'avertissement d'une anomalie}
 
-% TODO
+\begin{figure}
+    \begin{lstlisting}[style=CStyle]
+def detect_variations(y_data, current_value):
+    q1 = np.percentile(y_data, 25, interpolation='lower')
+    q3 = np.percentile(y_data, 75, interpolation='higher')
 
-%* keep this for when there is time
-% \subsection{Autres Fonctionalités}
+    interquartile = q3 - q1
 
+    upper_limit = q3 + (2.4 * interquartile)
+    lower_limit = q1 - (2.4 * interquartile)
+
+    if current_value >= upper_limit:
+        return 1
+    elif current_value <= lower_limit:
+        return -1
+    else:
+        return 0
+    \end{lstlisting}
+    \caption{Code de la fonction permettant de détecter des variations excessives dans les données.}
+    \label{fig:detection-code}
+\end{figure}
+
+Avant l'enregistrement, une autre étape est faite : la détection automatique d'une anomalie.
+Pour cette étape, le logiciel applique les mêmes actions sur le bruit et le signal calibreur avec une exception.
+Ces actions sont faites à chaque fois qu'une nouvelle valeur de dsp moyenne est générée.\\
+\\
+Afin de détecter une grande variation dans les données, le programme se base sur l'ensemble des dsp moyennes des deux semaines précédent la nouvelle valeur de dsp.
+À partir de cet ensemble, il faut définir une frontière haute et une frontière basse.
+Si la nouvelle dsp moyenne se trouve en dehors d'une frontière, il sera considéré comme anormal et les scientifiques du projet BRAMS seront avertis.\\
+\\
+Différentes méthodes existent pour définir ces frontières.
+La méthode utilisée dans ce logiciel, utilisant la gamme interquartile, peut être visualisé à la figure \ref{fig:detection-code} et est expliquée ci-dessous.\\
+\\
+Il faut savoir que les deux paramètres de la fonction affichée à la figure \ref{fig:detection-code} , \textbf{y\_data} et \textbf{current\_value}, sont l'ensemble des dsp moyennes des deux semaines précédent la nouvelle valeur de dsp et la nouvelle valeur de dsp.
+%! exposant chars
+Le programme commence par calculer le 25e et le 75e percentile de l'ensemble des données qui se trouvent dans y\_data.
+Un percentile est une mesure indiquant la valeur en dessous de laquelle se trouvent un pourcentage donné d'observations, dans un ensemble d'observations.
+Par exemple, le 20e percentile est la valeur en dessous de laquelle se trouvent 20\% des observations dans un ensemble d'observations.
+Ensuite, on calcule la gamme interquartile de y\_data.
+Cette valeur est calculée en faisant la différence entre la 25e et la 75e percentile, que le programme a déjà calculé.\\
+\\
+Le logiciel définira à partir de ces trois valeurs calculées, la frontière haute et basse.
+Les formules utilisées sont \(Q3 + (x * IQR)\) pour la frontière haute et \(Q1 - (x * IQR)\) pour la frontière basse où \(Q1\) et \(Q3\) sont le 25e et le 75e percentile et \(IQR\) la gamme interquartile.
+Le facteur \(x\) permet de définir la largeur entre les deux frontières, au plus sa valeur est élevée, au plus les frontières sont écartées.\\
+\\
+C'est ce facteur qui est différent pour le bruit et le signal calibreur.
+Tandis que pour le bruit, il vaut 2.4, il est défini à  2.5 pour le signal du calibreur.
+Ceci est parce que le bruit varie moins et il n'est donc pas nécessaire d'avoir les deux frontières aussi écartées que pour le signal du calibreur.\\
+\\
+Finalement, on vérifie si la nouvelle valeur de dsp (\textbf{current\_value}) dépasse ou non une des frontières.
+Si c'est le cas, on informe l'utilisateur d'un problème dans les données.\\
+\\
+Bien que cette méthode permet bien de détecter des anomalies, elle n'est pas parfaite.
+En effet, parfois il y a des faux positifs et le programme alerte l'utilisateur alors qu'aucun problème est présent.
 
 \subsection{L'interface sur le site web BRAMS}
 
 \begin{figure}[t]
     \begin{center}
-        \includegraphics[scale=0.16]{monitoring_ui.png}
+        \includegraphics[scale=0.22]{monitoring_ui.png}
         \caption{Interface graphique du logiciel de surveillance.}
         \label{fig:monitoring-ui}
     \end{center}
@@ -910,6 +960,8 @@ Suite à une réflexion sur les programmes réalisés, quelques pistes d'amélio
           Une amélioration intéressante serait donc de réfléchir à des potentiels erreurs qui ne seraient pas détectés et en tenir compte dans le programme.
     \item Il serait intéressant d'avoir une interface graphique sur le site web de BRAMS permettant de manipuler le programme qui recherche les échos venant d'un météore.
           Cette interface pourrait alors afficher ces résultats sur un spectrogramme en plus de générer un fichier CSV.
+    \item Pour le système de détection d'anomalies dans le programme de monitoring, il serait intéressant d'effectuer plus de tests et de recherches afin d'améliorer la méthode utilisée.
+          En effet, comme expliqué avant, il n'est pas parfait et alerte parfois l'utilisateur d'un problème alors qu'il n'y en a pas.
 \end{itemize}
 
 %? OLD
@@ -1111,7 +1163,7 @@ Suite à une réflexion sur les programmes réalisés, quelques pistes d'amélio
 % Ceci veut dire que tous les fichiers générés alors qu'il y avait ce problème sont inutilisables.\\
 % \\
 % Un autre exemple est la station à Haacht entre le 1\textsuperscript{er} juillet 2021 et le 31 août 2021 affichée à la figure 11.
-% Ici, on constate une diminution graduelle de l'intensité du bruit, jusqu'à ce que le récepteur ne capte plus rien.
+% Ici, on constate une diminution graduelle de l'intensité du bruit, jusqu'�� ce que le récepteur ne capte plus rien.
 % Ceci est causé suite au vieillissement du récepteur ICOM.
 % Cette station a donc dû être remplacée.
 
@@ -1375,72 +1427,72 @@ Suite à une réflexion sur les programmes réalisés, quelques pistes d'amélio
 
 \newpage
 
-\appendix
+% \appendix
 
-\section{Kernel de Convolution Permettant d'Amplifier les Signaux de Météores}
+% \section{Kernel de Convolution Permettant d'Amplifier les Signaux de Météores}
 
-\begin{lstlisting}[style=CStyle]
-       [[ 0.   0.   0.  50.   0.   0.   0. ]
-        [ 0.   0.   0.  50.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [-1.5  0.   0.   0.   0.   0.  -1.5]
-        [-1.5  0.   0.   0.   0.   0.  -1.5]
-        [-1.5  0.   0.   0.   0.   0.  -1.5]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.   0.   0.   0.   0. ]
-        [ 0.   0.   0.  50.   0.   0.   0. ]
-        [ 0.   0.   0.  50.   0.   0.   0. ]]
-\end{lstlisting}
+% \begin{lstlisting}[style=CStyle]
+%        [[ 0.   0.   0.  50.   0.   0.   0. ]
+%         [ 0.   0.   0.  50.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [-1.5  0.   0.   0.   0.   0.  -1.5]
+%         [-1.5  0.   0.   0.   0.   0.  -1.5]
+%         [-1.5  0.   0.   0.   0.   0.  -1.5]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.   0.   0.   0.   0. ]
+%         [ 0.   0.   0.  50.   0.   0.   0. ]
+%         [ 0.   0.   0.  50.   0.   0.   0. ]]
+% \end{lstlisting}
 
-\section{Méthode FFT de la Classe BramsWavFile}
+% \section{Méthode FFT de la Classe BramsWavFile}
 
-\begin{lstlisting}[style=CStyle]
-def FFT(self, Isamples, force_new=False):
-    if (
-        self.fft is not None
-        and self.fft_fbin is not None
-        and self.fft_freq is not None
-        and not force_new
-    ):
-        return self.fft_freq, self.fft, self.fft_fbin
+% \begin{lstlisting}[style=CStyle]
+% def FFT(self, Isamples, force_new=False):
+%     if (
+%         self.fft is not None
+%         and self.fft_fbin is not None
+%         and self.fft_freq is not None
+%         and not force_new
+%     ):
+%         return self.fft_freq, self.fft, self.fft_fbin
 
-    # get the length of all the audio samples
-    nsamples = Isamples.size
+%     # get the length of all the audio samples
+%     nsamples = Isamples.size
 
-    # create a window funtion
-    w = windows.hann(nsamples)
-    w_scale = 1 / w.mean()
+%     # create a window funtion
+%     w = windows.hann(nsamples)
+%     w_scale = 1 / w.mean()
 
-    # apply that window on all the audio samples
-    Isamples = Isamples * w * w_scale
+%     # apply that window on all the audio samples
+%     Isamples = Isamples * w * w_scale
 
-    # get the Fourier Tranform and normalize it
-    S = rfft(Isamples) / nsamples
-    S[1: -1] *= 2
+%     # get the Fourier Tranform and normalize it
+%     S = rfft(Isamples) / nsamples
+%     S[1: -1] *= 2
 
-    self.fft = S
-    self.fft_fbin = self.fs / nsamples
-    self.fft_freq = rfftfreq(nsamples, 1 / self.fs)
+%     self.fft = S
+%     self.fft_fbin = self.fs / nsamples
+%     self.fft_freq = rfftfreq(nsamples, 1 / self.fs)
 
-    return self.fft_freq, S, self.fft_fbin
-\end{lstlisting}
-    
+%     return self.fft_freq, S, self.fft_fbin
+% \end{lstlisting}
+
 
 \end{document}

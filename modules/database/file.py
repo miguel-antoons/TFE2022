@@ -165,7 +165,7 @@ def get_previous_noise_psd(stations, start_date, end_date):
 
 
 # TODO
-def get_previous_all_psd(stations, start_date, end_date):
+def get_previous_all_psd(stations, start_date, end_date, interval):
     """
     Function gets the last calibrator psd value from the database
     for each station.
@@ -195,6 +195,7 @@ def get_previous_all_psd(stations, start_date, end_date):
         start_date.strftime('%Y-%m-%d %H:%M'),
         end_date.strftime('%Y-%m-%d %H:%M')
     ] + stations
+    sql_args.append(interval)
     psd = {}
     connection, cursor = db.get_cursor_connection()
 
@@ -218,6 +219,14 @@ def get_previous_all_psd(stations, start_date, end_date):
     sql_query += (
         "AND system_id in (%s)\n"
         % ', '.join(arguments)
+    )
+
+    # https://stackoverflow.com/questions/34270918/mysql-select-interval-of-every-2-hours-from-timestamp-column
+    sql_query += (
+        "GROUP BY\n"
+        "   DATE(start),\n"
+        "   HOUR(start),\n"
+        "   MINUTE(start) DIV %s\n"
     )
 
     cursor.execute(sql_query, tuple(sql_args))

@@ -21,6 +21,22 @@ default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
 
 
 def get_interval(string_date='2022-04-29T000000'):
+    """
+    Function generates an interval of 6 seconds around the string entry date.
+
+    Parameters
+    ----------
+    string_date : str, optional
+        String date around which the interval will be calculated
+        , by default '2022-04-29T000000'
+
+    Returns
+    -------
+    dictionary
+        Dictionary containing 3 timestamps: the interval start timestamp, the
+        interval end timestamp and the inputted date as a timestamp
+    """
+    # check what the string date format is
     if '-' in string_date:
         date_format = '%Y-%m-%d'
     elif '/' in string_date:
@@ -28,6 +44,7 @@ def get_interval(string_date='2022-04-29T000000'):
     else:
         date_format = '%Y%m%d'
 
+    # check what the string time format is
     if ':' in string_date:
         time_format = '%H:%M:%S'
     else:
@@ -46,8 +63,10 @@ def get_interval(string_date='2022-04-29T000000'):
         utc0_date = datetime.strptime(
             string_date, f'{date_format}{time_format}')
 
+    # set correct timezone
     utc0_date = utc0_date.replace(tzinfo=timezone.utc)
 
+    # calculate the interval
     return {
         'start_time': (
             datetime.timestamp(utc0_date - timedelta(seconds=3))
@@ -61,29 +80,6 @@ def get_interval(string_date='2022-04-29T000000'):
     }
 
 
-def get_meteor_specs(wav_file, meteor_coords=[]):
-    for meteor in meteor_coords:
-        start = math.floor(meteor['t_start'] / 1000000 * wav_file.fs)
-        stop = math.ceil(meteor['t_stop'] / 1000000 * wav_file.fs)
-
-        print(f"{meteor['t_start'] / 1000000}-->{start}")
-        print(f"{meteor['t_stop'] / 1000000}-->{stop}")
-        meteor_samples = wav_file.Isamples[
-            start:
-            stop
-        ]
-
-        w = windows.hann(meteor_samples.size)
-        w_scale = 1 / w.mean()
-
-        Isamples = meteor_samples * w * w_scale
-        yf = rfft(Isamples)
-        xf = rfftfreq(meteor_samples.size, (1 / wav_file.fs))
-
-        plt.figure(10)
-        plt.plot(xf, np.abs(yf))
-
-
 def get_meteor_coords(
     stations: dict,
     interval: dict,
@@ -91,6 +87,30 @@ def get_meteor_coords(
     directory: str,
     from_archive: bool
 ):
+    """
+    Function gets all the meteors from the inputted interval.
+
+    Parameters
+    ----------
+    stations : dict
+        Stations to get files from and search meteors on
+    interval : dict
+        Interval to search meteors in between
+    is_wav : bool
+        Indicates if the wav files are located in tar files (False) or
+        not (True)
+    directory : str
+        Directory where the files are located
+    from_archive : bool
+        Indicates if the files are located in the archive (True) or in another
+        directory (False)
+
+    Returns
+    -------
+    dict
+        dictionary with all the meteors detected within the entered interval,
+        ordered by stations.
+    """
     # filter matrix
     # its primary purpose is to amplify long vertical elements
     kernel = np.zeros((27, 7))
@@ -107,8 +127,6 @@ def get_meteor_coords(
             for date in stations[location]['sys'][antenna].keys():
                 system_file = stations[location]['sys'][antenna][date]
                 system_file['meteors'] = []
-
-                # print(f"\nSearching in file {system_file['file_path']}.")
 
                 try:
                     # read the wav file
@@ -159,11 +177,13 @@ def get_meteor_coords(
                     end=broad_interval_end,
                     kernel=kernel
                 )
+                # filter the interval by percentile
                 spectrogram.filter_by_percentile(
                     start=broad_interval_start,
                     end=broad_interval_end,
                     percentile=95
                 )
+                # delete all the areas that are to small to be a meteor
                 spectrogram.delete_area(
                     6 / spectrogram.frequency_resolution,
                     start=broad_interval_start,
@@ -173,7 +193,7 @@ def get_meteor_coords(
                     start=broad_interval_start,
                     end=broad_interval_end,
                 )
-                # find the unprecise meteor coords
+                # find the imprecise meteor coords
                 coords = spectrogram.get_potential_meteors(
                     start=interval_start,
                     end=interval_end,
@@ -194,17 +214,37 @@ def get_meteor_coords(
                 )
 
                 system_file['meteors'] = specs
-
+    # return the stations dict with the found meteors
     return stations
 
 
 def get_close(stations, reference_station_code=None):
+    """
+    Function calculates the distance between each station in the stations
+    parameter and the reference station.
+
+    Parameters
+    ----------
+    stations : dict
+        dictionary with all the stations to calculate the distance
+    reference_station_code : str, optional
+        Reference station to calculate the distance, by default None
+
+    Returns
+    -------
+    dict
+        the stations dict with the distance between each station and the
+        reference station added
+    """
+    # if the reference station is None set all the distances to None
     if reference_station_code is None:
         for location in stations.keys():
             stations[location]['distance'] = None
     else:
         ref_station = stations[reference_station_code]
         for location in stations.keys():
+            # for each station in the stations dict, calculate the distance
+            # between it and the reference stations
             stations[location]['distance'] = geo.distance(
                 (ref_station['latitude'], ref_station['longitude']),
                 (
@@ -221,11 +261,31 @@ def generate_filename(
     date: Union[datetime, None] = None,
     station: Union[str, None] = None
 ):
+    """
+    generates a filename for the csv containing 'meteor_detect'
+    the detection date and the reference station code
+
+    Parameters
+    ----------
+    basis : str, optional
+        front part of the file name, by default 'meteor_detect'
+    date : Union[datetime, None], optional
+        date that will be added to the file name, by default None
+    station : Union[str, None], optional
+        station code that will be added to the file name, by default None
+
+    Returns
+    -------
+    str
+        generated file name
+    """
+    # check if there is a date to add
     if date is None:
         date = ''
     else:
         date = '_' + date.strftime('%Y%m%d_%H%M%S')
 
+    # check if there is a station to add
     if station is None:
         station = ''
     else:
@@ -235,22 +295,35 @@ def generate_filename(
 
 
 def main(args):
+    """
+    This function is the entrypoint of the program,
+    it is the link between all the functions and generates the final
+    result
+
+    Parameters
+    ----------
+    args : object
+        arguments and options the user provided to the program
+    """
     # get the interval in which to detect meteors
     interval = get_interval(args.detection_time[0])
     systems = []
     system_ids = []
+
+    # check if the stations argument has been given
     if len(args.stations) == 0:
         systems = sys.get_station_ids()
     else:
         systems = sys.get_station_ids(args.station, False)
 
-    # restructure the system ids in a simple list instead of dictionnary
+    # restructure the system ids in a simple list instead of dictionary
     for lcode in systems.keys():
         for antenna in systems[lcode].keys():
             system_ids.append(systems[lcode][antenna])
 
     stations = fil.get_file_by_interval(system_ids, interval)
 
+    # if no files were found for the given interval
     if stations == {}:
         print('No files were found for those stations at that time.')
         return
@@ -264,6 +337,7 @@ def main(args):
     # ! add try except clause below in case the file for the specified
     # ! station does not exist
     stations = get_close(stations, args.reference_station)
+    # get all the meteors of the given interval
     stations = get_meteor_coords(
         stations,
         interval,
@@ -272,6 +346,7 @@ def main(args):
         from_archive
     )
 
+    # generate a csv file with the results
     csv.write_csv(
         stations,
         filename=generate_filename(
@@ -286,6 +361,9 @@ def main(args):
 
 
 def main_test():
+    """
+    This function's purpose is to test the whole program
+    """
     directory = './recordings/traj_105/'
     kernel = np.zeros((27, 7))
     kernel[12:15, 0] = -1.5
@@ -331,11 +409,10 @@ def main_test():
 def arguments():
     parser = argparse.ArgumentParser(
         description="""
-            Program searches for meteor detection found on one system
-            on other systems and returns the result in a csv file.
-            To use this program, enter the program name followed by the
-            date and time you want to search the stations for meteors.
-            Additional options are listed below.
+            This program searches for all the meteors in an interval.
+            The interval will be calculated from the DETECTION TIME argument.
+            Its start will be 3 seconds before the DETECTION TIME argument and
+            the end will be 3 seconds after DETECTION TIME argument.
         """
     )
     parser.add_argument(

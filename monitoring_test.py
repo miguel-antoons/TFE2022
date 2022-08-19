@@ -101,7 +101,7 @@ def main(args):
     start_date, end_date = get_dates(args.start_date, args.end_date)
 
     args.interval = round_interval(args.interval)
-    detection_condition_value = int(17280 / args.interval)
+    detection_condition_value = int(20160 / args.interval)
 
     interval_delta = timedelta(minutes=args.interval)
     day_delta = timedelta(days=1)
@@ -196,7 +196,7 @@ def main(args):
                         "calibrator_psd": db_cal_psd
                     })
 
-                    # if there is at least 2 weeks of psd data available
+                    # if there is at least 12 days of psd data available
                     # check for marginal noise/calibrator variations
                     if sys_psd['i'] >= detection_condition_value:
                         relevant_noise_y = (
@@ -204,22 +204,30 @@ def main(args):
                             ['n_y']
                             [-detection_condition_value:]
                         )
-                        noise_variations = variations.detect_noise_variations(
+                        noise_variations = variations.detect_noise_variations2(
                             relevant_noise_y,
                             noise_psd,
                         )
                         # detect high noise increases
                         if noise_variations > 0:
                             sys_psd['warnings']['noise']['asc'].append(
-                                wav.date.strftime('%Y-%m-%d %H:%M')
+                                (
+                                    wav.date.strftime('%Y-%m-%d %H:%M'),
+                                    noise_psd
+                                )
                             )
+                            print(wav.date.strftime('%Y-%m-%d %H:%M'))
 
                         # do the same, but this time check for high noise
                         # decreases
                         elif noise_variations < 0:
                             sys_psd['warnings']['noise']['desc'].append(
-                                wav.date.strftime('%Y-%m-%d %H:%M')
+                                (
+                                    wav.date.strftime('%Y-%m-%d %H:%M'),
+                                    noise_psd
+                                )
                             )
+                            print(wav.date.strftime('%Y-%m-%d %H:%M'))
 
                         relevant_calibrator_y = (
                             sys_psd
@@ -227,7 +235,7 @@ def main(args):
                             [-detection_condition_value:]
                         )
                         calibrator_variations = (
-                            variations.detect_calibrator_variations(
+                            variations.detect_calibrator_variations2(
                                 relevant_calibrator_y,
                                 calibrator_psd
                             )
@@ -238,18 +246,20 @@ def main(args):
                             sys_psd['warnings']['calibrator'].append(
                                 (
                                     wav.date.strftime('%Y-%m-%d %H:%M'),
-                                    calibrator_f
+                                    calibrator_f, calibrator_psd
                                 )
                             )
+                            print(wav.date.strftime('%Y-%m-%d %H:%M'))
 
                         # check for high calibrator psd decrease
                         elif calibrator_variations < 0:
                             sys_psd['warnings']['calibrator'].append(
                                 (
                                     wav.date.strftime('%Y-%m-%d %H:%M'),
-                                    calibrator_f
+                                    calibrator_f, calibrator_psd
                                 )
                             )
+                            print(wav.date.strftime('%Y-%m-%d %H:%M'))
 
                     sys_psd['previous_f'] = calibrator_f
 
@@ -283,11 +293,6 @@ def main(args):
             y_title='ADU',
             x_title='date'
         )
-
-
-def mad(array):
-    median = np.median(array)
-    return median, np.median(np.abs(array - median))
 
 
 def generate_plot(

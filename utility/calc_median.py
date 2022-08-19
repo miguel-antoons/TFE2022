@@ -40,6 +40,14 @@ def calc_median(json_path):
         std_dev_calibrator = np.std(calibrator)
         variance_calibrator = np.var(calibrator)
 
+        q1 = np.percentile(calibrator, 25, interpolation='lower')
+        q3 = np.percentile(calibrator, 75, interpolation='higher')
+
+        interquartile = q3 - q1
+
+        upper_limit = q3 + (1.5 * interquartile)
+        lower_limit = q1 - (1.5 * interquartile)
+
         print(f'\n------ ID {sys_id} ------')
         print(f'Median noise :\t\t\t {median_noise}')
         print(f'Mad noise :\t\t\t {mad_noise}')
@@ -52,6 +60,8 @@ def calc_median(json_path):
         print(f'Mean calibrator :\t\t {mean_calibrator}')
         print(f'Standard deviation calibrator :\t {std_dev_calibrator}')
         print(f'Variance calibrator :\t\t {variance_calibrator}')
+        print(upper_limit)
+        print(lower_limit)
 
 
 if __name__ == '__main__':
