@@ -200,11 +200,11 @@ def get_meteor_coords(
                     broad_start=broad_interval_start,
                     broad_end=broad_interval_end,
                 )
-                spectrogram.plot_modified_spectrogram(
-                    interval=250,
-                    show=True,
-                    title=system_file['file_path']
-                )
+                # spectrogram.plot_modified_spectrogram(
+                #     interval=250,
+                #     show=True,
+                #     title=system_file['file_path']
+                # )
 
                 # find a more precise representation of the meteor coords
                 specs = spectrogram.get_meteor_specs(coords)
@@ -314,7 +314,7 @@ def main(args):
     if len(args.stations) == 0:
         systems = sys.get_station_ids()
     else:
-        systems = sys.get_station_ids(args.station, False)
+        systems = sys.get_station_ids(args.stations, False)
 
     # restructure the system ids in a simple list instead of dictionary
     for lcode in systems.keys():

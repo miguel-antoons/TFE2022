@@ -8,7 +8,6 @@ import modules.psd.psd as psd
 import matplotlib.pyplot as plt
 import modules.mail.mail as mail
 
-# from modules.brams_wav_2 import BramsWavFile
 from modules.brams_wav import BramsError, BramsWavFile, DirectoryNotFoundError
 from datetime import datetime, timedelta, timezone
 from tqdm import tqdm
@@ -319,6 +318,7 @@ def main(args):
                     pbar.update(1)
 
     f.insert_psd(files)
+    send_summary(psd_memory)
 
     if args.json:
         with open('test_data.json', 'w') as json_file:

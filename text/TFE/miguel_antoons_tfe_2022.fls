@@ -144,6 +144,17 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/float/float.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
@@ -780,6 +791,11 @@ INPUT ./images//BEHUMA4_2022-03-01_2022-04-30_noise.png
 INPUT ./images//BEHUMA4_2022-03-01_2022-04-30_noise.png
 INPUT ./images//BEHUMA4_2022-03-01_2022-04-30_noise.png
 INPUT ./images//BEHUMA4_2022-03-01_2022-04-30_noise.png
+INPUT ./images//original_spectro.png
+INPUT ./images//original_spectro.png
+INPUT ./images//original_spectro.png
+INPUT ./images//original_spectro.png
+INPUT ./images//original_spectro.png
 INPUT ./images//Screenshot 2022-08-14 233814.png
 INPUT ./images//Screenshot 2022-08-14 233814.png
 INPUT ./images//Screenshot 2022-08-14 233814.png
@@ -802,6 +818,21 @@ INPUT /usr/share/texmf/tex/latex/lm/t1lmtt.fd
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmtt10.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmtt8.tfm
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ec-lmtt8.tfm
+INPUT ./images//spectro_mod1.png
+INPUT ./images//spectro_mod1.png
+INPUT ./images//spectro_mod1.png
+INPUT ./images//spectro_mod1.png
+INPUT ./images//spectro_mod1.png
+INPUT ./images//spectro_mod2.png
+INPUT ./images//spectro_mod2.png
+INPUT ./images//spectro_mod2.png
+INPUT ./images//spectro_mod2.png
+INPUT ./images//spectro_mod2.png
+INPUT ./images//spectro_mod3.png
+INPUT ./images//spectro_mod3.png
+INPUT ./images//spectro_mod3.png
+INPUT ./images//spectro_mod3.png
+INPUT ./images//spectro_mod3.png
 INPUT miguel_antoons_tfe_2022.aux
 INPUT ./miguel_antoons_tfe_2022.out
 INPUT ./miguel_antoons_tfe_2022.out

@@ -1,28 +1,32 @@
 \babel@toc {french}{}\relax 
-\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
-\contentsline {section}{\numberline {2}Détection des météores par ondes radios}{4}{section.2}%
-\contentsline {section}{\numberline {3}Le projet BRAMS}{6}{section.3}%
-\contentsline {subsection}{\numberline {3.1}L'Émetteur}{6}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Les Stations de Réception}{7}{subsection.3.2}%
-\contentsline {subsubsection}{\numberline {3.2.1}Les Stations V1}{7}{subsubsection.3.2.1}%
-\contentsline {subsubsection}{\numberline {3.2.2}Les Stations V2}{8}{subsubsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.3}Les Données BRAMS}{9}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}L'Archive BRAMS}{12}{subsection.3.4}%
-\contentsline {section}{\numberline {4}Problématique liée à l'étude des données BRAMS}{14}{section.4}%
-\contentsline {section}{\numberline {5}Méthodologie}{16}{section.5}%
-\contentsline {section}{\numberline {6}Technologies utilisées}{17}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Python}{17}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}MariaDB}{17}{subsection.6.2}%
-\contentsline {section}{\numberline {7}Monitoring des Données BRAMS}{18}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Détecter une anomalie sur une station}{18}{subsection.7.1}%
-\contentsline {subsubsection}{\numberline {7.1.1}Le Bruit}{19}{subsubsection.7.1.1}%
-\contentsline {subsubsection}{\numberline {7.1.2}Le Signal Calibreur}{20}{subsubsection.7.1.2}%
-\contentsline {subsection}{\numberline {7.2}Fonctionnement du Logiciel de Surveillance}{21}{subsection.7.2}%
-\contentsline {subsubsection}{\numberline {7.2.1}Analyse des Fichiers WAV}{21}{subsubsection.7.2.1}%
-\contentsline {subsubsection}{\numberline {7.2.2}L'avertissement d'une anomalie}{23}{subsubsection.7.2.2}%
-\contentsline {subsection}{\numberline {7.3}L'interface sur le site web BRAMS}{25}{subsection.7.3}%
-\contentsline {section}{\numberline {8}Détection des Météores}{28}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Déterminer si un Écho Appartient à un Météore}{28}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Fonctionnement du Logiciel}{28}{subsection.8.2}%
-\contentsline {section}{\numberline {9}Conclusion}{32}{section.9}%
-\contentsline {section}{\numberline {10}Perspectives}{33}{section.10}%
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {section}{\numberline {2}Détection des météores par ondes radios}{5}{section.2}%
+\contentsline {section}{\numberline {3}Le projet BRAMS}{7}{section.3}%
+\contentsline {subsection}{\numberline {3.1}L'Émetteur}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Les Stations de Réception}{8}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Les Stations V1}{8}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Les Stations V2}{9}{subsubsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.3}Les Données BRAMS}{11}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}L'Archive BRAMS}{15}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Problématique liée à l'étude des données BRAMS}{16}{section.4}%
+\contentsline {section}{\numberline {5}Méthodologie}{17}{section.5}%
+\contentsline {section}{\numberline {6}Technologies utilisées}{18}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Python}{18}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}MariaDB}{18}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Monitoring des Données BRAMS}{19}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Détecter une anomalie sur une station}{19}{subsection.7.1}%
+\contentsline {subsubsection}{\numberline {7.1.1}Le Bruit}{20}{subsubsection.7.1.1}%
+\contentsline {subsubsection}{\numberline {7.1.2}Le Signal Calibreur}{21}{subsubsection.7.1.2}%
+\contentsline {subsection}{\numberline {7.2}Fonctionnement du Logiciel de Surveillance}{22}{subsection.7.2}%
+\contentsline {subsubsection}{\numberline {7.2.1}Analyse des Fichiers WAV}{22}{subsubsection.7.2.1}%
+\contentsline {subsubsection}{\numberline {7.2.2}L'avertissement d'une anomalie}{24}{subsubsection.7.2.2}%
+\contentsline {subsection}{\numberline {7.3}L'interface sur le site web BRAMS}{26}{subsection.7.3}%
+\contentsline {section}{\numberline {8}Logiciel de Détection des Météores}{29}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Déterminer si un Écho Appartient à un Météore}{29}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Fonctionnement du Logiciel}{29}{subsection.8.2}%
+\contentsline {section}{\numberline {9}Conclusion}{34}{section.9}%
+\contentsline {section}{\numberline {10}Perspectives}{35}{section.10}%
+\contentsline {section}{\numberline {A}Kernel de Convolution Permettant d'Amplifier les Signaux de Météores}{39}{appendix.A}%
+\contentsline {section}{\numberline {B}Résultat du filtre pour amplifier les échos de météores}{40}{appendix.B}%
+\contentsline {section}{\numberline {C}Résultat du filtre à percentile}{40}{appendix.C}%
+\contentsline {section}{\numberline {D}Résultat des éléments qui sont trop petits pour pouvoir être un écho}{41}{appendix.D}%
