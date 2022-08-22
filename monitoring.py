@@ -15,8 +15,7 @@ from decimal import Decimal
 from email.mime.text import MIMEText
 
 
-default_dir = 'recordings/wav/'
-# default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
+default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
 
 
 def get_dates(start_date: str = None, end_date: str = None):
@@ -36,23 +35,22 @@ def get_dates(start_date: str = None, end_date: str = None):
         else:
             start_date = datetime.strptime(data['previous_date'], '%Y-%m-%d')
 
-        end_date = datetime.now(tz=timezone.utc)
+        end_date = datetime.now()
     else:
         # convert it to a date object and get the end-date
         start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date, '%Y-%m-%d').replace(
-            tzinfo=timezone.utc
-        )
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
-        now_time = datetime.now(tz=timezone.utc)
+        now_time = datetime.now()
         if end_date > now_time:
             end_date = now_time
 
     start_date = start_date.replace(tzinfo=timezone.utc)
+    end_date = end_date.replace(tzinfo=timezone.utc)
     return start_date, end_date
 
 
-def send_summary(psd_memory):
+def send_summary(psd_memory, mail_destination):
     summary_text = ""
 
     for system_id in psd_memory:
@@ -83,12 +81,13 @@ def send_summary(psd_memory):
 
     print(summary_text)
 
-    summary_text = MIMEText(summary_text)
-    summary_text['subject'] = (
-        f"Monitoring results {datetime.today().strftime('%B %d, %Y')}"
-    )
+    if mail_destination is not None:
+        summary_text = MIMEText(summary_text)
+        summary_text['subject'] = (
+            f"Monitoring results {datetime.today().strftime('%B %d, %Y')}"
+        )
 
-    mail.send_mail(summary_text)
+        mail.send_mail(summary_text, receiver=mail_destination)
 
 
 def round_interval(interval):
@@ -318,7 +317,7 @@ def main(args):
                     pbar.update(1)
 
     f.insert_psd(files)
-    send_summary(psd_memory)
+    send_summary(psd_memory, args.email)
 
     if args.json:
         with open('test_data.json', 'w') as json_file:
@@ -327,7 +326,7 @@ def main(args):
         with open('file_data.json', 'w') as json_file:
             json.dump(files, json_file)
 
-    if args.plot or args.ymin is not None or args.ymax is not None:
+    if args.plot or args.fmin is not None or args.fmax is not None:
         for i, sys_id in enumerate(psd_memory.keys()):
             generate_plot(
                 psd_memory[sys_id]['x'][pre_psd_length:],
@@ -338,8 +337,8 @@ def main(args):
                 title=f"{psd_memory[sys_id]['title']} noise",
                 y_title='ADU',
                 x_title='date',
-                y_min=args.ymin,
-                y_max=args.ymax,
+                y_min=args.fmin,
+                y_max=args.fmax,
             )
             generate_plot(
                 psd_memory[sys_id]['x'][pre_psd_length:],
@@ -350,8 +349,8 @@ def main(args):
                 title=f"{psd_memory[sys_id]['title']} calibrator",
                 y_title='ADU',
                 x_title='date',
-                y_min=args.ymin,
-                y_max=args.ymax,
+                y_min=args.fmin,
+                y_max=args.fmax,
             )
 
 
@@ -518,6 +517,17 @@ def arguments():
             for each file asked by the user.
         """,
         action='store_true',
+    )
+    parser.add_argument(
+        '-e', '--email',
+        help="""
+            If this argument is given, the program will send an email to the
+            indicated e-mail address. However, if this parameter is not set,
+            no mail will be sent.
+        """,
+        default=None,
+        type=str,
+        nargs='?'
     )
 
     args = parser.parse_args()

@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from email.mime.text import MIMEText
 
 
+# ! use the .env file more
 def send_mail(
     mail_text,
     port=465,

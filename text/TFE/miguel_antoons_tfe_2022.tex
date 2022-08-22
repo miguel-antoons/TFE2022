@@ -480,25 +480,25 @@ Ils ont donc demandé à réaliser une ou plusieurs solutions permettant les act
 
 Afin d'arriver à un résultat final de qualité et qui est conforme aux requis des membres du projet BRAMS, il est important d'utiliser une bonne méthodologie.\\
 \\
-La première chose que j'ai fait est : assimiler correctement de quoi le programme doit être capable.
-Pour cela, plusieurs réunions ont eu place avant la réalisation du travail.
+La première étape consistait à assimiler correctement de quoi le programme doit être capable.
+Pour cela, plusieurs réunions ont eu lieu avant la réalisation du travail.
 Durant ces réunions, j'ai pu poser mes questions et demander des explications sur les concepts à connaître pour pouvoir réaliser le travail.
-Ayant reçu des documents qui expliquent de façon claire et précise le fonctionnement du réseau BRAMS, j'ai pu me préparer avant de m'attaquer à l'analyse et la réalisation du travail.\\
+Ayant reçu des documents expliquant de façon claire et précise le fonctionnement du réseau BRAMS, j'ai pu me préparer avant de m'attaquer à l'analyse et la réalisation du travail.\\
 \\
-Durant la période d'analyse et de réalisation du TFE, j'ai pu régulièrement demander validation quant à la direction que je prenais pour mon travail.
-Je présentais régulièrement mes réalisations aux scientifiques du projet BRAMS afin d'avoir un feedback régulier et de pouvoir perfectionner mon programme un maximum.\\
+Durant la période d'analyse et de réalisation du TFE, j'ai régulièrement pu demander validation quant à la direction que je prenais pour mon travail.
+Je présentais fréquemment mes réalisations aux scientifiques du projet BRAMS afin d'avoir un feedback constant et de pouvoir perfectionner mon programme un maximum.\\
 \\
-Dans le but d'être plus efficace lors de l'écriture des fonctionnalités pour le programme, je décrivais à l'avance ce que cette fonctionnalité devait pouvoir faire.
+Dans le but d'être plus efficace lors de l'écriture des fonctionnalités pour le programme, je décrivais à l'avance ce dont la fonctionnalité devait être capable.
 Ensuite, je la divisais en tâches techniques afin de pouvoir m'organiser plus facilement.
-Chaque tâche technique contenait et expliquait les étapes que le programme devrait exécuter pour accomplir cette tâche technique.
+Chaque tâche technique contenait et expliquait les étapes que le programme devrait exécuter pour accomplir cette même tâche.
 Les étapes étaient décrites textuellement, par pseudo-code, par schéma ou encore, par le mélange de deux ou trois des moyens cités.\\
 \\
 Durant l'entièreté du projet de fin d'études, j'ai tenté de garder un rythme de travail régulier.
-Je me suis organisé de telle façon de pouvoir travailler une moyenne de deux jours par semaine.
+Je me suis organisé de telle façon à pouvoir travailler en moyenne deux jours par semaine.
 Une grande partie de ces heures se sont déroulés lorsque je rentrais de mon stage ou pendant le week-end.\\
 \\
-À la fin de ce projet de fin d'études tous les codes et programmes écrits ont été donnés aux membres du projet BRAMS.
-Comme demandé, le code et les programmes sont commentés et sont également accompagnées d'un mode d'emploi.
+À la fin de ce projet de fin d'études l'entièreté du code a été donné aux membres du projet BRAMS.
+Comme demandé, le code est commenté et accompagné d'un mode d'emploi.
 
 \newpage
 
@@ -509,7 +509,7 @@ Comme demandé, le code et les programmes sont commentés et sont également acc
 Le programme réalisé est entièrement écrit en Python.
 Ce choix a été pris premièrement pour les librairies performantes et open-source qu'offre Python.
 En effet, des librairies comme numpy, scipy ou encore matplotib ont été très utiles pour arriver à un résultat performant et fonctionnel.
-Ces librairies offrent beaucoup de flexibilité et offrent une haute performance grâce à leur écriture en C, C++ et même en Fortran.\\
+Ces librairies offrent beaucoup de flexibilité et offrent une performance élevée grâce à leur écriture en C, C++ et même en Fortran.\\
 \\
 Un autre avantage du Python est sa portabilité.
 Puisque c'est un langage interprété, largement répandu, quasiment tous les systèmes d'exploitation le supportent.
@@ -593,8 +593,8 @@ Suite à ces deux facteurs, des milliers de personnes travaillent sur ces librai
 \subsection{MariaDB}
 
 Afin de sauvegarder les données produites par le programme, une base de données est requise.
-Les données seront enregistrées dans la base de données existant du projet BRAMS.
-Le type de base de données du projet BRAMS et MariaDB.
+Les données sont enregistrées dans la base de données existant du projet BRAMS.
+Le type de base de données du projet BRAMS est MariaDB.
 % Les données produites seront toutes liées à un fichier, le choix d'une base de données relationnelle est donc appropriée.\\
 % \\
 % MariaDB est une dérivée de MySQL.
@@ -620,7 +620,7 @@ Le type de base de données du projet BRAMS et MariaDB.
 \begin{figure}[t]
     \begin{center}
         \includegraphics[scale=0.17]{BEOOSE1_2020-09-01_2020-09-30_noise.png}
-        \caption{Bruit de la station BEOOSE, antenne 1 entre 1er septembre 2020 jusqu'au 30 septembre 2020.}
+        \caption{Bruit de la station BEOOSE, antenne 1 entre le 1\textsuperscript{er} septembre 2020 et le 30 septembre 2020.}
         \label{fig:BEOOSE-anomalie}
     \end{center}
 \end{figure}
@@ -630,18 +630,18 @@ Le type de base de données du projet BRAMS et MariaDB.
 Comme évoqué plus haut dans ce rapport, le monitoring des fichiers peut faciliter l'étude des données BRAMS.
 Le développement d'un bon logiciel de surveillance relève plusieurs défis.
 Il doit être cohérent, et ceci pour tous les types de stations.
-De plus, sachant que par jour une grande quantité de fichiers est produit par chaque station, l'optimisation du logiciel est également important afin de réduire l'utilisation des ressources système et le temps nécessaire pour obtenir les résultats du monitoring.
-Dans cette section, le développement du logiciel de surveillance ainsi que les démarches prises afin de résoudre ces défis seront expliquées.
+De plus, sachant que par jour une grande quantité de fichiers est produit par chaque station, l'optimisation du logiciel est également un facteur important afin de réduire l'utilisation des ressources système et le temps nécessaire pour obtenir les résultats du monitoring.
+Dans cette section, le développement du logiciel de surveillance ainsi que les démarches prises afin de résoudre ces défis seront expliqués.
 
 \subsection{Détecter une anomalie sur une station}
 
-Afin de déterminer si un fichier contient une anomalie ou non, il est essentiel de bien choisir les éléments du fichier à surveiller.
-Dans les sections qui suivent, les différents éléments surveillés dans chaque fichier, ainsi que leur pertinence seront expliquées.
+Afin de déterminer si un fichier contient une anomalie ou non, il est essentiel de bien choisir les éléments à surveiller.
+Dans les sections qui suivent, les différents éléments surveillés dans chaque fichier ainsi que leur pertinence seront expliqués.
 
 \subsubsection{Le Bruit}
 
 L'intensité du bruit est le premier élément qui sera surveillé.
-Bien que celui-ci puisse varier légèrement avec le temps, sur une longue période, elle devrait rester constante et les grosses variations de bruit sont souvent signe que la station est défectueuse.\\
+Bien que celui-ci puisse varier légèrement avec le temps, elle devrait rester constante sur une longue période et les grosses variations de bruit sont souvent signe que la station est défectueuse.\\
 \\
 Ceci était le cas par exemple pour la station BEHAAC lors du mois de juillet 2021.
 Comme on peut le voir sur la figure \ref{fig:BEHAAC-anomalie}, on constate une diminution graduelle puis très rapide du bruit.
@@ -655,7 +655,7 @@ Il est important de détecter et résoudre ce problème rapidement puisque le br
 \\
 Une autre raison de surveiller le bruit est qu'il doit être présent dans chaque fichier.
 Un fichier avec un bruit nul est impossible et veut dire qu'au moment où la station a généré le fichier, il avait un problème.
-L'intensité du bruit est donc non-seulement une valeur facile à surveiller, mais il permet également de détecter toute une série de problèmes qui sont de nature différente.
+L'intensité du bruit est donc non-seulement une valeur facile à surveiller, mais elle permet également de détecter toute une série de problèmes qui sont de nature différente.
 
 \subsubsection{Le Signal Calibreur}
 
@@ -669,16 +669,16 @@ L'intensité du bruit est donc non-seulement une valeur facile à surveiller, ma
 
 Le second élément que le programme surveille est l'intensité du signal calibreur ainsi que la fréquence à laquelle celle-ci se trouve.
 Mesurer l'intensité de ce signal permet, comme la mesure du bruit, de détecter si un récepteur de la station v1 est cassé.
-De plus, comme le bruit, le signal calibreur est un élément qui est censé être présent dans chaque fichier produit par une station réceptrice, s'il est absent ça veut dire que la station a un problème ce qui nécessite donc d'être détecté.\\
+De plus, comme le bruit, le signal calibreur est un élément qui est censé être présent dans chaque fichier produit par une station réceptrice, s'il est absent cela signifie que la station a un problème ce qui nécessite donc d'être détecté.\\
 \\
 Vient ensuite la surveillance de la fréquence à laquelle se trouve le signal calibreur.
 En théorie, il devrait toujours se trouver à 1500 Hz ; en pratique cette valeur peut varier en particulier avec les anciennes stations où il peut y avoir une translation de fréquence en fonction de la chaleur.
-Une variation de cette fréquence entre les valeurs de 1350 Hz et 1750 Hz ne pose pas un grand problème et ne doive donc pas être détectées.
+Une variation de cette fréquence entre les valeurs de 1350 Hz et 1750 Hz ne pose pas un grand problème et ne doit donc pas être détectée.
 Par contre, une trop grosse variation indique que la station a un défaut, et selon l'anomalie peut rendre les données inutiles.
 C'était notamment le cas pour la station BEHUMA4, lors d'une période qui a commencé le 8 mars 2022 et qui s'est étendu jusqu'au 3 avril 2022.
 Pendant ce temps, toutes les fréquences étaient décalées d'environ 1000 Hz vers le bas dans chaque fichier généré.
 Ceci peut être visualisé à la figure \ref{fig:BEHUMA1-anomalie}.
-Bien que ça ne pose pas vraiment de soucis pour le signal calibreur même, qui se trouve alors à environ 500 Hz, toutes les données utiles qu'on retrouve typiquement autour de 1000 Hz se retrouvent maintenant autour de 0 Hz.
+Bien que ça ne pose pas vraiment de soucis pour le signal calibreur même, qui se trouve alors à environ 500 Hz, toutes les données utiles qu'on retrouve typiquement autour de 1000 Hz se situent maintenant autour de 0 Hz.
 Sachant qu'en plus les fréquences basses sont filtrés dans les fichiers BRAMS, l'information utile est donc absente.\\
 \\
 Le signal calibreur est donc également un élément, se trouvant dans chaque fichier, qui peut indiquer rapidement s'il y a un problème avec une station.
@@ -688,7 +688,7 @@ Ensemble avec le bruit, ils forment une bonne base pour déterminer si les donn�
 
 Ensemble avec les scientifiques du projet BRAMS, nous avons décidé que le programme doit se lancer automatiquement après chaque archivage de données.
 Le programme se lance en ligne de commande et ne nécessite aucun paramètre pour fonctionner.
-Une fois que le programme est lancé, il va chercher un par un les fichiers WAV nécessaires dans l'archive BRAMS.
+Une fois que le programme est démarré, il va chercher un par un les fichiers WAV nécessaires dans l'archive BRAMS.
 Dans le but d'avoir une surveillance suffisante sans utiliser trop de ressources machines, nous avons décidés d'analyser un fichier par heure par station.
 Ceci revient à l'analyse de 24 fichiers par jour par station.
 
@@ -715,12 +715,11 @@ def get_psd(f, flow=800, fhigh=900):
 \end{figure}
 
 Pour chercher et lire un fichier WAV provenant d'une station réceptrice, le logiciel utilise une classe nommée BramsWavFile.
-La base de cette classe a été écrite par Michel Anciaux, scientifique qui travaille sur le projet BRAMS.
+La base de cette classe a été écrite par Michel Anciaux.
 Cependant, ce code a subi deux grandes modifications afin de l'adapter pour le programme de monitoring et pour le rendre plus modulable.
 Le premier grand changement implique la recherche des fichiers dans l'archive : tandis que le code non modifié nécessitait un chemin pour trouver le fichier, maintenant il est capable de chercher tout seul un fichier dans l'archive BRAMS ou dans un autre dossier sur base de quelques informations (date et heure du fichier, station, numéro d'antenne).
 Le second changement concerne l'optimisation et donc le temps nécessaire pour lire un fichier WAV.
-Toutes les étapes non nécessaires ont été effacées et plusieurs librairies ont été testées afin de trouver celui qui était le plus rapide.
-%! reference annexe for scipy and numpy + comparaisons
+Toutes les étapes non nécessaires ont été effacées et plusieurs librairies ont été testées afin de trouver celle qui était la plus rapide.
 Pour la méthode FFT de la classe BramsWavFile, qui permet de calculer la transformée de Fourier d'un fichier WAV, la librairie Scipy offrait par exemple des performances supérieures à la librairie Numpy tout en offrant les mêmes fonctionnalités et la même portabilité.\\
 \\
 Une fois les valeurs du fichier WAV obtenues, on calcule d'abord la densité spectrale de puissance (dsp) du bruit.
@@ -773,16 +772,16 @@ def detect_variations(y_data, current_value):
     \label{fig:detection-code}
 \end{figure}
 
-Avant l'enregistrement, une autre étape est faite : la détection automatique d'une anomalie.
-Pour cette étape, le logiciel applique les mêmes actions sur le bruit et le signal calibreur avec une exception.
-Ces actions sont faites à chaque fois qu'une nouvelle valeur de dsp est générée.\\
+Avant l'enregistrement, une autre étape est complétée : la détection automatique d'une anomalie.
+Pour cette étape, le logiciel applique les mêmes actions sur le bruit et le signal calibreur avec une exception, qui sera expliquée plus bas dans cette section.
+Ces actions sont répétées à chaque fois qu'une nouvelle valeur de dsp est générée.\\
 \\
 Afin de détecter une grande variation dans les données, le programme se base sur l'ensemble des valeurs de dsp des deux semaines précédent la nouvelle valeur de dsp.
 À partir de cet ensemble, il faut définir une frontière haute et une frontière basse.
 Si la nouvelle dsp se trouve en dehors d'une frontière, il sera considéré comme anormal et les scientifiques du projet BRAMS seront avertis.\\
 \\
 Différentes méthodes existent pour définir ces frontières.
-La méthode utilisée dans ce logiciel, utilisant la gamme interquartile, peut être visualisé à la figure \ref{fig:detection-code} et est expliquée ci-dessous.\\
+La méthode utilisée dans ce logiciel, utilisant la gamme interquartile, peut être visualisée à la figure \ref{fig:detection-code} et est expliquée ci-dessous.\\
 \\
 Il faut savoir que les deux paramètres de la fonction affichée à la figure \ref{fig:detection-code}, \textbf{y\_data} et \textbf{current\_value}, sont l'ensemble des valeurs de dsp des deux semaines précédent la nouvelle valeur de dsp et la nouvelle valeur de dsp même.
 %! exposant chars
@@ -798,7 +797,7 @@ Le facteur \(x\) permet de définir la largeur entre les deux frontières, au pl
 \\
 C'est ce facteur qui est différent pour le bruit et le signal calibreur.
 Tandis que pour le bruit, il vaut 2.4, il est défini à  2.5 pour le signal du calibreur.
-Ceci est parce que le bruit varie moins et il n'est donc pas nécessaire d'avoir les deux frontières aussi écartées que pour le signal du calibreur.\\
+La différence entre ces valeurs est que le bruit varie moins et il n'est donc pas nécessaire d'avoir les deux frontières aussi écartées que pour le signal du calibreur.\\
 \\
 Finalement, on vérifie si la nouvelle valeur de dsp (\textbf{current\_value}) dépasse ou non une des frontières.
 Si c'est le cas, on informe l'utilisateur d'un problème dans les données.\\
@@ -808,6 +807,7 @@ En effet, parfois il y a des faux positifs et le programme alerte l'utilisateur 
 
 \subsection{L'interface sur le site web BRAMS}
 
+%! lower both figures
 \begin{figure}[t]
     \begin{center}
         \includegraphics[scale=0.22]{monitoring_ui.png}
@@ -825,7 +825,7 @@ En effet, parfois il y a des faux positifs et le programme alerte l'utilisateur 
 \end{figure}
 
 En plus de la détection automatique d'une anomalie, une interface graphique permettant de visualiser l'évolution de la dsp du signal calibreur et du bruit a été développée.
-Il faut noter que cette interface est indépendant du programme de monitoring même, il utilise, cependant, les données générées par ce-dernier.
+Il faut noter que cette interface est indépendante du programme de monitoring même, elle utilise, cependant, les données générées par ce-dernier.
 Comme on peut le voir sur la figure  \ref{fig:monitoring-ui}, l'interface affiche deux graphiques pour chaque station que l'utilisateur a sélectionnée.
 Le premier représente les valeurs de dsp pour le bruit, pour une période que l'utilisateur a indiquée et le deuxième affiche la même chose, mais cette fois-ci pour le signal calibreur.\\
 \\
@@ -835,7 +835,7 @@ Un des motifs retrouvés lors des tests est une diminution de la dsp du bruit lo
 Ceci est particulièrement visible sur la figure \ref{fig:BEHUMA4-variations} qui représente la dsp du bruit pour la station BEHUMA4 du 1er mars 2022 au 30 avril 2022.\\
 \\
 Cette interface graphique, comme l'entièreté du nouveau site web BRAMS utilise Joomla comme back-end.
-Joomla est un framework gratuit et open-source qui utilise le langage PHP.
+Joomla est un framework gratuit et open-source utilisant le langage PHP.
 Pour afficher les différents graphiques, le front-end de l'interface utilise la librairie JavaScript open-source ChartJS\footnote{https://www.chartjs.org/}.
 Cette librairie permet d'afficher des beaux graphiques et de les agrandir si nécessaire.
 Cette interface sera disponible publiquement sur le nouveau site web BRAMS dès le déploiement de cette dernière.
@@ -848,7 +848,7 @@ Plus d'images de cette interface sont disponibles à l'annexe \ref{app:monitorin
 Une fois que les données sont archivées, les membres du projet BRAMS commencent à les analyser et les interpréter.
 Un objectif assez important de ce projet est le calcul de la trajectoire d'un météore dans l'atmosphère.
 Pour retrouver la trajectoire d'un météore à l'aide du réseau BRAMS, il faut qu'un météore soit détecté par au moins huit stations réceptrices.
-Vérifier manuellement, pour chaque station, ci celle-ci a détecté un météore est une tâche qui prend un temps non négligeable.
+Vérifier manuellement, pour chaque station, si celle-ci a détecté un météore est une tâche prenant un temps non négligeable.
 Dans cette section, le développement d'un programme permettant de réduire la perte de temps causée par cette procédure est expliquée.
 Ce programme est entièrement indépendant du programme de monitoring, expliqué dans la section \ref{sec:monitoring}.
 
@@ -857,7 +857,7 @@ Ce programme est entièrement indépendant du programme de monitoring, expliqué
 Avant de développer un logiciel, il est nécessaire de savoir comment trouver, sur différentes stations réceptrices, les échos venant d'un seul météore.
 Différents facteurs peuvent indiquer qu'un écho vient d'un météore spécifique ou non.
 Parmi les facteurs connus on trouve l'emplacement de la station qui a détecté l'écho de météore et le moment où l'écho est détecté.
-Dans le cas de ce logiciel, ce sera le facteur temps qui sera utilisé.\\
+Dans le cas de ce logiciel, le facteur temps sera utilisé.\\
 \\
 Quand on compare plusieurs échos de météores, tous détectés par des stations différentes, le facteur temps permet de donner une idée s'ils proviennent du même météore ou non.
 En effet, par expérience on sait que lorsqu'un météore est détecté par plusieurs stations, toutes ces détections se font dans un intervalle d'environ trois secondes.
@@ -891,8 +891,8 @@ Le programme va ensuite chercher tous les fichiers contenant cet intervalle.
 Afin de compléter cette action, il utilise la classe BramsWavFile qui est également utilisée pour le programme de monitoring.\\
 \\
 Pour chaque fichier récupéré, il calcule le spectrogramme et détecte les météores présents dans l'intervalle calculé.
-La détection des météores, en ce moment, est fait par un code développé avec le logiciel.
-Cependant, ce code est temporaire et est voué à disparaitre pour une solution plus efficace qui est en cours de développement par les membres du projet BRAMS et qui utilisé le machine learning.
+La détection des météores, en ce moment, est fait par un code développé en parallèle avec le logiciel expliqué dans cette section.
+Cependant, ce code est temporaire et est voué à disparaitre pour une solution plus efficace qui est en cours de développement par les membres du projet BRAMS et utilisant le machine learning.
 Actuellement pour détecter les météores, différentes étapes sont exécutées par le code sur le spectrogramme.
 Ces étapes sont listées ci-dessous et leur application sera montrée sur base du spectrogram non changé affiché à la figure \ref{fig:spectro-orig}.
 
@@ -919,22 +919,22 @@ def filter_by_percentile(
           Ce filtre a été développé spécialement pour ce but et peut être visualisé à l'annexe \ref{app:kernel}.
           Le filtre est appliqué à l'aide d'une convolution.
           Une convolution est une opération mathématique qui prend deux fonctions en entrée et qui produit un nouveau signal.
-          Dans ce cas si, les signaux en entrée sont le spectrogramme, ou une partie du spectrogramme, et le filtre.
+          Dans ce cas-ci, les signaux en entrée sont le spectrogramme, ou une partie du spectrogramme, et le filtre.
           Un résultat de cette convolution sur un spectrogramme est représenté à l'annexe \ref{app:spectro-mod1}.
     \item La suppression du bruit en appliquant un filtre par percentile.
           %! exposant character
           % Ceci implique que pour chaque colonne du spectrogramme dans l'intervalle calculée, le programme va mettre à zéro toutes les cellules dont la valeur est inférieure que la 95e percentile de cette même colonne.
-          Cette étape est faite par la fonction affichée à la figure \ref{fig:percentile-code}.
-          Ce code débute par prendre l'intervalle dans lequel on recherche des échos (ligne 7).
+          Cette étape est effectuée par la fonction affichée à la figure \ref{fig:percentile-code}.
+          Ce code débute en prenant l'intervalle dans lequel on recherche des échos (ligne 7).
           Une fois cet intervalle récupéré, on calcule pour chaque colonne le 95e percentile.
           Toutes les valeurs de cette colonne inférieures à ce percentile sont ensuite mises à zéro (ligne 9 à 12).
-          On peut observer l'effet de ce filtre à l'annexe \ref{app:spectro-mod2}, où l'on voit bien que l'intervalle dans laquelle on recherche des échos de météores est bien plus propre qu'à l'annexe \ref{app:spectro-mod1}.
-    \item L'élimination de tous les objets qui sont trop petits pour pouvoir être un écho d'un météore.
-          Pour cette étape, une labellisation du spectrogramme est faite.
+          On peut observer l'effet de ce filtre à l'annexe \ref{app:spectro-mod2}, où l'on voit bien que l'intervalle dans lequel on recherche des échos de météores est bien plus propre qu'à l'annexe \ref{app:spectro-mod1}.
+    \item L'élimination de tous les objets qui sont trop petits pour pouvoir être l'écho d'un météore.
+          Pour cette étape, une labellisation du spectrogramme est appliquée.
           Une labellisation, dans ce cas, est une action où l'on retrouve tous les objets séparés, non-nuls sur le spectrogramme.
           On vérifie alors leur taille et on les compare à la taille minimale qu'un écho de météore peut avoir.
           Si la taille de l'objet est inférieure à la taille minimale, elle est mise à zéro.
-          Ceci peut être visualisé à l'annexe \ref{app:spectro-mod3} où l'on peut voir, dans l'intervalle où on recherche des échos de météores, des tâches bleues.
+          Ceci peut être visualisé à l'annexe \ref{app:spectro-mod3} où l'on peut observer, dans l'intervalle où on recherche des échos de météores, des tâches bleues.
           Ces tâches bleues sont des éléments qui se sont fait éliminer par cette étape.
     \item La suppression des échos d'avions.
           En effet, les météores ne sont pas les seuls objets qui traversent l'atmosphère et qui sont détectés par les stations réceptrices.
@@ -946,6 +946,7 @@ Après toutes ces actions, les objets restants sur le spectrogramme sont consid�
 Un exemple de résultat final de la détection des météores est affiché à la figure \ref{fig:meteor-detect-ex}.
 Notez que cette image n'est pas la sortie du programme et qu'elle ne s'affiche pas lors du déroulement du programme.
 
+%! change image
 \begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.4]{Screenshot 2022-08-14 235407.png}
@@ -993,9 +994,9 @@ Ce problème a été résolu grâce au logiciel de monitoring qui permet non-seu
 En effet, même si le logiciel alerte parfois l'utilisateur d'un problème non-existant et que des améliorations sont encore possibles, ces cas sont rares et le programme reste utilisable.\\
 \\
 Deuxièmement, le travail devait faciliter la recherche de tous les échos de météores pouvant correspondre à un météore spécifique.
-Le programme de détection de météores permet aux scientifiques de grandement réduire le temps nécessaire pour chercher ces échos en cherchant tous les échos dans l'intervalle de temps nécessaire.\\
+Le programme de détection de météores permet aux scientifiques de grandement réduire le temps nécessaire pour chercher ces échos en retrouvant automatiquement tous les échos dans l'intervalle de temps nécessaire.\\
 \\
-Ce travail m'a permis d'étendre mes connaissances dans le domaine du traitement du signal en mettant en pratique plusieurs notions théoriques vues durant les cours.
+Ce travail m'a également permis d'étendre mes connaissances dans le domaine du traitement du signal en mettant en pratique plusieurs notions théoriques vues durant les cours.
 Le mélange de ces connaissances avec des nouvelles notions, que je n'avais pas encore appris, afin d'arriver à un résultat final a été un vrai défi pour moi.\\
 \\
 Enfin, ce projet m'a permis de contribuer à un projet scientifique de grande ampleur et m'a appris comment un tel projet fonctionne.
@@ -1406,7 +1407,6 @@ Suite à une réflexion sur les programmes réalisés, j'ai listé ci-dessous qu
 
 % De cette façon, les données pourront facilement être lues et réutilisées pour étudier ces météores.
 
-% %? maybe change this image ?
 % \begin{figure}[t]
 %     \begin{center}
 %         \includegraphics[scale=0.44]{Screenshot from 2022-05-31 16-35-06.png}
@@ -1563,7 +1563,7 @@ Suite à une réflexion sur les programmes réalisés, j'ai listé ci-dessous qu
 
 \newpage
 
-\section{Résultat des éléments qui sont trop petits pour pouvoir être un écho} \label{app:spectro-mod3}
+\section{Résultat des éléments étant trop petits pour pouvoir être un écho} \label{app:spectro-mod3}
 
 \begin{figure}[h]
     \begin{center}

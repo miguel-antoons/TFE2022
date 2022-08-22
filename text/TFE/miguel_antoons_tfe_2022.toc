@@ -31,4 +31,4 @@
 \contentsline {section}{\numberline {B}Kernel de Convolution Permettant d'Amplifier les Signaux de Météores}{42}{appendix.B}%
 \contentsline {section}{\numberline {C}Résultat du filtre pour amplifier les échos de météores}{43}{appendix.C}%
 \contentsline {section}{\numberline {D}Résultat du filtre à percentile}{43}{appendix.D}%
-\contentsline {section}{\numberline {E}Résultat des éléments qui sont trop petits pour pouvoir être un écho}{44}{appendix.E}%
+\contentsline {section}{\numberline {E}Résultat des éléments étant trop petits pour pouvoir être un écho}{44}{appendix.E}%
