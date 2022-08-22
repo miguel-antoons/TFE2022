@@ -1,7 +1,6 @@
 import argparse
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 import geopy.distance as geo
 import modules.database.system as sys
 import modules.database.file as fil
@@ -11,8 +10,6 @@ import modules.meteor_detect.csv as csv
 from modules.brams_wav import BramsError, BramsWavFile
 from modules.meteor_detect.spectrogram import Spectrogram
 from datetime import datetime, timedelta, timezone
-from scipy.fft import rfft, rfftfreq
-from scipy.signal import windows
 from typing import Union
 
 # default_dir = 'recordings/'

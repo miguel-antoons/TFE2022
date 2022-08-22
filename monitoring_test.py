@@ -5,7 +5,6 @@ import modules.database.system as sys
 import modules.psd.variations as variations
 import modules.psd.psd as psd
 import matplotlib.pyplot as plt
-import numpy as np
 
 # from modules.brams_wav_2 import BramsWavFile
 from modules.brams_wav import BramsError, BramsWavFile, DirectoryNotFoundError
@@ -321,8 +320,8 @@ def generate_plot(
     plt.xlabel(x_title)
     plt.ylabel(y_title)
 
-    if len(x) > 10:
-        step = int(len(x) / 10)
+    if len(x) > 8:
+        step = int(len(x) / 8)
     else:
         step = 1
 
