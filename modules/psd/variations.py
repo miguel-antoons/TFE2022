@@ -4,11 +4,13 @@ from scipy.optimize import curve_fit
 
 
 def fit_func(x, a, b):
+    # * currently not used
     x = np.array(x)
     return a * x + b
 
 
 def detect_noise_decrease(x_data, y_data, index, interval=150):
+    # * currently not used
     if len(x_data) < interval:
         return False
 
@@ -33,6 +35,7 @@ def detect_noise_decrease(x_data, y_data, index, interval=150):
 
 
 def detect_noise_increase(previous_value, current_value, current_index):
+    # * currently not used
     if current_value > previous_value * 10:
         # print(f'A significative noise increase at index {current_index}')
         return True
@@ -41,9 +44,30 @@ def detect_noise_increase(previous_value, current_value, current_index):
 
 
 def detect_noise_variations(y_data, current_noise):
+    """
+    This function detects high noise variations. It does so by calculating the
+    mean and the standard deviation. From those 2 values it creates an upper
+    and lower limit. Each noise value that goes beyond those limits will be
+    communicated.
+
+    Parameters
+    ----------
+    y_data : np.array
+        numpy array from which the mean and standard deviation will be
+        calculated
+    current_noise : decimal.Decimal
+        The new noise value
+
+    Returns
+    -------
+    int
+        1 if there is a high increase, -1 if there is a high decrease, 0 if
+        everything is normal
+    """
     mean_noise = np.mean(y_data)
     std_dev_noise = np.std(y_data)
 
+    # calculate the limits deviation from the mean
     reference_deviation = 3.2 * std_dev_noise
 
     if current_noise >= (mean_noise + reference_deviation):
@@ -55,11 +79,31 @@ def detect_noise_variations(y_data, current_noise):
 
 
 def detect_noise_variations2(y_data, current_noise):
+    """
+    This function detects high noise variations. It does so by calculating the
+    interquartile. From that value it creates an upper and lower limit. Each
+    noise value that goes beyond those limits will be communicated.
+
+    Parameters
+    ----------
+    y_data : np.array
+        numpy array from which interquartile calculated
+    current_noise : decimal.Decimal
+        The new noise value
+
+    Returns
+    -------
+    int
+        1 if there is a high increase, -1 if there is a high decrease, 0 if
+        everything is normal
+    """
+    # get 25th and 75th percentile
     q1 = np.percentile(y_data, 25, interpolation='lower')
     q3 = np.percentile(y_data, 75, interpolation='higher')
 
-    interquartile = q3 - q1
+    interquartile = float(q3 - q1)
 
+    # calculate the upper and lower limits
     upper_limit = q3 + (2.4 * interquartile)
     lower_limit = q1 - (2.4 * interquartile)
 
@@ -72,9 +116,30 @@ def detect_noise_variations2(y_data, current_noise):
 
 
 def detect_calibrator_variations(y_data, current_calibrator):
+    """
+    This function detects high calibrator variations. It does so by
+    calculating the mean and the standard deviation. From those 2 values it
+    creates an upper and lower limit. Each calibrator value that goes beyond
+    those limits will be communicated.
+
+    Parameters
+    ----------
+    y_data : np.array
+        numpy array from which the mean and standard deviation will be
+        calculated
+    current_calibrator : decimal.Decimal
+        The new calibrator value
+
+    Returns
+    -------
+    int
+        1 if there is a high increase, -1 if there is a high decrease, 0 if
+        everything is normal
+    """
     mean_calibrator = np.mean(y_data)
     std_dev_calibrator = np.std(y_data)
 
+    # calculate the limits deviation from the mean
     reference_deviation = 3.5 * std_dev_calibrator
 
     if current_calibrator >= (mean_calibrator + reference_deviation):
@@ -86,11 +151,32 @@ def detect_calibrator_variations(y_data, current_calibrator):
 
 
 def detect_calibrator_variations2(y_data, current_calibrator):
+    """
+    This function detects high calibrator variations. It does so by
+    calculating the interquartile. From that value it creates an upper and
+    lower limit. Each calibrator value that goes beyond those limits will be
+    communicated.
+
+    Parameters
+    ----------
+    y_data : np.array
+        numpy array from which interquartile calculated
+    current_calibrator : decimal.Decimal
+        The new calibrator value
+
+    Returns
+    -------
+    int
+        1 if there is a high increase, -1 if there is a high decrease, 0 if
+        everything is normal
+    """
+    # get 25th and 75th percentile
     q1 = np.percentile(y_data, 25, interpolation='lower')
     q3 = np.percentile(y_data, 75, interpolation='higher')
 
-    interquartile = q3 - q1
+    interquartile = float(q3 - q1)
 
+    # calculate upper and lower limits
     upper_limit = q3 + (2.5 * interquartile)
     lower_limit = q1 - (2.5 * interquartile)
 
@@ -103,5 +189,6 @@ def detect_calibrator_variations2(y_data, current_calibrator):
 
 
 def mad(array):
+    # * currently not used
     median = np.median(array)
     return median, np.median(np.abs(array - median))

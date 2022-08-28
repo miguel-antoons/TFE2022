@@ -15,7 +15,26 @@ def send_mail(
     smtp_server='smtp.gmail.com',
     password=None
 ):
+    """
+    Function sends a given message to a given mail address
+
+    Parameters
+    ----------
+    f : str
+        text to send by mail
+    port : int, optional
+        port of the sender mail server, by default 465
+    sender : str, optional
+        sender e-mail address, by default miguel.antoons@gmail.com
+    receiver : str, optional
+        receiver e-mail address, by default he201801@students.ephec.be
+    smtp_server : str, optional
+        url of the sender mail server, by default smtp.gmail.com
+    password : str, optional
+        sender password, by default None
+    """
     if password is None:
+        # check if there is a password in the dotenv file
         load_dotenv()
         password = os.getenv('MAIL_PSWD')
 
@@ -25,6 +44,7 @@ def send_mail(
     # create a secure SSL context
     context = ssl.create_default_context()
 
+    # send the mail
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         try:
             server.login(sender, password)

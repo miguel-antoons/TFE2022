@@ -224,6 +224,7 @@ def get_previous_all_psd(stations, start_date, end_date, interval):
     # https://stackoverflow.com/questions/34270918/mysql-select-interval-of-every-2-hours-from-timestamp-column
     sql_query += (
         "GROUP BY\n"
+        "   system_id,\n"
         "   DATE(start),\n"
         "   HOUR(start),\n"
         "   MINUTE(start) DIV %s\n"

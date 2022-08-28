@@ -6,6 +6,15 @@ from scipy import signal, ndimage
 
 
 class Spectrogram:
+    """
+    This class generates a spectrogram form an audio signal. It also contains
+    a load of methods capable of performing actions on that spectrogram such
+    as :
+        - labelisation
+        - binarization
+        - meteor signal retrieval
+        - ...
+    """
     def __init__(
         self,
         audio_signal,
@@ -15,6 +24,27 @@ class Spectrogram:
         window='hamming',
         max_normalization=1
     ):
+        """
+        Function prepares the class and initializes all of its properties.
+        It also generates the spectrogram from the given wav file
+
+        Parameters
+        ----------
+        audio_signal : BramsWavFile
+            wav from which to calculate the spectrogram
+        nfft : int, optional
+            nfft of the generated spectrogram, by default 16384
+        sample_frequency : int, optional
+            sample frequency of the given wav file, by default 5512
+        noverlap : int, optional
+            overlap of the generated spectrogram, by default 14488
+        window : str, optional
+            type of window used to generate the spectrogram
+            , by default 'hamming'
+        max_normalization : int, optional
+            maximum value after spectrogram normalization, by default 1
+        """
+        # generate the spectrogram from the init funtion arguments
         self.frequencies, self.times, Pxx = signal.spectrogram(
             audio_signal,
             sample_frequency,
@@ -26,39 +56,58 @@ class Spectrogram:
         self.frequency_resolution = (
             sample_frequency / 2 / len(self.frequencies)
         )
-        print(self.frequency_resolution)
-        # sample frequency of the wav audio signal
+
         self.sample_frequency = sample_frequency
+
+        # normalize the spectrogram
         Pxx = self.__normalize_spectrogram(max_normalization, Pxx)
-        # signal strength in dB
+        # spectrogram in dB
         self.Pxx_DB = 10. * np.log10(Pxx)
-        # TODO : comments
+        # retrieve the frequency of the transmitter signal
         (
             self.start_transmitter_row,
             self.end_transmitter_row,
             self.max_transmitter_row
         ) = self.__retrieve_transmitter_signal(Pxx)
-        # copy of the signal strencgth in dB to be modified
+        # create a copy and subtract the transmitter signal
         self.Pxx_modified = self.__subtract_transmitter_signal(Pxx)
-        print(self.Pxx_modified.shape)
-        # self.Pxx_modified = Pxx
+
         # initialize the figure number to 1
         self.figure_n = 1
 
         self._default_treshold = None
 
-        # * DEVELOP
-        # print(f'Max spectrogram value : {np.max(self.Pxx)}')
-        # print(f'Min spectrogram value : {np.min(self.Pxx)}')
-
     @property
     def __default_treshold(self):
+        """
+        Represents the default noise threshold
+
+        Returns
+        -------
+        float
+            default noise threshold
+        """
         if self._default_treshold is None:
             self._default_treshold = self.__find_noise_value()
 
         return self._default_treshold
 
     def __normalize_spectrogram(self, max_normalization, Pxx):
+        """
+        Function generates a normalized version of the spectrogram
+
+        Parameters
+        ----------
+        max_normalization : float
+            max value of the normalized spectrogram
+        Pxx : np.array
+            spectrogram to normalize
+
+        Returns
+        -------
+        np.array
+            normalized spectrogram
+        """
         max_pxx = np.max(Pxx)
 
         Pxx = Pxx / max_pxx * max_normalization
@@ -74,13 +123,33 @@ class Spectrogram:
         y_axis_title='Frequency [Hz]',
         title='Original Spectrogram'
     ):
+        """
+        Plot the original spectrogram contained by this class
+
+        Parameters
+        ----------
+        interval : int, optional
+            interval in Hz of the spectrogram to show, by default 1000
+        show : bool, optional
+            defines wether to show the plot directly or not, by default False
+        show_all : bool, optional
+            wether to show the whole spectrogram or not (overrides interval
+            argument), by default False
+        x_axis_title : str, optional
+            title of the x axis, by default 'Time [sec]'
+        y_axis_title : str, optional
+            title of the y axis, by default 'Frequency [Hz]'
+        title : str, optional
+            title of the plot, by default 'Original Spectrogram'
+        """
+        # increase the interval if the direct signal is unknown
         if (
             not self.start_transmitter_row
             and interval < (len(self.frequencies) - 200)
         ):
             interval += 200
 
-        # if fmax is not set, set default value
+        # if show_all is set, show the whole spectrogram
         if show_all:
             fmin = 0
             fmax = self.sample_frequency / 2
@@ -618,8 +687,13 @@ class Spectrogram:
             if detection_stop > len(self.times):
                 detection_stop = len(self.times) - 1
 
+            if (
+                self.frequencies[object[0].start] < 800
+                or self.frequencies[object[0].stop] > 1400
+            ):
+                continue
             # if the object is higher than 60 and smaller than 6
-            if pot_meteor_width < 6 and pot_meteor_height > 50:
+            elif pot_meteor_width < 6 and pot_meteor_height > 50:
                 # consider the object as a meteor
                 pot_meteors.append((
                     object[0],

@@ -20,9 +20,35 @@ def write_csv(
         'distance_km'
     ]
 ):
+    """
+    Function writes a csv file with all the information from detected meteors
+
+    Parameters
+    ----------
+    data : list
+        list with all the data from the detected meteors
+    directory : Union[str, None], optional
+        directory in which to store the new csv file, by default None
+    filename : str, optional
+        name that the csv file will take, by default 'meteor_detect'
+    header : list, optional
+        header of the csv file
+        , by default
+            [
+                'location_code',
+                'antenna_id',
+                'file_start',
+                'meteor_count',
+                'meteor_time',
+                'fmin',
+                'fmax',
+                'distance_km'
+            ]
+    """
     if directory is None or directory == '':
         directory = os.getcwd()
 
+    # add an addition to the filename if the filename already exists
     addition = ''
     i = 0
     while (filename + addition + '.csv') in os.listdir(directory):
@@ -33,6 +59,7 @@ def write_csv(
     filename += '.csv'
     file_path = os.path.join(directory, filename)
 
+    # open the file in write mode
     with open(file_path, mode='w', newline='') as csv_file:
         csv_writer = csv.writer(
             csv_file,
@@ -43,6 +70,7 @@ def write_csv(
 
         csv_writer.writerow(header)
 
+        # add one line per detected meteor to the csv file
         for loc_code in data.keys():
             for antenna in data[loc_code]['sys'].keys():
                 for date in data[loc_code]['sys'][antenna].keys():

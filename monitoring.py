@@ -18,11 +18,47 @@ from email.mime.text import MIMEText
 default_dir = '/bira-iasb/data/GROUNDBASED/BRAMS/wav/'
 
 
-def get_dates(start_date: str = None, end_date: str = None):
+def get_dates(
+    start_date: str = None,
+    end_date: str = None,
+    interval: int = 60,
+):
+    """
+    Function calculates the dates in between which the psd values have to be
+    calculated. It first checks if the user gave a date, then checks the
+    program_data.json file.
+
+    Parameters
+    ----------
+    start_date : str, optional
+        user input start date, by default None
+    end_date : str, optional
+        user input end date, by default None
+    interval : int, optional
+        user input interval, by default 60
+
+    Returns
+    -------
+    datetime
+        start date and end date of the interval
+    """
+    # if the user gave no start date
     if start_date is None:
+        # check if there is a program_data.json file
         try:
             with open('program_data.json') as f:
-                data = json.load(f)
+                # check if the file contains something
+                try:
+                    # rad the file's content
+                    data = json.load(f)
+                except json.errors.JSONDecodeError:
+                    data = None
+                    print(
+                        'Error while opening program_data.json file : the '
+                        'file was either empty or the data it is containing '
+                        'cannot be read.\nNote that this error may be solved '
+                        'by just running this program once again.\n'
+                    )
         except FileNotFoundError as e:
             print(e)
             # logging.warning(e)
@@ -31,22 +67,39 @@ def get_dates(start_date: str = None, end_date: str = None):
         # if no json file was found
         if data is None:
             # set the start_date to yesterday
-            start_date = datetime.now() - timedelta(1)
+            start_date = datetime.now()
         else:
+            # set the interval start to the date found in the json file
             start_date = datetime.strptime(data['previous_date'], '%Y-%m-%d')
 
+        # subtract one day to the interval start
+        start_date -= timedelta(1)
+
+        # set the interval end to the current time
         end_date = datetime.now()
+    # if the user gave a start date
     else:
         # convert it to a date object and get the end-date
         start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+        # if an end date is given
+        if end_date is not None:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
         now_time = datetime.now()
-        if end_date > now_time:
+        if end_date > now_time or end_date is None:
+            # if no end date is given, just set it to the current time
             end_date = now_time
 
-    start_date = start_date.replace(tzinfo=timezone.utc)
-    end_date = end_date.replace(tzinfo=timezone.utc)
+    # set correct timezones and round the dates according to the given interval
+    start_date = (
+        start_date.replace(tzinfo=timezone.utc, second=0, microsecond=0)
+        - timedelta(minutes=(start_date.minute % interval))
+    )
+    end_date = (
+        end_date.replace(tzinfo=timezone.utc, second=0, microsecond=0)
+        - timedelta(minutes=(end_date.minute % interval))
+    )
     return start_date, end_date
 
 
@@ -54,30 +107,37 @@ def send_summary(psd_memory, mail_destination):
     summary_text = ""
 
     for system_id in psd_memory:
-        summary_text += (
+        warnings = False
+        tmp_text = (
             f"\n\n----------{psd_memory[system_id]['title']}----------\n"
             "NOISE : \n"
         )
 
         for warning in psd_memory[system_id]['warnings']['noise']['desc']:
-            summary_text += (
+            tmp_text += (
                 f"There was a significative noise drop at {warning}\n"
             )
+            warnings = True
 
-        summary_text += "\n"
+        tmp_text += "\n"
 
         for warning in psd_memory[system_id]['warnings']['noise']['asc']:
-            summary_text += (
+            tmp_text += (
                 f" There was a significative noise increase at {warning}\n"
             )
+            warnings = True
 
-        summary_text += "\nCALIBRATOR : \n"
+        tmp_text += "\nCALIBRATOR : \n"
 
         for warning in psd_memory[system_id]['warnings']['calibrator']:
-            summary_text += (
+            tmp_text += (
                 "There was a significative calibrator psd variation at "
                 f"{warning}\n"
             )
+            warnings = True
+
+        if warnings:
+            summary_text += tmp_text
 
     print(summary_text)
 
@@ -122,13 +182,17 @@ def main(args):
         from_archive = False
 
     # get the start and end date
-    start_date, end_date = get_dates(args.start_date, args.end_date)
+    start_date, end_date = get_dates(
+        args.start_date,
+        args.end_date,
+        args.interval
+    )
     pre_start = start_date - timedelta(days=MEAN_DAYS_PERIOD)
 
+    print(f'Calculating from {start_date} to {end_date}')
+
     interval_delta = timedelta(minutes=args.interval)
-    day_delta = timedelta(days=1)
     interval_sec = interval_delta.total_seconds()
-    tqdm_day_value = day_delta.total_seconds() / interval_sec
 
     difference = (
         (end_date - start_date).total_seconds()
@@ -233,8 +297,8 @@ def main(args):
                             pbar.update(1)
                             continue
                         except DirectoryNotFoundError:
-                            requested_date += day_delta
-                            pbar.update(tqdm_day_value)
+                            requested_date += interval_delta
+                            pbar.update(1)
                             continue
 
                         noise_psd = Decimal(psd.get_noise_psd(wav))
@@ -260,7 +324,6 @@ def main(args):
                     # if there is at least 12 days of psd data available
                     # check for marginal noise/calibrator variations
                     if sys_psd['i'] >= detection_condition_value:
-                        print(sys_psd['i'], detection_condition_value)
                         relevant_noise_y = (
                             sys_psd
                             ['n_y']
@@ -273,14 +336,14 @@ def main(args):
                         # detect high noise increases
                         if noise_variations > 0:
                             sys_psd['warnings']['noise']['asc'].append(
-                                wav.date.strftime('%Y-%m-%d %H:%M')
+                                requested_date.strftime('%Y-%m-%d %H:%M')
                             )
 
                         # do the same, but this time check for high noise
                         # decreases
                         elif noise_variations < 0:
                             sys_psd['warnings']['noise']['desc'].append(
-                                wav.date.strftime('%Y-%m-%d %H:%M')
+                                requested_date.strftime('%Y-%m-%d %H:%M')
                             )
 
                         relevant_calibrator_y = (
@@ -296,21 +359,15 @@ def main(args):
                         )
 
                         # check for high calibrator psd increase
-                        if calibrator_variations > 0:
-                            sys_psd['warnings']['calibrator'].append(
-                                (
-                                    wav.date.strftime('%Y-%m-%d %H:%M'),
-                                    calibrator_f
-                                )
-                            )
+                        # if calibrator_variations > 0:
+                        #     sys_psd['warnings']['calibrator'].append(
+                        #         requested_date.strftime('%Y-%m-%d %H:%M'),
+                        #     )
 
                         # check for high calibrator psd decrease
-                        elif calibrator_variations < 0:
+                        if calibrator_variations < 0:
                             sys_psd['warnings']['calibrator'].append(
-                                (
-                                    wav.date.strftime('%Y-%m-%d %H:%M'),
-                                    calibrator_f
-                                )
+                                requested_date.strftime('%Y-%m-%d %H:%M'),
                             )
 
                     requested_date += interval_delta
@@ -318,6 +375,13 @@ def main(args):
 
     f.insert_psd(files)
     send_summary(psd_memory, args.email)
+
+    if args.start_date is None:
+        with open('program_data.json', 'w') as json_file:
+            json_data = {
+                'previous_date': end_date.strftime('%Y-%m-%d')
+            }
+            json.dump(json_data, json_file)
 
     if args.json:
         with open('test_data.json', 'w') as json_file:
@@ -435,8 +499,7 @@ def arguments():
         default=None
     )
     parser.add_argument(
-        'stations',
-        metavar='STATIONS',
+        '-s', '--stations',
         help="""
             List of station codes (BEGRIM, ...) for which to calculate psd
             values and detect high noise/calibrator psd values. If there is no
