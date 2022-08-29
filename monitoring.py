@@ -104,15 +104,29 @@ def get_dates(
 
 
 def send_summary(psd_memory, mail_destination):
+    """
+    Function generates a variations report from the program results. If a mail
+    address is given, it also sends an email to that address
+
+    Parameters
+    ----------
+    psd_memory : dictionary
+        dictionary containing all the warnings detected by the program
+    mail_destination : str
+        destination mail address to send the report to
+    """
     summary_text = ""
 
+    # for each system id found in the psd_memory dictionary
     for system_id in psd_memory:
         warnings = False
+        # add a title
         tmp_text = (
             f"\n\n----------{psd_memory[system_id]['title']}----------\n"
             "NOISE : \n"
         )
 
+        # add all the noise decrease warnings to the text
         for warning in psd_memory[system_id]['warnings']['noise']['desc']:
             tmp_text += (
                 f"There was a significative noise drop at {warning}\n"
@@ -121,6 +135,7 @@ def send_summary(psd_memory, mail_destination):
 
         tmp_text += "\n"
 
+        # add all the noise increase warnings
         for warning in psd_memory[system_id]['warnings']['noise']['asc']:
             tmp_text += (
                 f" There was a significative noise increase at {warning}\n"
@@ -129,6 +144,7 @@ def send_summary(psd_memory, mail_destination):
 
         tmp_text += "\nCALIBRATOR : \n"
 
+        # add all the calibrator variations warnings to the text
         for warning in psd_memory[system_id]['warnings']['calibrator']:
             tmp_text += (
                 "There was a significative calibrator psd variation at "
@@ -141,6 +157,7 @@ def send_summary(psd_memory, mail_destination):
 
     print(summary_text)
 
+    # send an email if a mail destination is given
     if mail_destination is not None:
         summary_text = MIMEText(summary_text)
         summary_text['subject'] = (
@@ -151,11 +168,25 @@ def send_summary(psd_memory, mail_destination):
 
 
 def round_interval(interval):
+    # function rounds the interval to a number that can be divided by 5
     return interval - (interval % 5) if (interval - (interval % 5) > 0) else 5
 
 
 def main(args):
-    MEAN_DAYS_PERIOD = 14
+    """
+    This function orchestrates the whole program, it is the entrypoint to
+    calculate the psd values and to detect all the variations.
+    It also adapts the program's action according to the arguments given by
+    the user.
+
+    Parameters
+    ----------
+    args : namespace
+        contains all the arguments given by the user
+    """
+    # days needed to calculate the upper and lower limits for the variation
+    # detection program
+    MEAN_DAYS_PERIOD = 20
     files = []
     psd_memory = {}
     stations = args.stations
@@ -187,6 +218,7 @@ def main(args):
         args.end_date,
         args.interval
     )
+    # calculate pre start to detect variations
     pre_start = start_date - timedelta(days=MEAN_DAYS_PERIOD)
 
     print(f'Calculating from {start_date} to {end_date}')
@@ -207,11 +239,13 @@ def main(args):
         args.interval,
     )
 
+    # for each station location
     for lcode in tqdm(
         systems.keys(),
         position=0,
         desc='Calculating for each station...'
     ):
+        # for each antenna from a location
         for antenna in systems[lcode].keys():
             sys_id = systems[lcode][antenna]
             requested_date = pre_start
@@ -272,10 +306,14 @@ def main(args):
                     sys_psd = psd_memory[sys_id]
 
                     if sys_in_pre_psd:
+                        # if the psd values was already stored in the database
+                        # and the --overwrite, -o flag is not set
                         if (
                             str_date in pre_psd[sys_id].keys()
                             and not args.overwrite
                         ):
+                            # just take that value and don't calculate the psd
+                            # again
                             noise_psd = pre_psd[sys_id][str_date]['noise']
                             calibrator_psd = (
                                 pre_psd[sys_id][str_date]['calibrator']
@@ -283,6 +321,7 @@ def main(args):
                             calculate = False
 
                     if calculate:
+                        # try to get the wav file
                         try:
                             wav = BramsWavFile(
                                 requested_date,
@@ -301,12 +340,16 @@ def main(args):
                             pbar.update(1)
                             continue
 
+                            # get noise and calibrator psd values
                         noise_psd = Decimal(psd.get_noise_psd(wav))
                         calibrator_psd, calibrator_f = (
                             psd.get_calibrator_psd(wav)
                         )
                         calibrator_psd = Decimal(calibrator_psd)
 
+                        # add those values together with their system_id and
+                        # time to the dictionary that will be inserted into
+                        # the database
                         files.append({
                             "system_id": sys_id,
                             "time": str_date,
@@ -369,14 +412,18 @@ def main(args):
                             sys_psd['warnings']['calibrator'].append(
                                 requested_date.strftime('%Y-%m-%d %H:%M'),
                             )
-
+                    # increase the requested datetime by the interval
                     requested_date += interval_delta
                     pbar.update(1)
 
+    # store the values into the database
     f.insert_psd(files)
+    # generate the summary
     send_summary(psd_memory, args.email)
 
     if args.start_date is None:
+        # generate the program_data.json file for the next time this
+        # monitoring procedure has to be done
         with open('program_data.json', 'w') as json_file:
             json_data = {
                 'previous_date': end_date.strftime('%Y-%m-%d')
@@ -384,6 +431,7 @@ def main(args):
             json.dump(json_data, json_file)
 
     if args.json:
+        # if the option is set, generate debugging json files
         with open('test_data.json', 'w') as json_file:
             json.dump(psd_memory, json_file)
 
@@ -391,6 +439,7 @@ def main(args):
             json.dump(files, json_file)
 
     if args.plot or args.fmin is not None or args.fmax is not None:
+        # if the option is set, generate plots of the calculated psd values
         for i, sys_id in enumerate(psd_memory.keys()):
             generate_plot(
                 psd_memory[sys_id]['x'][pre_psd_length:],
@@ -432,12 +481,45 @@ def generate_plot(
     y_min=None,
     y_max=None,
 ):
+    """
+    Function generates a plot of psd values. It then stores that plot in a png
+    file
+
+    Parameters
+    ----------
+    x : np.array
+        array with x axis values
+    y : np.array
+        array with y axis values
+    im_name : str
+        name of the image
+    width : float, optional
+        width of the generated plot, by default 26.5
+    height : float, optional
+        height of the generated plot, by default 14.4
+    figure_n : int, optional
+        figure number of the plot, by default 0
+    dpi : float, optional
+        dpi of the stored plot image, by default 350.0
+    title : str, optional
+        title of the generated plot, by default ''
+    y_title : str, optional
+        title of the y axis of the plot, by default ''
+    x_title : str, optional
+        title of the x axis of the plot, by default ''
+    y_min : float, optional
+        minimum y value to show, by default None
+    y_max : float, optional
+        maximum y value to show on the plot, by default None
+    """
     if not len(x) or not len(y) or not len(x) == len(y):
         return
 
+    # generate the plot figure with correct dimensions
     plt.figure(num=figure_n, figsize=(width, height), dpi=dpi)
     plt.plot(x, y)
 
+    # set the titles and limits
     axis = plt.gca()
     axis.set_ylim([y_min, y_max])
     plt.title(title)
@@ -449,7 +531,10 @@ def generate_plot(
     else:
         step = 1
 
+    # set the x axis labels
     plt.xticks([i for i in range(0, len(x), step)])
+
+    # generate the plot image
     plt.savefig(f'{im_name}.png')
     plt.close(figure_n)
     print(im_name)

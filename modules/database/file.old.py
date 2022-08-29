@@ -1,3 +1,6 @@
+"""
+* this file is an older version is currently not used
+"""
 import mysql.connector
 
 from . import database as db

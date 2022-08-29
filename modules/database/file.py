@@ -4,7 +4,6 @@ from . import database as db
 from datetime import timezone
 
 
-# TODO : insert or update
 def insert_psd(psd_data):
     """
     Function inserts and/or updates the noise psd value of a set of files.
@@ -50,9 +49,9 @@ def insert_psd(psd_data):
     return return_value
 
 
-# TODO : insert or update
 def insert_calibrator(psd_data):
     """
+    * old function, currently not used
     Function inserts and/or updates the calibrator psd value of a set of files.
     The files it modifies depends on the values received in the
     psd_data array it receives as argument.
@@ -93,9 +92,9 @@ def insert_calibrator(psd_data):
     return return_value
 
 
-# TODO
 def get_previous_noise_psd(stations, start_date, end_date):
     """
+    * curently not used, replaced by get_previous_all_psd
     Function gets last inserted psd values from the database. Then
     number of psd values returned depends on the 'limit' arg.
     It is possible to only get psd value from specific stations,
@@ -167,27 +166,24 @@ def get_previous_noise_psd(stations, start_date, end_date):
 # TODO
 def get_previous_all_psd(stations, start_date, end_date, interval):
     """
-    Function gets the last calibrator psd value from the database
-    for each station.
-    If the get_all flag is set to False, only the calibrator psd
-    values from the stations specified in the stations array will
-    be returned.
+    Function gets all the previous psd values from a given start date to a
+    given end date and respecting a given interval in between each file
 
     Parameters
     ----------
-    stations : list, optional
-        List of stations to get calibrator psd from. This list is
-        ignored if get_all is set to True, by default []
-    get_all : bool, optional
-        determines whether to get the last psd value from all the
-        stations or only the stations specified in the stations
-        list, by default True
+    stations : list
+        list with all the station ids to take psd values from
+    start_date : datetime.datetime
+        date from which to take psd values
+    end_date : datetime.datetime
+        date upto which to take psd values
+    interval : int
+        interval between each file
 
     Returns
     -------
-    dict
-        a dictionary where the system ids are the keys and the values are
-        the calibrator psd values
+    list
+        list with all the psd values structures by station and by date
     """
     arguments = ['%s' for i in range(len(stations))]
     sql_args = [

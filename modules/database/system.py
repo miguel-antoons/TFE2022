@@ -5,7 +5,7 @@ def get_station_ids(stations=[], get_all=True):
     """
     Function receives location codes ('BEHAAC', 'BEGRIM', ...) as argument
     and returns the system_id(s) it finds for a location code (i.e. suppose
-    'BEGRIM' has 2 systems with ids 1 and 2, it will generate a dictionnary
+    'BEGRIM' has 2 systems with ids 1 and 2, it will generate a dictionary
     as follows: {
         'BEGRIM': {
             '1': 1,
@@ -18,14 +18,14 @@ def get_station_ids(stations=[], get_all=True):
     stations : array
         array of the string location codes, defaults to an empty array
     get_all : boolean
-        determines wheter to get all the station ids or only to get those
+        determines wether to get all the station ids or only to get those
         that are part of the location_codes specified in the 'stations'
         array
 
     Returns
     -------
     array
-        array of dictionnaries containing all the system ids of the asked
+        array of dictionaries containing all the system ids of the asked
         location codes.
         The system ids are grouped by location codes and by antenna.
     """

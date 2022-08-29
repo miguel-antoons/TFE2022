@@ -194,13 +194,36 @@ class Spectrogram:
         y_axis_title='Frequency [Hz]',
         title='Modified Spectrogram'
     ):
+        """
+        plot the modified spectrogram contained by this class
+
+        Parameters
+        ----------
+        interval : int, optional
+            frequency interval from the modified spectrogram to show
+            , by default 1000
+        show_all : bool, optional
+            indicates if the user wants to plot the whole spectrogram or not
+            (overrides interval argument), by default False
+        show : bool, optional
+            indicates if the generated plot has to be shown right away or not
+            , by default False
+        x_axis_title : str, optional
+            title of the x axis, by default 'Time [sec]'
+        y_axis_title : str, optional
+            title of the y axis, by default 'Frequency [Hz]'
+        title : str, optional
+            title of the spectrogram plot, by default 'Modified Spectrogram'
+        """
+        # increase the interval if the direct signal is unknown
         if (
             not self.start_transmitter_row
             and interval < (len(self.frequencies) - 200)
         ):
             interval += 200
 
-        # if fmax is not set, set default value
+        # if show_all is set then override the fmin and fmax values in order
+        # to show the whole spectrogram
         if show_all:
             fmin = 0
             fmax = self.sample_frequency / 2
@@ -214,6 +237,7 @@ class Spectrogram:
                 + (interval / 2)
             )
 
+        # show the spectrogram in dB units
         Pxx_DB_modified = 10. * np.log10(self.Pxx_modified)
 
         print('Preparing modified spectrogram figure...')
@@ -239,7 +263,35 @@ class Spectrogram:
         if show:
             self.__show_figures()
 
-    def __get_slice(self, start, end, original_spectrogram=0, get_copy=False):
+    def __get_slice(
+        self,
+        start,
+        end,
+        original_spectrogram=False,
+        get_copy=False
+    ):
+        """
+        Function returns a slice from one of the 2 spectrograms contained in
+        this class
+
+        Parameters
+        ----------
+        start : int
+            start column of the spectrogram slice
+        end : int
+            end column of the spectrogram slice
+        original_spectrogram : bool, optional
+            indicates wether a slice has to be taken from the original or
+            modified spectrogram, by default 0
+        get_copy : bool, optional
+            wether to get an actual slice of the spectrogram or a copy from
+            that slice, by default False
+
+        Returns
+        -------
+        np.array
+            requested slice of the requested spectrogram
+        """
         spectrogram = self.Pxx_modified
 
         # if the start index is below the spectrogram start
@@ -255,7 +307,7 @@ class Spectrogram:
             # set the end value to the last possible spectrogram index
             end = len(self.times) - 1
 
-        if original_spectrogram == 1:
+        if original_spectrogram:
             spectrogram = self.Pxx_DB
 
         # take columns from 'start' to 'end'
@@ -266,9 +318,6 @@ class Spectrogram:
 
         return spectrogram
 
-    """
-        Plot the original spectre
-    """
     def plot_original_spectre(
         self,
         start,
@@ -280,6 +329,29 @@ class Spectrogram:
         ylabel='Signal Strength [dB]',
         title='Original Spectre'
     ):
+        """
+        Function plots the spectre of the original spectrogram.
+
+        Parameters
+        ----------
+        start : int
+            start column of the spectrogram to show the spectre of
+        end : int, optional
+            end column of the spectrogram to show the spectre of
+            , by default None
+        fmin : int, optional
+            minimum frequency to show on the spectre, by default 0
+        fmax : int, optional
+            maximum frequency to show on the spectre, by default None
+        show : bool, optional
+            wether to show the spectre plot right away or not, by default False
+        xlabel : str, optional
+            x axis label, by default 'Frequency [Hz]'
+        ylabel : str, optional
+            y axis label, by default 'Signal Strength [dB]'
+        title : str, optional
+            plot title, by default 'Original Spectre'
+        """
         # if fmax is not set, set default value
         if not fmax:
             fmax = self.sample_frequency / 2
@@ -319,6 +391,30 @@ class Spectrogram:
         ylabel='Signal Strength [dB]',
         title='Modified Spectre'
     ):
+        """
+        function plots the spectre of a slice of the modified spectrogram
+        contained by this class.
+
+        Parameters
+        ----------
+        start : int
+            start column of the spectrogram to show the spectre of
+        end : int, optional
+            end column of the spectrogram to show the spectre of
+            , by default None
+        fmin : int, optional
+            minimum frequency shown on the spectre, by default 0
+        fmax : int, optional
+            maximum frequency shown on the spectre, by default None
+        show : bool, optional
+            wether to show the spectre plot right away or not, by default False
+        xlabel : str, optional
+            x axis label, by default 'Frequency [Hz]'
+        ylabel : str, optional
+            y axis label, by default 'Signal Strength [dB]'
+        title : str, optional
+            plot title, by default 'Modified Spectre'
+        """
         # if fmax is not set, set default value
         if not fmax:
             fmax = self.sample_frequency / 2
@@ -347,23 +443,39 @@ class Spectrogram:
         if show:
             self.__show_figures()
 
-    """
-        Plot figures of this plot
-    """
     def __show_figures(self):
+        """
+        function shows all the generated plots.
+        After the plots are generated it waits for a user input to close the
+        plots
+        """
         print('Showing figure(s)...')
         plt.show(block=False)
-        input('Press any key to end the program...')
+        input('Press any key to close the figures...')
         print('Closing figures...')
         plt.close('all')
 
-    """
-        Set all values of the spectrogram copy to 0 if they
-        are below the mean value of the whole spectrogram. This
-        value can be increased or decreased by altering the
-        filter_coefficient.
-    """
     def filter_low(self, min_value=None, start=0, end=None, filter_all=False):
+        """
+        * currently not used
+        Function filters all the values lower than a given value in the
+        spectrogram slice
+
+        Parameters
+        ----------
+        min_value : float, optional
+            treshold, all the values below this value will be filtered
+            , by default None
+        start : int, optional
+            start column of the spectrogram slice, by default 0
+        end : int, optional
+            end column of the spectrogram slice, by default None
+        filter_all : bool, optional
+            wether to filter the whole spectrogram instead of just a slice
+            (overrides start and end arguments if set to True)
+            , by default False
+        """
+        # if no treshold is given, set a default treshold
         if min_value is None:
             min_value = self.__default_treshold()
 
@@ -373,35 +485,10 @@ class Spectrogram:
 
         spectrogram_slice = self.__get_slice(start, end)
 
-        # set all values below spectrogram_slice_mean * filter_coefficient to 0
+        # set all values below the noise treshold to 0.000001
         spectrogram_slice[
             spectrogram_slice < min_value
-        ] = 1
-
-    def filter_high(
-        self,
-        coefficient=1,
-        start=0,
-        end=None,
-        filter_all=False,
-        max_value=None
-    ):
-        if filter_all:
-            start = 0
-            end = len(self.times) - 1
-
-        if max_value is None:
-            max_value = (
-                (coefficient / 10)
-                * np.mean(self.Pxx[self.max_transmitter_row])
-            )
-
-        spectrogram_slice = self.__get_slice(start, end)
-
-        # set all values below spectrogram_slice_mean * filter_coefficient to 0
-        spectrogram_slice[
-            spectrogram_slice > max_value
-        ] = 1
+        ] = 0.000001
 
     def filter_with_kernel(
         self,
@@ -416,6 +503,30 @@ class Spectrogram:
         ),
         coefficient=1
     ):
+        """
+        Function filters a spectrogram slice with a given filter and applies
+        this filter with a convolution
+
+        Parameters
+        ----------
+        start : int, optional
+            start column of the slice to filter, by default 0
+        end : int, optional
+            end of the spectrogram slice to filter, by default None
+        filter_all : bool, optional
+            wether to filter the whole spectrogram (overrides the start and
+            end argument if set to True), by default False
+        kernel : np.array, optional
+            convolution kernel to filter the spectrogram with
+            , by default np.array(
+                [[0, 1/3, 0],
+                 [0, 1/3, 0],
+                 [0, 1/3, 0]]
+                , dtype=float
+            )
+        coefficient : int, optional
+            number of times the filter has to be applied, by default 1
+        """
         if filter_all:
             spectrogram_slice = self.Pxx_modified
             spectrogram_slice_copy = self.Pxx_modified.copy()
@@ -435,15 +546,41 @@ class Spectrogram:
         spectrogram_slice[:] = spectrogram_slice_copy
 
     def __retrieve_transmitter_signal(self, Pxx, fmin=800, fmax=1200):
+        """
+        Function tries to retrieve the frequency(ies) of the transmitter
+        signal.
+        If the transmitter signal was not found, it returns 1000Hz.
+
+        Parameters
+        ----------
+        Pxx : np.array
+            spectrogram on which the function will try to find the transmitter
+            frequency(ies)
+        fmin : int, optional
+            minimum frequency above which to search for the transmitter signal
+            , by default 800
+        fmax : int, optional
+            maximum frequency below which to search for the transmitter signal
+            , by default 1200
+
+        Returns
+        -------
+        tuple
+            the upper, middle and lower frequency of the transmitter signal
+        """
         same_index = 0
         previous_index = 0
         index = 0
         min_row = round(fmin / self.frequency_resolution)
         max_row = round(fmax / self.frequency_resolution)
 
+        # while there is no row that has the highest value for 50 columns
         while not same_index == 50 and index < len(self.times):
+            # find highest row value of a column
             max_column_index = Pxx[min_row:max_row, index].argmax()
 
+            # check if it is close or the same frequency as the previous
+            # highest value
             if max_column_index in [
                 previous_index - 1, previous_index, previous_index + 1
             ]:
@@ -454,6 +591,7 @@ class Spectrogram:
 
             index += 1
 
+        # if no transmitter signal was found
         if same_index < 50:
             print(
                 'Direct signal was not found, spectrogram will be '
@@ -472,7 +610,24 @@ class Spectrogram:
         )
 
     def __subtract_transmitter_signal(self, Pxx):
+        """
+        Function tries to eliminate the transmitter signal from a given
+        spectrogram
+
+        Parameters
+        ----------
+        Pxx : np.array
+            spectrogram to delete the transmitter signal from
+
+        Returns
+        -------
+        np.array
+            the spectrogram without the transmitter signal
+        """
+        # check if the transmitter signal's frequency is known
         if self.start_transmitter_row:
+            # replace all the transmitter values with the values from the
+            # upper and lower frequencies
             for row in range(
                 self.start_transmitter_row, self.end_transmitter_row + 1
             ):
@@ -495,6 +650,26 @@ class Spectrogram:
         return Pxx
 
     def __binarize_slice(self, treshold, start=0, end=None, spectrogram=None):
+        """
+        Function binarizes a slice of the spectrogram contained by this class.
+        It then returns that binarized slice.
+
+        Parameters
+        ----------
+        treshold : float
+            binarization treshold
+        start : int, optional
+            start of the spectrogram slice, by default 0
+        end : int, optional
+            end of the spectrogram slice, by default None
+        spectrogram : np.array, optional
+            alternative spectrogram to binarize a slice from, by default None
+
+        Returns
+        -------
+        np.array
+            new spectrogram with binarized slice
+        """
         if spectrogram is None:
             spectrogram = self.__get_slice(start, end)
         return np.where(spectrogram > treshold, 1, 0)
@@ -508,10 +683,41 @@ class Spectrogram:
         get_copy=False,
         spectrogram=None
     ):
+        """
+        Function deletes all objects of a  spectrogram slice if the height of
+        those objects is smaller than a given treshold.
+        If necessary, it returns a copy of the spectrogram without the small
+        objects.
+
+        Parameters
+        ----------
+        area_treshold : int
+            height area treshold
+        start : int, optional
+            start of the spectrogram slice, by default 0
+        end : int, optional
+            end of the spectrogram slice, by default None
+        delete_all : bool, optional
+            wether to delete objects from the whole spectrogram (overrides
+            start and end arguments if set to True), by default False
+        get_copy : bool, optional
+            if set to True, the function returns a copy of the spectrogram
+            without the small objects, by default False
+        spectrogram : np.array, optional
+            spectrogram to delete small objects from, by default None
+
+        Returns
+        -------
+        np.array
+            copy of the spectrogram without small objects (only if get_copy is
+            set to True)
+        """
         if delete_all:
             start = 0
             end = len(self.times)
 
+        # if no spectrogram is specified, take the spectrogram contained by
+        # this class
         if spectrogram is None:
             spectrogram_slice = self.__get_slice(start, end)
         else:
@@ -520,18 +726,23 @@ class Spectrogram:
         if get_copy:
             spectrogram_slice = spectrogram_slice.copy()
 
+        # get all the objects within the slice
         objects = self.__get_object_coords(start, end)
 
+        # for each object
         for object in objects:
             height, width = spectrogram_slice[object].shape
 
+            # if the height of the object is smaller than the treshold
             if height < area_treshold:
+                # lower the value of that object
                 spectrogram_slice[object] = 0.0000001
 
         if get_copy:
             return spectrogram_slice
 
     def __create_blocks(self, height=3, width=10, fmin=600, fmax=1400):
+        # * currently not used
         Pxx_copy = np.copy(self.Pxx_modified[
             (self.frequencies >= fmin) & (self.frequencies <= fmax)
         ])
@@ -558,6 +769,7 @@ class Spectrogram:
         )
 
     def __find_noise_value(self):
+        # * currently not used
         pxx_blocks = self.__create_blocks()
         block_info = []
 
@@ -619,13 +831,32 @@ class Spectrogram:
         filter_all=False,
         percentile=95
     ):
+        """
+        function filters all the columns within a given slice of the
+        spectrogram contained by this class by their given percentiles.
+
+        Parameters
+        ----------
+        start : int, optional
+            start of the spectrogram slice, by default 0
+        end : int, optional
+            end of the spectrogram slice, by default None
+        filter_all : bool, optional
+            if set, filters the whole spectrogram (overrides start and end
+            argument if set to True), by default False
+        percentile : int, optional
+            percentile below which values will be filtered, by default 95
+        """
         if filter_all:
             spectrogram_slice = self.Pxx_modified
         else:
             spectrogram_slice = self.__get_slice(start, end)
 
+        # for each column of the given slice
         for column in spectrogram_slice.T:
+            # get the percentile
             column_percentile = np.percentile(column, percentile)
+            # filter all the values below that percentile
             column[column < column_percentile] = 0.001
 
     def get_potential_meteors(
@@ -636,6 +867,32 @@ class Spectrogram:
         broad_start=None,
         broad_end=None
     ):
+        """
+        Function tries to detect meteors on a given spectrogram slice.
+        It returns the structured coordinates of the found meteors.
+
+        Parameters
+        ----------
+        start : int, optional
+            start of the slice to search, by default 0
+        end : int, optional
+            end of the slice to search, by default None
+        get_all : bool, optional
+            indicates if the whole spectrogram has to be searched (overrides
+            start, end, broad_start and broad_end arguments if set to True)
+            , by default False
+        broad_start : int, optional
+            start of the slice from where plane detections can be found
+            , by default None
+        broad_end : int, optional
+            end of the slice upto where plane detections can be found
+            , by default None
+
+        Returns
+        -------
+        list
+            list of objects. Each object contains info of a detected meteor
+        """
         pot_meteors = []
 
         # if the users wants the meteors on the whole spectrogram
@@ -657,23 +914,25 @@ class Spectrogram:
         broad_spectrogram = self.__get_slice(broad_start, broad_end)
         pxx_copy = self.Pxx_modified.copy()
 
+        # for each column delete objects of small height
         for i in range(len(broad_spectrogram.T)):
             self.delete_area(
                 10 / self.frequency_resolution,
                 start=(i + broad_start)
             )
 
+        # get all the objects from the slice to search (from start to end)
         object_coords = self.__get_object_coords(
             start=start,
             end=end,
             get_all=get_all,
         )
-        # print(start, end)
-        # print(spectrogram_copy.shape)
 
         # iterate over all the spectrogram objects
         for object in object_coords:
             total_width = 0
+            # start and stop of the area around the detected meteor to search
+            # for plane echoes
             detection_start = (object[1].start - 22 + start)
             detection_stop = (object[1].stop + 22 + start)
             fmax = object[0].stop + 3
@@ -687,12 +946,15 @@ class Spectrogram:
             if detection_stop > len(self.times):
                 detection_stop = len(self.times) - 1
 
+            # if the object is found below 800 Hz or above 1400Hz it si highly
+            # unlikely to be a meteor
             if (
                 self.frequencies[object[0].start] < 800
                 or self.frequencies[object[0].stop] > 1400
             ):
                 continue
-            # if the object is higher than 60 and smaller than 6
+            # if the object is higher than 60 and smaller than 6, it is highly
+            # likely to be a meteor
             elif pot_meteor_width < 6 and pot_meteor_height > 50:
                 # consider the object as a meteor
                 pot_meteors.append((
@@ -709,7 +971,7 @@ class Spectrogram:
                 column = object[1].start - 1 + start
                 no_objects = 0
                 # iterate over the 20 columns coming before the start of the
-                # current object
+                # current object. This is done in order to detect plan echoes
                 while (
                     column > detection_start
                     and no_objects <= 2
@@ -730,6 +992,8 @@ class Spectrogram:
                             fstart = 0
                             fstop = -4
 
+                            # check if all those objects lay close to each
+                            # other or not
                             for column_object in column_objects:
                                 max_gap = 0.25 * (fmax - fmin)
 
@@ -746,6 +1010,8 @@ class Spectrogram:
                             slice_object = slice(fstart, fstop, None)
 
                         no_objects += 1
+                        # if the objects next to the detected meteor are
+                        # almost as big as the meteor itself
                         if (
                             (slice_object.stop - slice_object.start)
                             > ((fmax - fmin) * 0.7)
@@ -766,21 +1032,27 @@ class Spectrogram:
                 fmin = object[0].start - 3
 
                 # iterate over the 20 columns coming after the stop of the
-                # current object
+                # current object. This is done to detect plane echoes.
                 while (
                     column < detection_stop
                     and no_objects <= 2
                     and total_width < 16
                 ):
+                    # get all the objects of the current column
                     column_objects = self.__get_object_coords(
-                        # spectrogram=self.Pxx_modified[fmin:fmax, column]
                         spectrogram=pxx_copy[fmin:fmax, column]
                     )
+
+                    # if there is an object found
                     if len(column_objects):
                         slice_object = column_objects[0][0]
+
+                        # if there are several objects
                         if len(column_objects) > 1:
                             fstart = 0
                             fstop = -4
+
+                            # check if those objects lay close to each other
                             for column_object in column_objects:
                                 max_gap = 0.25 * (fmax - fmin)
 
@@ -797,6 +1069,7 @@ class Spectrogram:
                             slice_object = slice(fstart, fstop, None)
 
                         no_objects += 1
+                        # if the object is almost as big as the detected meteor
                         if (
                             (slice_object.stop - slice_object.start)
                             > ((fmax - fmin) * 0.7)
@@ -810,6 +1083,8 @@ class Spectrogram:
                         no_objects += 1
                     column += 1
 
+                # if the width of the objects is eventually less than 16
+                # , consider it being a meteor
                 if total_width < 16:
                     pot_meteors.append((
                         object[0],
@@ -819,12 +1094,12 @@ class Spectrogram:
                             None
                         )
                     ))
-            # self.Pxx_modified[pot_meteors[-1][0], pot_meteors[-1][1]] = 100
 
         # * below code is for debugging purposes only
-        for meteor in pot_meteors:
-            self.Pxx_modified[meteor] = 100000000
+        # for meteor in pot_meteors:
+        #     self.Pxx_modified[meteor] = 100000000
 
+        # get all the structured meteor coordinates and return the results
         return self.__get_structured_meteor_coords(pot_meteors)
 
     def __get_object_coords(
@@ -835,18 +1110,60 @@ class Spectrogram:
         treshold=0.01,
         spectrogram=None
     ):
+        """
+        Function retrieves objects within a slice of a spectrogram, it then
+        returns all the coordinates of the found objects
+
+        Parameters
+        ----------
+        start : int, optional
+            start of the slice to search, by default 0
+        end : int, optional
+            end of the slice to search, by default None
+        get_all : bool, optional
+            if set, get objects from the whole spectrogram (overrides start
+            and end arguments of set to True), by default False
+        treshold : float, optional
+            binarization treshold, by default 0.01
+        spectrogram : np.array, optional
+            spectrogram on which to search objects, by default None
+
+        Returns
+        -------
+        array
+            array with the coordinates of all the found objects
+        """
         if get_all:
             start = 0
             end = len(self.times)
 
+        # binarize the spectrogram slice
         bin_spectrogram_slice = self.__binarize_slice(
             treshold, start, end, spectrogram
         )
 
+        # label the binary spectrogram slice
         labeled_spectrogram, num_labels = ndimage.label(bin_spectrogram_slice)
+        # return all the coordinates of the found objects
         return ndimage.find_objects(labeled_spectrogram)
 
     def __get_structured_meteor_coords(self, meteor_slices):
+        """
+        Function generates structures meteor coordinates from meteors slices
+        on the spectrogram.
+        Each meteors will have a t_start and t_stop in seconds and a fmin and
+        fmax in Hz. It will also return the slice of the meteor.
+
+        Parameters
+        ----------
+        meteor_slices : list
+            list of meteor slices
+
+        Returns
+        -------
+        list
+            list with the structures meteor coordinates
+        """
         meteor_coords = []
 
         for meteor_slice in meteor_slices:
@@ -862,7 +1179,24 @@ class Spectrogram:
         return meteor_coords
 
     def get_meteor_specs(self, meteor_coords):
+        """
+        Function tries gets a list of meteor coordinates and tries to find
+        their lower and upper frequencies as precise as possible, it then adds
+        those values to the list it's received and returns the updated meteor
+        coordinates list.
+
+        Parameters
+        ----------
+        meteor_coords : list
+            list with all the meteor coordinates
+
+        Returns
+        -------
+        list
+            update list with the frequency extremities
+        """
         for meteor_info in meteor_coords:
+            # generate an fft of the found meteor's column
             fft_slice = np.zeros(len(self.frequencies))
             for i in range(
                 meteor_info['t_slice'].start,
@@ -870,13 +1204,12 @@ class Spectrogram:
             ):
                 fft_slice += self.Pxx_DB[:, i]
 
-            # noise_value = fft_slice[
-            #     (self.frequencies > 1200) & (self.frequencies < 1350)
-            # ].mean()
+            # filter all values below the 85th percentile of the fft
             noise_percentile = np.percentile(fft_slice, 85)
             min_value = fft_slice.min()
             fft_slice[fft_slice <= noise_percentile] = min_value
 
+            # set the boundaries for finding upper and lower frequency
             min_value_count = 0
             slice_start_index = (
                 meteor_info['f_slice'].start
@@ -918,6 +1251,7 @@ class Spectrogram:
 
                 slice_stop_index += 1
 
+            # add the values to the meteor coordinates list
             meteor_info['f_min'] = self.frequencies[slice_start_index - 1]
             meteor_info['f_max'] = self.frequencies[slice_stop_index - 1]
             meteor_info['t'] = self.times[(
@@ -938,7 +1272,20 @@ class Spectrogram:
         end=None,
         get_all=False
     ):
-        # if the users wants the meteors on the whole spectrogram
+        """
+        Function increases the value of objects within a slice that find
+        themselves above a given treshold and are grater than a certain size.
+
+        Parameters
+        ----------
+        start : int, optional
+            start of the spectrogram slice, by default 0
+        end : int, optional
+            end of the spectrogram slice, by default None
+        get_all : bool, optional
+            is set, apply this function's effect on the whole spectrogram
+            (overrides start and en arguments if set to True), by default False
+        """
         if get_all:
             start = 0
             end = len(self.times)
@@ -949,12 +1296,14 @@ class Spectrogram:
         spectrogram_slice = self.__get_slice(start, end)
 
         for i in range(len(spectrogram_slice.T)):
+            # get objects above the treshold
             object_coords = self.__get_object_coords(
                 start=i + start,
                 get_all=False,
                 treshold=0.002,
             )
 
+            # if the objects are higher than 12 rows, increase their value
             for coords in object_coords:
                 if (coords[0].stop - coords[0].start) > 12:
                     coords_corrected = (
