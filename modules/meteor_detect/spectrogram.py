@@ -593,16 +593,16 @@ class Spectrogram:
 
         # if no transmitter signal was found
         if same_index < 50:
-            print(
-                'Direct signal was not found, spectrogram will be '
-                'shown around default value of 1000 Hz.'
-            )
+            # print(
+            #     'Direct signal was not found, spectrogram will be '
+            #     'shown around default value of 1000 Hz.'
+            # )
             return False, False, round(1000 / self.frequency_resolution)
 
-        print(
-            'Direct signal was found around '
-            f'{(previous_index + min_row) * self.frequency_resolution} Hz.'
-        )
+        # print(
+        #     'Direct signal was found around '
+        #     f'{(previous_index + min_row) * self.frequency_resolution} Hz.'
+        # )
         return (
             (previous_index + min_row - 2),
             (previous_index + min_row + 3),

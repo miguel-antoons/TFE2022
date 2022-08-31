@@ -1,17 +1,3 @@
-#! /usr/bin/env python3
-'''
-noise_psd.py
-
-usage:
-    noise_psd.py <data_path>/RAD_BEDOUR_20211124_1400_BEOUDS_SYS001.wav  -v
-
-
-
-
-written by Michel Anciaux, 25-Mar-2022
-updated by Miguel Antoons, Apr-2022
-
-'''
 import numpy as np
 
 from scipy import signal

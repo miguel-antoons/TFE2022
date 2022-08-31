@@ -99,3 +99,4 @@ def write_csv(
                                 data[loc_code]['distance']
                             ]
                         )
+        print(file_path)

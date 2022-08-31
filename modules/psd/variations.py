@@ -43,8 +43,9 @@ def detect_noise_increase(previous_value, current_value, current_index):
     return False
 
 
-def detect_noise_variations(y_data, current_noise):
+def detect_noise_variations_old(y_data, current_noise):
     """
+    * currently not used
     This function detects high noise variations. It does so by calculating the
     mean and the standard deviation. From those 2 values it creates an upper
     and lower limit. Each noise value that goes beyond those limits will be
@@ -78,7 +79,7 @@ def detect_noise_variations(y_data, current_noise):
         return 0
 
 
-def detect_noise_variations2(y_data, current_noise):
+def detect_noise_variations(y_data, current_noise):
     """
     This function detects high noise variations. It does so by calculating the
     interquartile. From that value it creates an upper and lower limit. Each
@@ -104,19 +105,20 @@ def detect_noise_variations2(y_data, current_noise):
     interquartile = float(q3 - q1)
 
     # calculate the upper and lower limits
-    upper_limit = q3 + (2.4 * interquartile)
-    lower_limit = q1 - (2.4 * interquartile)
+    upper_limit = q3 + (6.0 * interquartile)
+    lower_limit = q1 - (1.5 * interquartile)
 
     if current_noise >= upper_limit:
         return 1
-    elif current_noise <= lower_limit:
+    elif current_noise <= lower_limit or current_noise <= 0:
         return -1
     else:
         return 0
 
 
-def detect_calibrator_variations(y_data, current_calibrator):
+def detect_calibrator_variations_old(y_data, current_calibrator):
     """
+    * currently not used
     This function detects high calibrator variations. It does so by
     calculating the mean and the standard deviation. From those 2 values it
     creates an upper and lower limit. Each calibrator value that goes beyond
@@ -150,7 +152,7 @@ def detect_calibrator_variations(y_data, current_calibrator):
         return 0
 
 
-def detect_calibrator_variations2(y_data, current_calibrator):
+def detect_calibrator_variations(y_data, current_calibrator):
     """
     This function detects high calibrator variations. It does so by
     calculating the interquartile. From that value it creates an upper and
@@ -171,18 +173,18 @@ def detect_calibrator_variations2(y_data, current_calibrator):
         everything is normal
     """
     # get 25th and 75th percentile
-    q1 = np.percentile(y_data, 25, interpolation='lower')
-    q3 = np.percentile(y_data, 75, interpolation='higher')
+    q1 = np.percentile(y_data, 20, interpolation='lower')
+    q3 = np.percentile(y_data, 80, interpolation='higher')
 
     interquartile = float(q3 - q1)
 
     # calculate upper and lower limits
     upper_limit = q3 + (2.5 * interquartile)
-    lower_limit = q1 - (2.5 * interquartile)
+    lower_limit = q1 - (2.0 * interquartile)
 
     if current_calibrator >= upper_limit:
         return 1
-    elif current_calibrator <= lower_limit:
+    elif current_calibrator <= lower_limit or current_calibrator <= 0:
         return -1
     else:
         return 0

@@ -197,6 +197,11 @@ def get_meteor_coords(
                     broad_start=broad_interval_start,
                     broad_end=broad_interval_end,
                 )
+                # spectrogram.plot_original_spectrogram(
+                #     interval=250,
+                #     show=True,
+                #     title=system_file['file_path']
+                # )
                 # spectrogram.plot_modified_spectrogram(
                 #     interval=250,
                 #     show=True,

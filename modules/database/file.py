@@ -163,7 +163,6 @@ def get_previous_noise_psd(stations, start_date, end_date):
     return psd
 
 
-# TODO
 def get_previous_all_psd(stations, start_date, end_date, interval):
     """
     Function gets all the previous psd values from a given start date to a
